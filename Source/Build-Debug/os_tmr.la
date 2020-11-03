@@ -1,0 +1,1182 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+ 205                     ; 121 _NEAR OS_TMR  *OSTmrCreate (INT32U           dly,
+ 205                     ; 122                            INT32U           period,
+ 205                     ; 123                            INT8U            opt,
+ 205                     ; 124                            OS_TMR_CALLBACK  callback,
+ 205                     ; 125                            void            *callback_arg,
+ 205                     ; 126                            INT8U           *pname,
+ 205                     ; 127                            INT8U           *perr)
+ 205                     ; 128 {
+ 206                     	switch	.text
+ 207 faeff               _OSTmrCreate:
+ 209 faeff 3b            	pshd	
+ 210 faf00 34            	pshx	
+ 211 faf01 3b            	pshd	
+ 212       00000002      OFST:	set	2
+ 215                     ; 148     switch (opt) {                                          /* Validate arguments                                     */
+ 217 faf02 e68d          	ldab	OFST+11,s
+ 219 faf04 04011a        	dbeq	b,L12
+ 220 faf07 040104        	dbeq	b,L71
+ 221                     ; 163         default:
+ 221                     ; 164              *perr = OS_ERR_TMR_INVALID_OPT;
+ 223 faf0a c684          	ldab	#132
+ 224                     ; 165              return ((OS_TMR *)0);
+ 227 faf0c 200a          	bra	LC001
+ 228 faf0e               L71:
+ 229                     ; 149         case OS_TMR_OPT_PERIODIC:
+ 229                     ; 150              if (period == 0u) {
+ 231 faf0e ec88          	ldd	OFST+6,s
+ 232 faf10 261b          	bne	L141
+ 233 faf12 ec8a          	ldd	OFST+8,s
+ 234 faf14 2617          	bne	L141
+ 235                     ; 151                  *perr = OS_ERR_TMR_INVALID_PERIOD;
+ 237 faf16 c683          	ldab	#131
+ 238                     ; 152                  return ((OS_TMR *)0);
+ 240 faf18               LC001:
+ 241 faf18 6bf30014      	stab	[OFST+18,s]
+ 242 faf1c 87            	clra	
+ 243 faf1d c7            	clrb	
+ 245 faf1e               L21:
+ 247 faf1e 1b86          	leas	6,s
+ 248 faf20 3d            	rts	
+ 249 faf21               L12:
+ 250                     ; 156         case OS_TMR_OPT_ONE_SHOT:
+ 250                     ; 157              if (dly == 0u) {
+ 252 faf21 ec82          	ldd	OFST+0,s
+ 253 faf23 2608          	bne	L141
+ 254 faf25 ec84          	ldd	OFST+2,s
+ 255 faf27 2604          	bne	L141
+ 256                     ; 158                  *perr = OS_ERR_TMR_INVALID_DLY;
+ 258 faf29 c682          	ldab	#130
+ 259                     ; 159                  return ((OS_TMR *)0);
+ 262 faf2b 20eb          	bra	LC001
+ 263 faf2d               L141:
+ 264                     ; 168     if (OSIntNesting > 0u) {                                /* See if trying to call from an ISR                      */
+ 266 faf2d f61631        	ldab	_OSIntNesting
+ 267 faf30 2704          	beq	L741
+ 268                     ; 169         *perr  = OS_ERR_TMR_ISR;
+ 270 faf32 c68b          	ldab	#139
+ 271                     ; 170         return ((OS_TMR *)0);
+ 274 faf34 20e2          	bra	LC001
+ 275 faf36               L741:
+ 276                     ; 172     OSSchedLock();
+ 278 faf36 16440c        	jsr	_OSSchedLock
+ 280                     ; 173     ptmr = OSTmr_Alloc();                                   /* Obtain a timer from the free pool                      */
+ 282 faf39 167219        	jsr	L3_OSTmr_Alloc
+ 284 faf3c 6c80          	std	OFST-2,s
+ 285                     ; 174     if (ptmr == (OS_TMR *)0) {
+ 287 faf3e 2607          	bne	L151
+ 288                     ; 175         OSSchedUnlock();
+ 290 faf40 164430        	jsr	_OSSchedUnlock
+ 292                     ; 176         *perr = OS_ERR_TMR_NON_AVAIL;
+ 294 faf43 c686          	ldab	#134
+ 295                     ; 177         return ((OS_TMR *)0);
+ 298 faf45 20d1          	bra	LC001
+ 299 faf47               L151:
+ 300                     ; 179     ptmr->OSTmrState       = OS_TMR_STATE_STOPPED;          /* Indicate that timer is not running yet                 */
+ 302 faf47 c601          	ldab	#1
+ 303 faf49 ed80          	ldy	OFST-2,s
+ 304 faf4b 6be816        	stab	22,y
+ 305                     ; 180     ptmr->OSTmrDly         = dly;
+ 307 faf4e 1802844f      	movw	OFST+2,s,15,y
+ 308 faf52 1802824d      	movw	OFST+0,s,13,y
+ 309                     ; 181     ptmr->OSTmrPeriod      = period;
+ 311 faf56 ec8a          	ldd	OFST+8,s
+ 312 faf58 6ce813        	std	19,y
+ 313 faf5b ec88          	ldd	OFST+6,s
+ 314 faf5d 6ce811        	std	17,y
+ 315                     ; 182     ptmr->OSTmrOpt         = opt;
+ 317 faf60 e68d          	ldab	OFST+11,s
+ 318 faf62 6be815        	stab	21,y
+ 319                     ; 183     ptmr->OSTmrCallback    = callback;
+ 321 faf65 18028e41      	movw	OFST+12,s,1,y
+ 322                     ; 184     ptmr->OSTmrCallbackArg = callback_arg;
+ 324 faf69 ecf010        	ldd	OFST+14,s
+ 325 faf6c 6c43          	std	3,y
+ 326                     ; 192     OSSchedUnlock();
+ 328 faf6e 164430        	jsr	_OSSchedUnlock
+ 330                     ; 194     *perr = OS_ERR_NONE;
+ 333 faf71 69f30014      	clr	[OFST+18,s]
+ 334                     ; 195     return (ptmr);
+ 336 faf75 ec80          	ldd	OFST-2,s
+ 338 faf77 20a5          	bra	L21
+ 389                     ; 225 _NEAR BOOLEAN  OSTmrDel (OS_TMR  *ptmr,
+ 389                     ; 226                         INT8U   *perr)
+ 389                     ; 227 {
+ 390                     	switch	.text
+ 391 faf79               _OSTmrDel:
+ 393       00000000      OFST:	set	0
+ 396                     ; 244     if (ptmr == (OS_TMR *)0) {
+ 398 faf79 6cae          	std	2,-s
+ 399 faf7b 2609          	bne	L702
+ 400                     ; 245         *perr = OS_ERR_TMR_INVALID;
+ 402 faf7d c68a          	ldab	#138
+ 403 faf7f 6bf30004      	stab	[OFST+4,s]
+ 404                     ; 246         return (OS_FALSE);
+ 406 faf83 c7            	clrb	
+ 409 faf84 31            	puly	
+ 410 faf85 3d            	rts	
+ 411 faf86               L702:
+ 412                     ; 252     if (ptmr->OSTmrType != OS_TMR_TYPE) {                   /* Validate timer structure                               */
+ 415 faf86 e6f30000      	ldab	[OFST+0,s]
+ 416 faf8a c164          	cmpb	#100
+ 417 faf8c 2709          	beq	L112
+ 418                     ; 253         *perr = OS_ERR_TMR_INVALID_TYPE;
+ 420 faf8e c689          	ldab	#137
+ 421 faf90 6bf30004      	stab	[OFST+4,s]
+ 422                     ; 255         return (OS_FALSE);
+ 425 faf94 c7            	clrb	
+ 428 faf95 31            	puly	
+ 429 faf96 3d            	rts	
+ 430 faf97               L112:
+ 431                     ; 257     if (OSIntNesting > 0u) {                                /* See if trying to call from an ISR                      */
+ 433 faf97 f61631        	ldab	_OSIntNesting
+ 434 faf9a 2709          	beq	L312
+ 435                     ; 258         *perr  = OS_ERR_TMR_ISR;
+ 437 faf9c c68b          	ldab	#139
+ 438 faf9e 6bf30004      	stab	[OFST+4,s]
+ 439                     ; 260         return (OS_FALSE);
+ 442 fafa2 c7            	clrb	
+ 445 fafa3 31            	puly	
+ 446 fafa4 3d            	rts	
+ 447 fafa5               L312:
+ 448                     ; 262     OSSchedLock();
+ 450 fafa5 16440c        	jsr	_OSSchedLock
+ 452                     ; 263     switch (ptmr->OSTmrState) {
+ 454 fafa8 ed80          	ldy	OFST+0,s
+ 455 fafaa e6e816        	ldab	22,y
+ 457 fafad 273a          	beq	L751
+ 458 fafaf 040127        	dbeq	b,L551
+ 459 fafb2 040124        	dbeq	b,L551
+ 460 fafb5 04010c        	dbeq	b,L351
+ 461                     ; 286         default:
+ 461                     ; 287              OSSchedUnlock();
+ 463 fafb8 164430        	jsr	_OSSchedUnlock
+ 465                     ; 288              *perr = OS_ERR_TMR_INVALID_STATE;
+ 467 fafbb c68d          	ldab	#141
+ 468 fafbd 6bf30004      	stab	[OFST+4,s]
+ 469                     ; 290              return (OS_FALSE);
+ 472 fafc1 c7            	clrb	
+ 475 fafc2 31            	puly	
+ 476 fafc3 3d            	rts	
+ 477 fafc4               L351:
+ 478                     ; 264         case OS_TMR_STATE_RUNNING:
+ 478                     ; 265              OSTmr_Unlink(ptmr);                            /* Remove from current wheel spoke                        */
+ 480 fafc4 b764          	tfr	y,d
+ 481 fafc6 1673c1        	jsr	L31_OSTmr_Unlink
+ 483                     ; 266              OSTmr_Free(ptmr);                              /* Return timer to free list of timers                    */
+ 485 fafc9 ec80          	ldd	OFST+0,s
+ 486 fafcb 167242        	jsr	L5_OSTmr_Free
+ 488                     ; 267              OSSchedUnlock();
+ 490 fafce 164430        	jsr	_OSSchedUnlock
+ 492                     ; 268              *perr = OS_ERR_NONE;
+ 494 fafd1 69f30004      	clr	[OFST+4,s]
+ 495                     ; 270              return (OS_TRUE);
+ 498 fafd5 c601          	ldab	#1
+ 501 fafd7 31            	puly	
+ 502 fafd8 3d            	rts	
+ 503 fafd9               L551:
+ 504                     ; 272         case OS_TMR_STATE_STOPPED:                          /* Timer has not started or ...                           */
+ 504                     ; 273         case OS_TMR_STATE_COMPLETED:                        /* ... timer has completed the ONE-SHOT time              */
+ 504                     ; 274              OSTmr_Free(ptmr);                              /* Return timer to free list of timers                    */
+ 506 fafd9 b764          	tfr	y,d
+ 507 fafdb 167242        	jsr	L5_OSTmr_Free
+ 509                     ; 275              OSSchedUnlock();
+ 511 fafde 164430        	jsr	_OSSchedUnlock
+ 513                     ; 276              *perr = OS_ERR_NONE;
+ 515 fafe1 69f30004      	clr	[OFST+4,s]
+ 516                     ; 278              return (OS_TRUE);
+ 519 fafe5 c601          	ldab	#1
+ 522 fafe7 31            	puly	
+ 523 fafe8 3d            	rts	
+ 524 fafe9               L751:
+ 525                     ; 280         case OS_TMR_STATE_UNUSED:                           /* Already deleted                                        */
+ 525                     ; 281              OSSchedUnlock();
+ 527 fafe9 164430        	jsr	_OSSchedUnlock
+ 529                     ; 282              *perr = OS_ERR_TMR_INACTIVE;
+ 531 fafec c687          	ldab	#135
+ 532 fafee 6bf30004      	stab	[OFST+4,s]
+ 533                     ; 284              return (OS_FALSE);
+ 536 faff2 c7            	clrb	
+ 539 faff3 31            	puly	
+ 540 faff4 3d            	rts	
+ 597                     ; 400 _NEAR INT32U  OSTmrRemainGet (OS_TMR  *ptmr,
+ 597                     ; 401                              INT8U   *perr)
+ 597                     ; 402 {
+ 598                     	switch	.text
+ 599 faff5               _OSTmrRemainGet:
+ 601 faff5 3b            	pshd	
+ 602 faff6 1b9c          	leas	-4,s
+ 603       00000004      OFST:	set	4
+ 606                     ; 414     if (ptmr == (OS_TMR *)0) {
+ 608 faff8 046404        	tbne	d,L562
+ 609                     ; 415         *perr = OS_ERR_TMR_INVALID;
+ 611 faffb c68a          	ldab	#138
+ 612                     ; 416         return (0u);
+ 615 faffd 200a          	bra	LC002
+ 616 fafff               L562:
+ 617                     ; 419     if (ptmr->OSTmrType != OS_TMR_TYPE) {              /* Validate timer structure                                    */
+ 619 fafff e6f30004      	ldab	[OFST+0,s]
+ 620 fb003 c164          	cmpb	#100
+ 621 fb005 270d          	beq	L762
+ 622                     ; 420         *perr = OS_ERR_TMR_INVALID_TYPE;
+ 624 fb007 c689          	ldab	#137
+ 625                     ; 421         return (0u);
+ 627 fb009               LC002:
+ 628 fb009 6bf30008      	stab	[OFST+4,s]
+ 629 fb00d 87            	clra	
+ 630 fb00e c7            	clrb	
+ 631 fb00f b745          	tfr	d,x
+ 633 fb011               L22:
+ 635 fb011 1b86          	leas	6,s
+ 636 fb013 3d            	rts	
+ 637 fb014               L762:
+ 638                     ; 423     if (OSIntNesting > 0u) {                           /* See if trying to call from an ISR                           */
+ 640 fb014 f61631        	ldab	_OSIntNesting
+ 641 fb017 2704          	beq	L172
+ 642                     ; 424         *perr = OS_ERR_TMR_ISR;
+ 644 fb019 c68b          	ldab	#139
+ 645                     ; 425         return (0u);
+ 648 fb01b 20ec          	bra	LC002
+ 649 fb01d               L172:
+ 650                     ; 427     OSSchedLock();
+ 652 fb01d 16440c        	jsr	_OSSchedLock
+ 654                     ; 428     switch (ptmr->OSTmrState) {
+ 656 fb020 ed84          	ldy	OFST+0,s
+ 657 fb022 e6e816        	ldab	22,y
+ 659 fb025 276b          	beq	L332
+ 660 fb027 040128        	dbeq	b,L322
+ 661 fb02a 040157        	dbeq	b,L132
+ 662 fb02d 040107        	dbeq	b,L122
+ 663                     ; 466         default:
+ 663                     ; 467              OSSchedUnlock();
+ 665 fb030 164430        	jsr	_OSSchedUnlock
+ 667                     ; 468              *perr = OS_ERR_TMR_INVALID_STATE;
+ 669 fb033 c68d          	ldab	#141
+ 670                     ; 469              return (0u);
+ 673 fb035 20d2          	bra	LC002
+ 674 fb037               L122:
+ 675                     ; 429         case OS_TMR_STATE_RUNNING:
+ 675                     ; 430              remain = ptmr->OSTmrMatch - OSTmrTime;    /* Determine how much time is left to timeout                  */
+ 677 fb037 ec4b          	ldd	11,y
+ 678 fb039 ee49          	ldx	9,y
+ 679 fb03b cd139a        	ldy	#_OSTmrTime
+ 680 fb03e 16c00e        	jsr	c_lsub
+ 682 fb041 6c82          	std	OFST-2,s
+ 683 fb043 6e80          	stx	OFST-4,s
+ 684                     ; 431              OSSchedUnlock();
+ 686 fb045 164430        	jsr	_OSSchedUnlock
+ 688                     ; 432              *perr  = OS_ERR_NONE;
+ 690 fb048 69f30008      	clr	[OFST+4,s]
+ 691                     ; 433              return (remain);
+ 693 fb04c ec82          	ldd	OFST-2,s
+ 694 fb04e ee80          	ldx	OFST-4,s
+ 696 fb050 20bf          	bra	L22
+ 697 fb052               L322:
+ 698                     ; 435         case OS_TMR_STATE_STOPPED:                     /* It's assumed that the timer has not started yet             */
+ 698                     ; 436              switch (ptmr->OSTmrOpt) {
+ 700 fb052 e6e815        	ldab	21,y
+ 702 fb055 040117        	dbeq	b,L722
+ 703 fb058 042114        	dbne	b,L722
+ 704                     ; 437                  case OS_TMR_OPT_PERIODIC:
+ 704                     ; 438                       if (ptmr->OSTmrDly == 0u) {
+ 706 fb05b ec4d          	ldd	13,y
+ 707 fb05d 260e          	bne	L303
+ 708 fb05f ec4f          	ldd	15,y
+ 709 fb061 260a          	bne	L303
+ 710                     ; 439                           remain = ptmr->OSTmrPeriod;
+ 712 fb063 ece813        	ldd	19,y
+ 713 fb066 6c82          	std	OFST-2,s
+ 714 fb068 ece811        	ldd	17,y
+ 716 fb06b 2008          	bra	L103
+ 717 fb06d               L303:
+ 718                     ; 441                           remain = ptmr->OSTmrDly;
+ 720 fb06d ed84          	ldy	OFST+0,s
+ 721                     ; 443                       OSSchedUnlock();
+ 724                     ; 444                       *perr  = OS_ERR_NONE;
+ 726                     ; 445                       break;
+ 728 fb06f               L722:
+ 729                     ; 447                  case OS_TMR_OPT_ONE_SHOT:
+ 729                     ; 448                  default:
+ 729                     ; 449                       remain = ptmr->OSTmrDly;
+ 731 fb06f 18024f82      	movw	15,y,OFST-2,s
+ 732 fb073 ec4d          	ldd	13,y
+ 733                     ; 450                       OSSchedUnlock();
+ 736                     ; 451                       *perr  = OS_ERR_NONE;
+ 738                     ; 452                       break;
+ 740 fb075               L103:
+ 741 fb075 6c80          	std	OFST-4,s
+ 742 fb077 164430        	jsr	_OSSchedUnlock
+ 743 fb07a 69f30008      	clr	[OFST+4,s]
+ 744                     ; 454              return (remain);
+ 746 fb07e ec82          	ldd	OFST-2,s
+ 747 fb080 ee80          	ldx	OFST-4,s
+ 749 fb082 200b          	bra	L42
+ 750 fb084               L132:
+ 751                     ; 456         case OS_TMR_STATE_COMPLETED:                   /* Only ONE-SHOT that timed out can be in this state           */
+ 751                     ; 457              OSSchedUnlock();
+ 753 fb084 164430        	jsr	_OSSchedUnlock
+ 755                     ; 458              *perr = OS_ERR_NONE;
+ 757 fb087 c7            	clrb	
+ 758 fb088 6bf30008      	stab	[OFST+4,s]
+ 759                     ; 459              return (0u);
+ 761 fb08c 87            	clra	
+ 762 fb08d               LC003:
+ 763 fb08d b745          	tfr	d,x
+ 765 fb08f               L42:
+ 767 fb08f 1b86          	leas	6,s
+ 768 fb091 3d            	rts	
+ 769 fb092               L332:
+ 770                     ; 461         case OS_TMR_STATE_UNUSED:
+ 770                     ; 462              OSSchedUnlock();
+ 772 fb092 164430        	jsr	_OSSchedUnlock
+ 774                     ; 463              *perr = OS_ERR_TMR_INACTIVE;
+ 776 fb095 c687          	ldab	#135
+ 777 fb097 6bf30008      	stab	[OFST+4,s]
+ 778                     ; 464              return (0u);
+ 780 fb09b 87            	clra	
+ 781 fb09c c7            	clrb	
+ 783 fb09d 20ee          	bra	LC003
+ 839                     ; 501 _NEAR INT8U  OSTmrStateGet (OS_TMR  *ptmr,
+ 839                     ; 502                            INT8U   *perr)
+ 839                     ; 503 {
+ 840                     	switch	.text
+ 841 fb09f               _OSTmrStateGet:
+ 843 fb09f 3b            	pshd	
+ 844 fb0a0 37            	pshb	
+ 845       00000001      OFST:	set	1
+ 848                     ; 515     if (ptmr == (OS_TMR *)0) {
+ 850 fb0a1 046404        	tbne	d,L143
+ 851                     ; 516         *perr = OS_ERR_TMR_INVALID;
+ 853 fb0a4 c68a          	ldab	#138
+ 854                     ; 517         return (0u);
+ 857 fb0a6 200a          	bra	LC005
+ 858 fb0a8               L143:
+ 859                     ; 520     if (ptmr->OSTmrType != OS_TMR_TYPE) {              /* Validate timer structure                                    */
+ 861 fb0a8 e6f30001      	ldab	[OFST+0,s]
+ 862 fb0ac c164          	cmpb	#100
+ 863 fb0ae 270a          	beq	L343
+ 864                     ; 521         *perr = OS_ERR_TMR_INVALID_TYPE;
+ 866 fb0b0 c689          	ldab	#137
+ 867                     ; 522         return (0u);
+ 869 fb0b2               LC005:
+ 870 fb0b2 6bf30005      	stab	[OFST+4,s]
+ 871 fb0b6 c7            	clrb	
+ 873 fb0b7               L03:
+ 875 fb0b7 1b83          	leas	3,s
+ 876 fb0b9 3d            	rts	
+ 877 fb0ba               L343:
+ 878                     ; 524     if (OSIntNesting > 0u) {                           /* See if trying to call from an ISR                           */
+ 880 fb0ba f61631        	ldab	_OSIntNesting
+ 881 fb0bd 2704          	beq	L543
+ 882                     ; 525         *perr = OS_ERR_TMR_ISR;
+ 884 fb0bf c68b          	ldab	#139
+ 885                     ; 526         return (0u);
+ 888 fb0c1 20ef          	bra	LC005
+ 889 fb0c3               L543:
+ 890                     ; 528     OSSchedLock();
+ 892 fb0c3 16440c        	jsr	_OSSchedLock
+ 894                     ; 529     state = ptmr->OSTmrState;
+ 896 fb0c6 ed81          	ldy	OFST+0,s
+ 897 fb0c8 e6e816        	ldab	22,y
+ 898 fb0cb 6b80          	stab	OFST-1,s
+ 899                     ; 530     switch (state) {
+ 902 fb0cd 2711          	beq	L703
+ 903 fb0cf 04010e        	dbeq	b,L703
+ 904 fb0d2 04010b        	dbeq	b,L703
+ 905 fb0d5 040108        	dbeq	b,L703
+ 906                     ; 538         default:
+ 906                     ; 539              *perr = OS_ERR_TMR_INVALID_STATE;
+ 908 fb0d8 c68d          	ldab	#141
+ 909 fb0da 6bf30005      	stab	[OFST+4,s]
+ 910                     ; 540              break;
+ 912 fb0de 2004          	bra	L153
+ 913 fb0e0               L703:
+ 914                     ; 531         case OS_TMR_STATE_UNUSED:
+ 914                     ; 532         case OS_TMR_STATE_STOPPED:
+ 914                     ; 533         case OS_TMR_STATE_COMPLETED:
+ 914                     ; 534         case OS_TMR_STATE_RUNNING:
+ 914                     ; 535              *perr = OS_ERR_NONE;
+ 916 fb0e0 69f30005      	clr	[OFST+4,s]
+ 917                     ; 536              break;
+ 919 fb0e4               L153:
+ 920                     ; 542     OSSchedUnlock();
+ 922 fb0e4 164430        	jsr	_OSSchedUnlock
+ 924                     ; 543     return (state);
+ 926 fb0e7 e680          	ldab	OFST-1,s
+ 928 fb0e9 20cc          	bra	L03
+ 979                     ; 570 _NEAR BOOLEAN  OSTmrStart (OS_TMR   *ptmr,
+ 979                     ; 571                           INT8U    *perr)
+ 979                     ; 572 {
+ 980                     	switch	.text
+ 981 fb0eb               _OSTmrStart:
+ 983       00000000      OFST:	set	0
+ 986                     ; 581     if (ptmr == (OS_TMR *)0) {
+ 988 fb0eb 6cae          	std	2,-s
+ 989 fb0ed 2609          	bne	L704
+ 990                     ; 582         *perr = OS_ERR_TMR_INVALID;
+ 992 fb0ef c68a          	ldab	#138
+ 993 fb0f1 6bf30004      	stab	[OFST+4,s]
+ 994                     ; 583         return (OS_FALSE);
+ 996 fb0f5 c7            	clrb	
+ 999 fb0f6 31            	puly	
+1000 fb0f7 3d            	rts	
+1001 fb0f8               L704:
+1002                     ; 589     if (ptmr->OSTmrType != OS_TMR_TYPE) {                   /* Validate timer structure                               */
+1005 fb0f8 e6f30000      	ldab	[OFST+0,s]
+1006 fb0fc c164          	cmpb	#100
+1007 fb0fe 2709          	beq	L114
+1008                     ; 590         *perr = OS_ERR_TMR_INVALID_TYPE;
+1010 fb100 c689          	ldab	#137
+1011 fb102 6bf30004      	stab	[OFST+4,s]
+1012                     ; 592         return (OS_FALSE);
+1015 fb106 c7            	clrb	
+1018 fb107 31            	puly	
+1019 fb108 3d            	rts	
+1020 fb109               L114:
+1021                     ; 594     if (OSIntNesting > 0u) {                                /* See if trying to call from an ISR                      */
+1023 fb109 f61631        	ldab	_OSIntNesting
+1024 fb10c 2709          	beq	L314
+1025                     ; 595         *perr  = OS_ERR_TMR_ISR;
+1027 fb10e c68b          	ldab	#139
+1028 fb110 6bf30004      	stab	[OFST+4,s]
+1029                     ; 597         return (OS_FALSE);
+1032 fb114 c7            	clrb	
+1035 fb115 31            	puly	
+1036 fb116 3d            	rts	
+1037 fb117               L314:
+1038                     ; 599     OSSchedLock();
+1040 fb117 16440c        	jsr	_OSSchedLock
+1042                     ; 600     switch (ptmr->OSTmrState) {
+1044 fb11a ed80          	ldy	OFST+0,s
+1045 fb11c e6e816        	ldab	22,y
+1047 fb11f 2744          	beq	L753
+1048 fb121 04012c        	dbeq	b,L553
+1049 fb124 040129        	dbeq	b,L553
+1050 fb127 04010c        	dbeq	b,L353
+1051                     ; 623         default:
+1051                     ; 624              OSSchedUnlock();
+1053 fb12a 164430        	jsr	_OSSchedUnlock
+1055                     ; 625              *perr = OS_ERR_TMR_INVALID_STATE;
+1057 fb12d c68d          	ldab	#141
+1058 fb12f 6bf30004      	stab	[OFST+4,s]
+1059                     ; 627              return (OS_FALSE);
+1062 fb133 c7            	clrb	
+1065 fb134 31            	puly	
+1066 fb135 3d            	rts	
+1067 fb136               L353:
+1068                     ; 601         case OS_TMR_STATE_RUNNING:                          /* Restart the timer                                      */
+1068                     ; 602              OSTmr_Unlink(ptmr);                            /* ... Stop the timer                                     */
+1070 fb136 b764          	tfr	y,d
+1071 fb138 1673c1        	jsr	L31_OSTmr_Unlink
+1073                     ; 603              OSTmr_Link(ptmr, OS_TMR_LINK_DLY);             /* ... Link timer to timer wheel                          */
+1075 fb13b 87            	clra	
+1076 fb13c c7            	clrb	
+1077 fb13d 3b            	pshd	
+1078 fb13e ec82          	ldd	OFST+2,s
+1079 fb140 167359        	jsr	L11_OSTmr_Link
+1081 fb143 1b82          	leas	2,s
+1082                     ; 604              OSSchedUnlock();
+1084 fb145 164430        	jsr	_OSSchedUnlock
+1086                     ; 605              *perr = OS_ERR_NONE;
+1088 fb148 69f30004      	clr	[OFST+4,s]
+1089                     ; 607              return (OS_TRUE);
+1092 fb14c c601          	ldab	#1
+1095 fb14e 31            	puly	
+1096 fb14f 3d            	rts	
+1097 fb150               L553:
+1098                     ; 609         case OS_TMR_STATE_STOPPED:                          /* Start the timer                                        */
+1098                     ; 610         case OS_TMR_STATE_COMPLETED:
+1098                     ; 611              OSTmr_Link(ptmr, OS_TMR_LINK_DLY);             /* ... Link timer to timer wheel                          */
+1100 fb150 87            	clra	
+1101 fb151 c7            	clrb	
+1102 fb152 3b            	pshd	
+1103 fb153 b764          	tfr	y,d
+1104 fb155 167359        	jsr	L11_OSTmr_Link
+1106 fb158 1b82          	leas	2,s
+1107                     ; 612              OSSchedUnlock();
+1109 fb15a 164430        	jsr	_OSSchedUnlock
+1111                     ; 613              *perr = OS_ERR_NONE;
+1113 fb15d 69f30004      	clr	[OFST+4,s]
+1114                     ; 615              return (OS_TRUE);
+1117 fb161 c601          	ldab	#1
+1120 fb163 31            	puly	
+1121 fb164 3d            	rts	
+1122 fb165               L753:
+1123                     ; 617         case OS_TMR_STATE_UNUSED:                           /* Timer not created                                      */
+1123                     ; 618              OSSchedUnlock();
+1125 fb165 164430        	jsr	_OSSchedUnlock
+1127                     ; 619              *perr = OS_ERR_TMR_INACTIVE;
+1129 fb168 c687          	ldab	#135
+1130 fb16a 6bf30004      	stab	[OFST+4,s]
+1131                     ; 621              return (OS_FALSE);
+1134 fb16e c7            	clrb	
+1137 fb16f 31            	puly	
+1138 fb170 3d            	rts	
+1216                     ; 671 _NEAR BOOLEAN  OSTmrStop (OS_TMR  *ptmr,
+1216                     ; 672                          INT8U    opt,
+1216                     ; 673                          void    *callback_arg,
+1216                     ; 674                          INT8U   *perr)
+1216                     ; 675 {
+1217                     	switch	.text
+1218 fb171               _OSTmrStop:
+1220 fb171 3b            	pshd	
+1221       00000002      OFST:	set	2
+1224                     ; 687     if (ptmr == (OS_TMR *)0) {
+1226 fb172 6cae          	std	2,-s
+1227 fb174 2604          	bne	L774
+1228                     ; 688         *perr = OS_ERR_TMR_INVALID;
+1230 fb176 c68a          	ldab	#138
+1231                     ; 689         return (OS_FALSE);
+1234 fb178 200a          	bra	L63
+1235 fb17a               L774:
+1236                     ; 695     if (ptmr->OSTmrType != OS_TMR_TYPE) {                         /* Validate timer structure                         */
+1239 fb17a e6f30002      	ldab	[OFST+0,s]
+1240 fb17e c164          	cmpb	#100
+1241 fb180 270a          	beq	L105
+1242                     ; 696         *perr = OS_ERR_TMR_INVALID_TYPE;
+1244 fb182 c689          	ldab	#137
+1245                     ; 698         return (OS_FALSE);
+1249 fb184               L63:
+1250 fb184 6bf3000a      	stab	[OFST+8,s]
+1251 fb188 c7            	clrb	
+1253 fb189 1b84          	leas	4,s
+1254 fb18b 3d            	rts	
+1255 fb18c               L105:
+1256                     ; 700     if (OSIntNesting > 0u) {                                      /* See if trying to call from an ISR                */
+1258 fb18c f61631        	ldab	_OSIntNesting
+1259 fb18f 2704          	beq	L305
+1260                     ; 701         *perr  = OS_ERR_TMR_ISR;
+1262 fb191 c68b          	ldab	#139
+1263                     ; 703         return (OS_FALSE);
+1267 fb193 20ef          	bra	L63
+1268 fb195               L305:
+1269                     ; 705     OSSchedLock();
+1271 fb195 16440c        	jsr	_OSSchedLock
+1273                     ; 706     switch (ptmr->OSTmrState) {
+1275 fb198 ed82          	ldy	OFST+0,s
+1276 fb19a e6e816        	ldab	22,y
+1278 fb19d 2764          	beq	L534
+1279 fb19f 040153        	dbeq	b,L334
+1280 fb1a2 040150        	dbeq	b,L334
+1281 fb1a5 040107        	dbeq	b,L124
+1282                     ; 753         default:
+1282                     ; 754              OSSchedUnlock();
+1284 fb1a8 164430        	jsr	_OSSchedUnlock
+1286                     ; 755              *perr = OS_ERR_TMR_INVALID_STATE;
+1288 fb1ab c68d          	ldab	#141
+1289                     ; 757              return (OS_FALSE);
+1293 fb1ad 20d5          	bra	L63
+1294 fb1af               L124:
+1295                     ; 707         case OS_TMR_STATE_RUNNING:
+1295                     ; 708              OSTmr_Unlink(ptmr);                                  /* Remove from current wheel spoke                  */
+1297 fb1af b764          	tfr	y,d
+1298 fb1b1 1673c1        	jsr	L31_OSTmr_Unlink
+1300                     ; 709              *perr = OS_ERR_NONE;
+1302 fb1b4 ed8a          	ldy	OFST+8,s
+1303 fb1b6 6940          	clr	0,y
+1304                     ; 710              switch (opt) {
+1306 fb1b8 e687          	ldab	OFST+5,s
+1308 fb1ba 2734          	beq	L315
+1309 fb1bc c003          	subb	#3
+1310 fb1be 2709          	beq	L324
+1311 fb1c0 040112        	dbeq	b,L524
+1312                     ; 732                  default:
+1312                     ; 733                      *perr = OS_ERR_TMR_INVALID_OPT;
+1314 fb1c3 c684          	ldab	#132
+1315 fb1c5 6b40          	stab	0,y
+1316                     ; 734                      break;
+1318 fb1c7 2027          	bra	L315
+1319 fb1c9               L324:
+1320                     ; 711                  case OS_TMR_OPT_CALLBACK:
+1320                     ; 712                       pfnct = ptmr->OSTmrCallback;                /* Execute callback function if available ...       */
+1322 fb1c9 ed82          	ldy	OFST+0,s
+1323 fb1cb ec41          	ldd	1,y
+1324 fb1cd 6c80          	std	OFST-2,s
+1325                     ; 713                       if (pfnct != (OS_TMR_CALLBACK)0) {
+1327 fb1cf 2719          	beq	L125
+1328                     ; 714                           (*pfnct)((void *)ptmr, ptmr->OSTmrCallbackArg);  /* Use callback arg when timer was created */
+1330 fb1d1 ec43          	ldd	3,y
+1333 fb1d3 200a          	bra	LC007
+1334                     ; 716                           *perr = OS_ERR_TMR_NO_CALLBACK;
+1336 fb1d5               L524:
+1337                     ; 720                  case OS_TMR_OPT_CALLBACK_ARG:
+1337                     ; 721                       pfnct = ptmr->OSTmrCallback;                /* Execute callback function if available ...       */
+1339 fb1d5 ed82          	ldy	OFST+0,s
+1340 fb1d7 ec41          	ldd	1,y
+1341 fb1d9 6c80          	std	OFST-2,s
+1342                     ; 722                       if (pfnct != (OS_TMR_CALLBACK)0) {
+1344 fb1db 270d          	beq	L125
+1345                     ; 723                           (*pfnct)((void *)ptmr, callback_arg);   /* ... using the 'callback_arg' provided in call    */
+1347 fb1dd ec88          	ldd	OFST+6,s
+1349 fb1df               LC007:
+1350 fb1df 3b            	pshd	
+1351 fb1e0 ec84          	ldd	OFST+2,s
+1352 fb1e2 15f30002      	jsr	[OFST+0,s]
+1353 fb1e6 1b82          	leas	2,s
+1355 fb1e8 2006          	bra	L315
+1356 fb1ea               L125:
+1357                     ; 725                           *perr = OS_ERR_TMR_NO_CALLBACK;
+1359 fb1ea c68f          	ldab	#143
+1360 fb1ec 6bf3000a      	stab	[OFST+8,s]
+1361 fb1f0               L315:
+1362                     ; 736              OSSchedUnlock();
+1364 fb1f0 164430        	jsr	_OSSchedUnlock
+1366                     ; 738              return (OS_TRUE);
+1370 fb1f3 2009          	bra	LC008
+1371 fb1f5               L334:
+1372                     ; 740         case OS_TMR_STATE_COMPLETED:                              /* Timer has already completed the ONE-SHOT or ...  */
+1372                     ; 741         case OS_TMR_STATE_STOPPED:                                /* ... timer has not started yet.                   */
+1372                     ; 742              OSSchedUnlock();
+1374 fb1f5 164430        	jsr	_OSSchedUnlock
+1376                     ; 743              *perr = OS_ERR_TMR_STOPPED;
+1378 fb1f8 c68e          	ldab	#142
+1379 fb1fa 6bf3000a      	stab	[OFST+8,s]
+1380                     ; 745              return (OS_TRUE);
+1383 fb1fe               LC008:
+1384 fb1fe c601          	ldab	#1
+1386 fb200               L04:
+1388 fb200 1b84          	leas	4,s
+1389 fb202 3d            	rts	
+1390 fb203               L534:
+1391                     ; 747         case OS_TMR_STATE_UNUSED:                                 /* Timer was not created                            */
+1391                     ; 748              OSSchedUnlock();
+1393 fb203 164430        	jsr	_OSSchedUnlock
+1395                     ; 749              *perr = OS_ERR_TMR_INACTIVE;
+1397 fb206 c687          	ldab	#135
+1398 fb208 6bf3000a      	stab	[OFST+8,s]
+1399                     ; 751              return (OS_FALSE);
+1402 fb20c c7            	clrb	
+1404 fb20d 20f1          	bra	L04
+1437                     ; 783 _NEAR INT8U  OSTmrSignal (void)
+1437                     ; 784 {
+1438                     	switch	.text
+1439 fb20f               _OSTmrSignal:
+1441 fb20f 37            	pshb	
+1442       00000001      OFST:	set	1
+1445                     ; 788     err = OSSemPost(OSTmrSemSignal);
+1447 fb210 fc1396        	ldd	_OSTmrSemSignal
+1448 fb213 1665ac        	jsr	_OSSemPost
+1450                     ; 789     return (err);
+1454 fb216 1b81          	leas	1,s
+1455 fb218 3d            	rts	
+1497                     ; 807 static  OS_TMR  *OSTmr_Alloc (void)
+1497                     ; 808 {
+1498                     	switch	.text
+1499 fb219               L3_OSTmr_Alloc:
+1501 fb219 3b            	pshd	
+1502       00000002      OFST:	set	2
+1505                     ; 812     if (OSTmrFreeList == (OS_TMR *)0) {
+1507 fb21a fd1224        	ldy	_OSTmrFreeList
+1508 fb21d 2604          	bne	L365
+1509                     ; 813         return ((OS_TMR *)0);
+1511 fb21f 87            	clra	
+1512 fb220 c7            	clrb	
+1515 fb221 31            	puly	
+1516 fb222 3d            	rts	
+1517 fb223               L365:
+1518                     ; 815     ptmr            = (OS_TMR *)OSTmrFreeList;
+1520 fb223 6d80          	sty	OFST-2,s
+1521                     ; 816     OSTmrFreeList   = (OS_TMR *)ptmr->OSTmrNext;
+1523 fb225 1805451224    	movw	5,y,_OSTmrFreeList
+1524                     ; 817     ptmr->OSTmrNext = (OS_TCB *)0;
+1526 fb22a 87            	clra	
+1527 fb22b c7            	clrb	
+1528 fb22c 6c45          	std	5,y
+1529                     ; 818     ptmr->OSTmrPrev = (OS_TCB *)0;
+1531 fb22e 6c47          	std	7,y
+1532                     ; 819     OSTmrUsed++;
+1534 fb230 fd139e        	ldy	_OSTmrUsed
+1535 fb233 02            	iny	
+1536 fb234 7d139e        	sty	_OSTmrUsed
+1537                     ; 820     OSTmrFree--;
+1539 fb237 fd13a0        	ldy	_OSTmrFree
+1540 fb23a 03            	dey	
+1541 fb23b 7d13a0        	sty	_OSTmrFree
+1542                     ; 821     return (ptmr);
+1544 fb23e ec80          	ldd	OFST-2,s
+1547 fb240 31            	puly	
+1548 fb241 3d            	rts	
+1587                     ; 839 static  void  OSTmr_Free (OS_TMR *ptmr)
+1587                     ; 840 {
+1588                     	switch	.text
+1589 fb242               L5_OSTmr_Free:
+1591 fb242 3b            	pshd	
+1592       00000000      OFST:	set	0
+1595                     ; 841     ptmr->OSTmrState       = OS_TMR_STATE_UNUSED;      /* Clear timer object fields                                   */
+1597 fb243 b746          	tfr	d,y
+1598                     ; 842     ptmr->OSTmrOpt         = OS_TMR_OPT_NONE;
+1600 fb245 87            	clra	
+1601 fb246 c7            	clrb	
+1602 fb247 6ce815        	std	21,y
+1603                     ; 843     ptmr->OSTmrPeriod      = 0u;
+1605 fb24a 6ce813        	std	19,y
+1606 fb24d 6ce811        	std	17,y
+1607                     ; 844     ptmr->OSTmrMatch       = 0u;
+1609 fb250 ed80          	ldy	OFST+0,s
+1610 fb252 6c4b          	std	11,y
+1611 fb254 6c49          	std	9,y
+1612                     ; 845     ptmr->OSTmrCallback    = (OS_TMR_CALLBACK)0;
+1614 fb256 6c41          	std	1,y
+1615                     ; 846     ptmr->OSTmrCallbackArg = (void *)0;
+1617 fb258 6c43          	std	3,y
+1618                     ; 851     ptmr->OSTmrPrev        = (OS_TCB *)0;              /* Chain timer to free list                                    */
+1620 fb25a 6c47          	std	7,y
+1621                     ; 852     ptmr->OSTmrNext        = OSTmrFreeList;
+1623 fb25c 1801451224    	movw	_OSTmrFreeList,5,y
+1624                     ; 853     OSTmrFreeList          = ptmr;
+1626 fb261 7d1224        	sty	_OSTmrFreeList
+1627                     ; 855     OSTmrUsed--;                                       /* Update timer object statistics                              */
+1629 fb264 fd139e        	ldy	_OSTmrUsed
+1630 fb267 03            	dey	
+1631 fb268 7d139e        	sty	_OSTmrUsed
+1632                     ; 856     OSTmrFree++;
+1634 fb26b fd13a0        	ldy	_OSTmrFree
+1635 fb26e 02            	iny	
+1636 fb26f 7d13a0        	sty	_OSTmrFree
+1637                     ; 857 }
+1640 fb272 31            	puly	
+1641 fb273 3d            	rts	
+1722                     ; 875 _NEAR void  OSTmr_Init (void)
+1722                     ; 876 {
+1723                     	switch	.text
+1724 fb274               _OSTmr_Init:
+1726 fb274 1b99          	leas	-7,s
+1727       00000007      OFST:	set	7
+1730                     ; 886     OS_MemClr((INT8U *)&OSTmrTbl[0],      sizeof(OSTmrTbl));            /* Clear all the TMRs                         */
+1732 fb276 cc0170        	ldd	#368
+1733 fb279 3b            	pshd	
+1734 fb27a cc1226        	ldd	#_OSTmrTbl
+1735 fb27d 16485f        	jsr	_OS_MemClr
+1737                     ; 887     OS_MemClr((INT8U *)&OSTmrWheelTbl[0], sizeof(OSTmrWheelTbl));       /* Clear the timer wheel                      */
+1739 fb280 cc0020        	ldd	#32
+1740 fb283 6c80          	std	0,s
+1741 fb285 cc1164        	ldd	#_OSTmrWheelTbl
+1742 fb288 16485f        	jsr	_OS_MemClr
+1744 fb28b 1b82          	leas	2,s
+1745                     ; 889     for (ix = 0u; ix < (OS_TMR_CFG_MAX - 1u); ix++) {                   /* Init. list of free TMRs                    */
+1747 fb28d 87            	clra	
+1748 fb28e c7            	clrb	
+1749 fb28f b746          	tfr	d,y
+1750 fb291 6d82          	sty	OFST-5,s
+1751 fb293               L146:
+1752                     ; 890         ix_next = ix + 1u;
+1754 fb293 02            	iny	
+1755 fb294 6d84          	sty	OFST-3,s
+1756                     ; 891         ptmr1 = &OSTmrTbl[ix];
+1758 fb296 cd0017        	ldy	#23
+1759 fb299 13            	emul	
+1760 fb29a c31226        	addd	#_OSTmrTbl
+1761 fb29d 6c80          	std	OFST-7,s
+1762                     ; 892         ptmr2 = &OSTmrTbl[ix_next];
+1764 fb29f ec84          	ldd	OFST-3,s
+1765 fb2a1 cd0017        	ldy	#23
+1766 fb2a4 13            	emul	
+1767 fb2a5 c31226        	addd	#_OSTmrTbl
+1768 fb2a8 6c84          	std	OFST-3,s
+1769                     ; 893         ptmr1->OSTmrType    = OS_TMR_TYPE;
+1771 fb2aa c664          	ldab	#100
+1772 fb2ac ed80          	ldy	OFST-7,s
+1773 fb2ae 6b40          	stab	0,y
+1774                     ; 894         ptmr1->OSTmrState   = OS_TMR_STATE_UNUSED;                      /* Indicate that timer is inactive            */
+1776 fb2b0 69e816        	clr	22,y
+1777                     ; 895         ptmr1->OSTmrNext    = (void *)ptmr2;                            /* Link to next timer                         */
+1779 fb2b3 18028445      	movw	OFST-3,s,5,y
+1780                     ; 889     for (ix = 0u; ix < (OS_TMR_CFG_MAX - 1u); ix++) {                   /* Init. list of free TMRs                    */
+1782 fb2b7 ed82          	ldy	OFST-5,s
+1783 fb2b9 02            	iny	
+1786 fb2ba b764          	tfr	y,d
+1787 fb2bc 6c82          	std	OFST-5,s
+1788 fb2be 8c000f        	cpd	#15
+1789 fb2c1 25d0          	blo	L146
+1790                     ; 900     ptmr1               = &OSTmrTbl[ix];
+1792 fb2c3 cd0017        	ldy	#23
+1793 fb2c6 13            	emul	
+1794 fb2c7 c31226        	addd	#_OSTmrTbl
+1795 fb2ca 6c80          	std	OFST-7,s
+1796                     ; 901     ptmr1->OSTmrType    = OS_TMR_TYPE;
+1798 fb2cc c664          	ldab	#100
+1799 fb2ce ed80          	ldy	OFST-7,s
+1800 fb2d0 6b40          	stab	0,y
+1801                     ; 902     ptmr1->OSTmrState   = OS_TMR_STATE_UNUSED;                          /* Indicate that timer is inactive            */
+1803 fb2d2 87            	clra	
+1804 fb2d3 6ae816        	staa	22,y
+1805                     ; 903     ptmr1->OSTmrNext    = (void *)0;                                    /* Last OS_TMR                                */
+1807 fb2d6 c7            	clrb	
+1808 fb2d7 6c45          	std	5,y
+1809                     ; 907     OSTmrTime           = 0u;
+1811 fb2d9 7c139c        	std	_OSTmrTime+2
+1812 fb2dc 7c139a        	std	_OSTmrTime
+1813                     ; 908     OSTmrUsed           = 0u;
+1815 fb2df 7c139e        	std	_OSTmrUsed
+1816                     ; 909     OSTmrFree           = OS_TMR_CFG_MAX;
+1818 fb2e2 c610          	ldab	#16
+1819 fb2e4 7c13a0        	std	_OSTmrFree
+1820                     ; 910     OSTmrFreeList       = &OSTmrTbl[0];
+1822 fb2e7 cc1226        	ldd	#_OSTmrTbl
+1823 fb2ea 7c1224        	std	_OSTmrFreeList
+1824                     ; 911     OSTmrSem            = OSSemCreate(1u);
+1826 fb2ed cc0001        	ldd	#1
+1827 fb2f0 166380        	jsr	_OSSemCreate
+1829 fb2f3 7c1398        	std	_OSTmrSem
+1830                     ; 912     OSTmrSemSignal      = OSSemCreate(0u);
+1832 fb2f6 87            	clra	
+1833 fb2f7 c7            	clrb	
+1834 fb2f8 166380        	jsr	_OSSemCreate
+1836 fb2fb 7c1396        	std	_OSTmrSemSignal
+1837                     ; 915     OSEventNameSet(OSTmrSem,       (INT8U *)(void *)"uC/OS-II TmrLock",   &err);
+1839 fb2fe 1a86          	leax	OFST-1,s
+1840 fb300 34            	pshx	
+1841 fb301 cc773f        	ldd	#L746
+1842 fb304 3b            	pshd	
+1843 fb305 fc1398        	ldd	_OSTmrSem
+1844 fb308 1640d3        	jsr	_OSEventNameSet
+1846 fb30b 1b84          	leas	4,s
+1847                     ; 916     OSEventNameSet(OSTmrSemSignal, (INT8U *)(void *)"uC/OS-II TmrSignal", &err);
+1849 fb30d 1a86          	leax	OFST-1,s
+1850 fb30f 34            	pshx	
+1851 fb310 cc772c        	ldd	#L156
+1852 fb313 3b            	pshd	
+1853 fb314 fc1396        	ldd	_OSTmrSemSignal
+1854 fb317 1640d3        	jsr	_OSEventNameSet
+1856 fb31a 1b84          	leas	4,s
+1857                     ; 919     OSTmr_InitTask();
+1859 fb31c 0703          	jsr	L7_OSTmr_InitTask
+1861                     ; 920 }
+1864 fb31e 1b87          	leas	7,s
+1865 fb320 3d            	rts	
+1901                     ; 936 static  void  OSTmr_InitTask (void)
+1901                     ; 937 {
+1902                     	switch	.text
+1903 fb321               L7_OSTmr_InitTask:
+1905 fb321 37            	pshb	
+1906       00000001      OFST:	set	1
+1909                     ; 945     (void)OSTaskCreateExt(OSTmr_Task,
+1909                     ; 946                           (void *)0,                                       /* No arguments passed to OSTmrTask()      */
+1909                     ; 947                           &OSTmrTaskStk[OS_TASK_TMR_STK_SIZE - 1u],        /* Set Top-Of-Stack                        */
+1909                     ; 948                           OS_TASK_TMR_PRIO,
+1909                     ; 949                           OS_TASK_TMR_ID,
+1909                     ; 950                           &OSTmrTaskStk[0],                                /* Set Bottom-Of-Stack                     */
+1909                     ; 951                           OS_TASK_TMR_STK_SIZE,
+1909                     ; 952                           (void *)0,                                       /* No TCB extension                        */
+1909                     ; 953                           OS_TASK_OPT_STK_CHK | OS_TASK_OPT_STK_CLR);      /* Enable stack checking + clear stack     */
+1911 fb322 cc0003        	ldd	#3
+1912 fb325 3b            	pshd	
+1913 fb326 c7            	clrb	
+1914 fb327 3b            	pshd	
+1915 fb328 c6a0          	ldab	#160
+1916 fb32a 3b            	pshd	
+1917 fb32b c7            	clrb	
+1918 fb32c 3b            	pshd	
+1919 fb32d cc1184        	ldd	#_OSTmrTaskStk
+1920 fb330 3b            	pshd	
+1921 fb331 ccfffd        	ldd	#-3
+1922 fb334 3b            	pshd	
+1923 fb335 cc003d        	ldd	#61
+1924 fb338 3b            	pshd	
+1925 fb339 cc1223        	ldd	#_OSTmrTaskStk+159
+1926 fb33c 3b            	pshd	
+1927 fb33d 87            	clra	
+1928 fb33e c7            	clrb	
+1929 fb33f 3b            	pshd	
+1930 fb340 cc7417        	ldd	#L51_OSTmr_Task
+1931 fb343 1668c4        	jsr	_OSTaskCreateExt
+1933 fb346 1bf012        	leas	18,s
+1934                     ; 980     OSTaskNameSet(OS_TASK_TMR_PRIO, (INT8U *)(void *)"uC/OS-II Tmr", &err);
+1936 fb349 1a80          	leax	OFST-1,s
+1937 fb34b 34            	pshx	
+1938 fb34c cc771f        	ldd	#L766
+1939 fb34f 3b            	pshd	
+1940 fb350 cc003d        	ldd	#61
+1941 fb353 166b84        	jsr	_OSTaskNameSet
+1943                     ; 982 }
+1946 fb356 1b85          	leas	5,s
+1947 fb358 3d            	rts	
+2049                     ; 1004 static  void  OSTmr_Link (OS_TMR  *ptmr,
+2049                     ; 1005                           INT8U    type)
+2049                     ; 1006 {
+2050                     	switch	.text
+2051 fb359               L11_OSTmr_Link:
+2053 fb359 3b            	pshd	
+2054 fb35a 1b9c          	leas	-4,s
+2055       00000004      OFST:	set	4
+2058                     ; 1012     ptmr->OSTmrState = OS_TMR_STATE_RUNNING;
+2060 fb35c c603          	ldab	#3
+2061 fb35e ed84          	ldy	OFST+0,s
+2062 fb360 6be816        	stab	22,y
+2063                     ; 1013     if (type == OS_TMR_LINK_PERIODIC) {                            /* Determine when timer will expire                */
+2065 fb363 e689          	ldab	OFST+5,s
+2066 fb365 53            	decb	
+2067                     ; 1014         ptmr->OSTmrMatch = ptmr->OSTmrPeriod + OSTmrTime;
+2071 fb366 2708          	beq	LC009
+2072                     ; 1016         if (ptmr->OSTmrDly == 0u) {
+2074 fb368 ec4d          	ldd	13,y
+2075 fb36a 260c          	bne	L157
+2076 fb36c ec4f          	ldd	15,y
+2077 fb36e 2608          	bne	L157
+2078                     ; 1017             ptmr->OSTmrMatch = ptmr->OSTmrPeriod + OSTmrTime;
+2080 fb370               LC009:
+2081 fb370 ece813        	ldd	19,y
+2082 fb373 eee811        	ldx	17,y
+2085 fb376 2004          	bra	L747
+2086 fb378               L157:
+2087                     ; 1019             ptmr->OSTmrMatch = ptmr->OSTmrDly    + OSTmrTime;
+2089 fb378 ec4f          	ldd	15,y
+2090 fb37a ee4d          	ldx	13,y
+2092 fb37c               L747:
+2093 fb37c cd139a        	ldy	#_OSTmrTime
+2094 fb37f 16c003        	jsr	c_ladd
+2095 fb382 ed84          	ldy	OFST+0,s
+2096 fb384 6c4b          	std	11,y
+2097 fb386 6e49          	stx	9,y
+2098                     ; 1022     spoke  = (INT16U)(ptmr->OSTmrMatch % OS_TMR_CFG_WHEEL_SIZE);
+2100 fb388 c407          	andb	#7
+2101 fb38a 87            	clra	
+2102 fb38b 6c82          	std	OFST-2,s
+2103                     ; 1023     pspoke = &OSTmrWheelTbl[spoke];
+2105 fb38d 59            	lsld	
+2106 fb38e 59            	lsld	
+2107 fb38f c31164        	addd	#_OSTmrWheelTbl
+2108                     ; 1025     if (pspoke->OSTmrFirst == (OS_TMR *)0) {                       /* Link into timer wheel                           */
+2110 fb392 b745          	tfr	d,x
+2111 fb394 6e80          	stx	OFST-4,s
+2112 fb396 ec00          	ldd	0,x
+2113 fb398 2609          	bne	L557
+2114                     ; 1026         pspoke->OSTmrFirst   = ptmr;
+2116 fb39a 6d00          	sty	0,x
+2117                     ; 1027         ptmr->OSTmrNext      = (OS_TMR *)0;
+2119 fb39c 6c45          	std	5,y
+2120                     ; 1028         pspoke->OSTmrEntries = 1u;
+2122 fb39e 52            	incb	
+2123 fb39f b756          	tfr	x,y
+2125 fb3a1 2013          	bra	L757
+2126 fb3a3               L557:
+2127                     ; 1030         ptmr1                = pspoke->OSTmrFirst;                 /* Point to first timer in the spoke               */
+2129 fb3a3 6c82          	std	OFST-2,s
+2130                     ; 1031         pspoke->OSTmrFirst   = ptmr;
+2132 fb3a5 6d00          	sty	0,x
+2133                     ; 1032         ptmr->OSTmrNext      = (void *)ptmr1;
+2135 fb3a7 6c45          	std	5,y
+2136                     ; 1033         ptmr1->OSTmrPrev     = (void *)ptmr;
+2138 fb3a9 b764          	tfr	y,d
+2139 fb3ab ed82          	ldy	OFST-2,s
+2140 fb3ad 6c47          	std	7,y
+2141                     ; 1034         pspoke->OSTmrEntries++;
+2143 fb3af b756          	tfr	x,y
+2144 fb3b1 ec42          	ldd	2,y
+2145 fb3b3 c30001        	addd	#1
+2146 fb3b6               L757:
+2147 fb3b6 6c42          	std	2,y
+2148                     ; 1036     ptmr->OSTmrPrev = (void *)0;                                   /* Timer always inserted as first node in list     */
+2150 fb3b8 87            	clra	
+2151 fb3b9 c7            	clrb	
+2152 fb3ba ee84          	ldx	OFST+0,s
+2153 fb3bc 6c07          	std	7,x
+2154                     ; 1037 }
+2157 fb3be 1b86          	leas	6,s
+2158 fb3c0 3d            	rts	
+2238                     ; 1054 static  void  OSTmr_Unlink (OS_TMR *ptmr)
+2238                     ; 1055 {
+2239                     	switch	.text
+2240 fb3c1               L31_OSTmr_Unlink:
+2242 fb3c1 3b            	pshd	
+2243 fb3c2 1b9a          	leas	-6,s
+2244       00000006      OFST:	set	6
+2247                     ; 1062     spoke  = (INT16U)(ptmr->OSTmrMatch % OS_TMR_CFG_WHEEL_SIZE);
+2249 fb3c4 b746          	tfr	d,y
+2250 fb3c6 e64c          	ldab	12,y
+2251 fb3c8 c407          	andb	#7
+2252 fb3ca 87            	clra	
+2253 fb3cb 6c82          	std	OFST-4,s
+2254                     ; 1063     pspoke = &OSTmrWheelTbl[spoke];
+2256 fb3cd 59            	lsld	
+2257 fb3ce 59            	lsld	
+2258 fb3cf c31164        	addd	#_OSTmrWheelTbl
+2259                     ; 1065     if (pspoke->OSTmrFirst == ptmr) {                       /* See if timer to remove is at the beginning of list     */
+2261 fb3d2 b745          	tfr	d,x
+2262 fb3d4 6e84          	stx	OFST-2,s
+2263 fb3d6 ec00          	ldd	0,x
+2264 fb3d8 ac86          	cpd	OFST+0,s
+2265 fb3da 260e          	bne	L5201
+2266                     ; 1066         ptmr1              = (OS_TMR *)ptmr->OSTmrNext;
+2268 fb3dc ed86          	ldy	OFST+0,s
+2269 fb3de ed45          	ldy	5,y
+2270 fb3e0 6d80          	sty	OFST-6,s
+2271                     ; 1067         pspoke->OSTmrFirst = (OS_TMR *)ptmr1;
+2273 fb3e2 6d00          	sty	0,x
+2274                     ; 1068         if (ptmr1 != (OS_TMR *)0) {
+2276 fb3e4 271a          	beq	L1301
+2277                     ; 1069             ptmr1->OSTmrPrev = (void *)0;
+2279 fb3e6 87            	clra	
+2280 fb3e7 c7            	clrb	
+2281 fb3e8 2014          	bra	LC010
+2282 fb3ea               L5201:
+2283                     ; 1072         ptmr1            = (OS_TMR *)ptmr->OSTmrPrev;       /* Remove timer from somewhere in the list                */
+2285 fb3ea ed86          	ldy	OFST+0,s
+2286 fb3ec 18024780      	movw	7,y,OFST-6,s
+2287                     ; 1073         ptmr2            = (OS_TMR *)ptmr->OSTmrNext;
+2289 fb3f0 ec45          	ldd	5,y
+2290 fb3f2 6c82          	std	OFST-4,s
+2291                     ; 1074         ptmr1->OSTmrNext = ptmr2;
+2293 fb3f4 ed80          	ldy	OFST-6,s
+2294 fb3f6 6c45          	std	5,y
+2295                     ; 1075         if (ptmr2 != (OS_TMR *)0) {
+2297 fb3f8 2706          	beq	L1301
+2298                     ; 1076             ptmr2->OSTmrPrev = (void *)ptmr1;
+2300 fb3fa b764          	tfr	y,d
+2301 fb3fc ed82          	ldy	OFST-4,s
+2302 fb3fe               LC010:
+2303 fb3fe 6c47          	std	7,y
+2304 fb400               L1301:
+2305                     ; 1079     ptmr->OSTmrState = OS_TMR_STATE_STOPPED;
+2307 fb400 c601          	ldab	#1
+2308 fb402 ed86          	ldy	OFST+0,s
+2309 fb404 6be816        	stab	22,y
+2310                     ; 1080     ptmr->OSTmrNext  = (void *)0;
+2312 fb407 87            	clra	
+2313 fb408 c7            	clrb	
+2314 fb409 6c45          	std	5,y
+2315                     ; 1081     ptmr->OSTmrPrev  = (void *)0;
+2317 fb40b 6c47          	std	7,y
+2318                     ; 1082     pspoke->OSTmrEntries--;
+2320 fb40d b756          	tfr	x,y
+2321 fb40f ee42          	ldx	2,y
+2322 fb411 09            	dex	
+2323 fb412 6e42          	stx	2,y
+2324                     ; 1083 }
+2327 fb414 1b88          	leas	8,s
+2328 fb416 3d            	rts	
+2431                     ; 1100 static  void  OSTmr_Task (void *p_arg)
+2431                     ; 1101 {
+2432                     	switch	.text
+2433 fb417               L51_OSTmr_Task:
+2435 fb417 3b            	pshd	
+2436 fb418 1b99          	leas	-7,s
+2437       00000007      OFST:	set	7
+2440                     ; 1110     p_arg = p_arg;                                               /* Prevent compiler warning for not using 'p_arg'    */
+2442 fb41a               L5011:
+2443                     ; 1112         OSSemPend(OSTmrSemSignal, 0u, &err);                     /* Wait for signal indicating time to update timers  */
+2445 fb41a 1a86          	leax	OFST-1,s
+2446 fb41c 34            	pshx	
+2447 fb41d 87            	clra	
+2448 fb41e c7            	clrb	
+2449 fb41f 3b            	pshd	
+2450 fb420 3b            	pshd	
+2451 fb421 fc1396        	ldd	_OSTmrSemSignal
+2452 fb424 166482        	jsr	_OSSemPend
+2454 fb427 1b86          	leas	6,s
+2455                     ; 1113         OSSchedLock();
+2457 fb429 16440c        	jsr	_OSSchedLock
+2459                     ; 1114         OSTmrTime++;                                             /* Increment the current time                        */
+2461 fb42c fc139c        	ldd	_OSTmrTime+2
+2462 fb42f c30001        	addd	#1
+2463 fb432 7c139c        	std	_OSTmrTime+2
+2464 fb435 2408          	bcc	L46
+2465 fb437 72139b        	inc	_OSTmrTime+1
+2466 fb43a 2603          	bne	L46
+2467 fb43c 72139a        	inc	_OSTmrTime
+2468 fb43f               L46:
+2469                     ; 1115         spoke  = (INT16U)(OSTmrTime % OS_TMR_CFG_WHEEL_SIZE);    /* Position on current timer wheel entry             */
+2471 fb43f c407          	andb	#7
+2472 fb441 87            	clra	
+2473                     ; 1116         pspoke = &OSTmrWheelTbl[spoke];
+2475 fb442 59            	lsld	
+2476 fb443 59            	lsld	
+2477 fb444 c31164        	addd	#_OSTmrWheelTbl
+2478 fb447 6c82          	std	OFST-5,s
+2479                     ; 1117         ptmr   = pspoke->OSTmrFirst;
+2481 fb449 ecf30002      	ldd	[OFST-5,s]
+2483 fb44d 2049          	bra	L5111
+2484 fb44f               L1111:
+2485                     ; 1119             ptmr_next = (OS_TMR *)ptmr->OSTmrNext;               /* Point to next timer to update because current ... */
+2487 fb44f b746          	tfr	d,y
+2488 fb451 18024582      	movw	5,y,OFST-5,s
+2489                     ; 1121             if (OSTmrTime == ptmr->OSTmrMatch) {                 /* Process each timer that expires                   */
+2491 fb455 fc139a        	ldd	_OSTmrTime
+2492 fb458 ac49          	cpd	9,y
+2493 fb45a 263a          	bne	L1211
+2494 fb45c fc139c        	ldd	_OSTmrTime+2
+2495 fb45f ac4b          	cpd	11,y
+2496 fb461 2633          	bne	L1211
+2497                     ; 1123                 OSTmr_Unlink(ptmr);                              /* Remove from current wheel spoke                   */
+2500 fb463 ec80          	ldd	OFST-7,s
+2501 fb465 1673c1        	jsr	L31_OSTmr_Unlink
+2503                     ; 1124                 if (ptmr->OSTmrOpt == OS_TMR_OPT_PERIODIC) {
+2505 fb468 ed80          	ldy	OFST-7,s
+2506 fb46a e6e815        	ldab	21,y
+2507 fb46d c102          	cmpb	#2
+2508 fb46f 260f          	bne	L3211
+2509                     ; 1125                     OSTmr_Link(ptmr, OS_TMR_LINK_PERIODIC);      /* Recalculate new position of timer in wheel        */
+2511 fb471 cc0001        	ldd	#1
+2512 fb474 3b            	pshd	
+2513 fb475 b764          	tfr	y,d
+2514 fb477 167359        	jsr	L11_OSTmr_Link
+2516 fb47a 1b82          	leas	2,s
+2518 fb47c ed80          	ldy	OFST-7,s
+2519 fb47e 2005          	bra	L5211
+2520 fb480               L3211:
+2521                     ; 1127                     ptmr->OSTmrState = OS_TMR_STATE_COMPLETED;   /* Indicate that the timer has completed             */
+2523 fb480 c602          	ldab	#2
+2524 fb482 6be816        	stab	22,y
+2525 fb485               L5211:
+2526                     ; 1129                 pfnct = ptmr->OSTmrCallback;                     /* Execute callback function if available            */
+2528 fb485 ec41          	ldd	1,y
+2529 fb487 6c84          	std	OFST-3,s
+2530                     ; 1130                 if (pfnct != (OS_TMR_CALLBACK)0) {
+2532 fb489 270b          	beq	L1211
+2533                     ; 1131                     (*pfnct)((void *)ptmr, ptmr->OSTmrCallbackArg);
+2535 fb48b ec43          	ldd	3,y
+2536 fb48d 3b            	pshd	
+2537 fb48e ec82          	ldd	OFST-5,s
+2538 fb490 15f30006      	jsr	[OFST-1,s]
+2540 fb494 1b82          	leas	2,s
+2541 fb496               L1211:
+2542                     ; 1134             ptmr = ptmr_next;
+2544 fb496 ec82          	ldd	OFST-5,s
+2545 fb498               L5111:
+2546 fb498 6c80          	std	OFST-7,s
+2547                     ; 1118         while (ptmr != (OS_TMR *)0) {
+2549 fb49a 26b3          	bne	L1111
+2550                     ; 1136         OSSchedUnlock();
+2552 fb49c 164430        	jsr	_OSSchedUnlock
+2555 fb49f 06741a        	bra	L5011
+2567                     	xdef	_OSTmr_Init
+2568                     	xref	_OS_MemClr
+2569                     	xref	_OSSchedUnlock
+2570                     	xref	_OSSchedLock
+2571                     	xdef	_OSTmrSignal
+2572                     	xdef	_OSTmrStop
+2573                     	xdef	_OSTmrStart
+2574                     	xdef	_OSTmrStateGet
+2575                     	xdef	_OSTmrRemainGet
+2576                     	xdef	_OSTmrDel
+2577                     	xdef	_OSTmrCreate
+2578                     	xref	_OSTaskNameSet
+2579                     	xref	_OSTaskCreateExt
+2580                     	xref	_OSSemPost
+2581                     	xref	_OSSemPend
+2582                     	xref	_OSSemCreate
+2583                     	xref	_OSEventNameSet
+2584                     	xref	_OSTmrWheelTbl
+2585                     	xref	_OSTmrTaskStk
+2586                     	xref	_OSTmrFreeList
+2587                     	xref	_OSTmrTbl
+2588                     	xref	_OSTmrSemSignal
+2589                     	xref	_OSTmrSem
+2590                     	xref	_OSTmrTime
+2591                     	xref	_OSTmrUsed
+2592                     	xref	_OSTmrFree
+2593                     	xref	_OSIntNesting
+2594                     .const:	section	.data
+2595 fb71f               L766:
+2596 fb71f 75432f4f532d  	dc.b	"uC/OS-II Tmr",0
+2597 fb72c               L156:
+2598 fb72c 75432f4f532d  	dc.b	"uC/OS-II TmrSignal",0
+2599 fb73f               L746:
+2600 fb73f 75432f4f532d  	dc.b	"uC/OS-II TmrLock",0
+2621                     	xref	c_ladd
+2622                     	xref	c_lsub
+2623                     	end

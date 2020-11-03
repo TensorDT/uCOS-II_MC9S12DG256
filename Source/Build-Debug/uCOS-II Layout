@@ -1,0 +1,10 @@
+[Options]
+Tile=FREE
+[Windows]
+Zap=YES,4294967288,4294967288,1928,1048
+Source=YES,0,0,976,415
+Disassembly=YES,795,415,1196,948
+Command=NO
+Stack=NO
+Monitors=NO
+Registers=YES,977,4294967295,1197,233

@@ -1,0 +1,528 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+ 196                     .const:	section	.data
+ 197                     	even
+ 198 fb711               L6:
+ 199 fb711 00000001      	dc.l	1
+ 200                     ; 70 _NEAR OS_MEM  *OSMemCreate (void   *addr,
+ 200                     ; 71                            INT32U  nblks,
+ 200                     ; 72                            INT32U  blksize,
+ 200                     ; 73                            INT8U  *perr)
+ 200                     ; 74 {
+ 201                     	switch	.text
+ 202 f955b               _OSMemCreate:
+ 204 f955b 3b            	pshd	
+ 205 f955c 1b91          	leas	-15,s
+ 206       0000000f      OFST:	set	15
+ 209                     ; 81     OS_CPU_SR  cpu_sr = 0u;
+ 211                     ; 102     if (addr == (void *)0) {                          /* Must pass a valid address for the memory part.*/
+ 213 f955e 046402        	tbne	d,L311
+ 214                     ; 103         *perr = OS_ERR_MEM_INVALID_ADDR;
+ 216                     ; 104         return ((OS_MEM *)0);
+ 219 f9561 2005          	bra	LC002
+ 220 f9563               L311:
+ 221                     ; 106     if (((INT32U)addr & (sizeof(void *) - 1u)) != 0u){  /* Must be pointer size aligned                */
+ 223 f9563 0ff010010c    	brclr	OFST+1,s,1,L511
+ 224                     ; 107         *perr = OS_ERR_MEM_INVALID_ADDR;
+ 226 f9568               LC002:
+ 227 f9568 c662          	ldab	#98
+ 228                     ; 108         return ((OS_MEM *)0);
+ 230 f956a               LC001:
+ 231 f956a 6bf3001b      	stab	[OFST+12,s]
+ 232 f956e 87            	clra	
+ 233 f956f c7            	clrb	
+ 235 f9570               L21:
+ 237 f9570 1bf011        	leas	17,s
+ 238 f9573 3d            	rts	
+ 239 f9574               L511:
+ 240                     ; 110     if (nblks < 2u) {                                 /* Must have at least 2 blocks per partition     */
+ 242 f9574 ecf015        	ldd	OFST+6,s
+ 243 f9577 8c0002        	cpd	#2
+ 244 f957a ecf013        	ldd	OFST+4,s
+ 245 f957d c200          	sbcb	#0
+ 246 f957f 8200          	sbca	#0
+ 247 f9581 2404          	bhs	L711
+ 248                     ; 111         *perr = OS_ERR_MEM_INVALID_BLKS;
+ 250 f9583 c65b          	ldab	#91
+ 251                     ; 112         return ((OS_MEM *)0);
+ 254 f9585 20e3          	bra	LC001
+ 255 f9587               L711:
+ 256                     ; 114     if (blksize < sizeof(void *)) {                   /* Must contain space for at least a pointer     */
+ 258 f9587 ecf019        	ldd	OFST+10,s
+ 259 f958a 8c0002        	cpd	#2
+ 260 f958d ecf017        	ldd	OFST+8,s
+ 261 f9590 c200          	sbcb	#0
+ 262 f9592 8200          	sbca	#0
+ 263 f9594 2404          	bhs	L121
+ 264                     ; 115         *perr = OS_ERR_MEM_INVALID_SIZE;
+ 266 f9596 c65c          	ldab	#92
+ 267                     ; 116         return ((OS_MEM *)0);
+ 270 f9598 20d0          	bra	LC001
+ 271 f959a               L121:
+ 272                     ; 119     OS_ENTER_CRITICAL();
+ 274 f959a 167522        	jsr	_OS_CPU_SR_Save
+ 276 f959d 6b8e          	stab	OFST-1,s
+ 277                     ; 120     pmem = OSMemFreeList;                             /* Get next free memory partition                */
+ 279 f959f fd143a        	ldy	_OSMemFreeList
+ 280 f95a2 6d82          	sty	OFST-13,s
+ 281                     ; 121     if (OSMemFreeList != (OS_MEM *)0) {               /* See if pool of free partitions was empty      */
+ 283 f95a4 2705          	beq	L321
+ 284                     ; 122         OSMemFreeList = (OS_MEM *)OSMemFreeList->OSMemFreeList;
+ 286 f95a6 180542143a    	movw	2,y,_OSMemFreeList
+ 287 f95ab               L321:
+ 288                     ; 124     OS_EXIT_CRITICAL();
+ 290 f95ab 87            	clra	
+ 291 f95ac 167527        	jsr	_OS_CPU_SR_Restore
+ 293                     ; 125     if (pmem == (OS_MEM *)0) {                        /* See if we have a memory partition             */
+ 295 f95af ec82          	ldd	OFST-13,s
+ 296 f95b1 2604          	bne	L521
+ 297                     ; 126         *perr = OS_ERR_MEM_INVALID_PART;
+ 299 f95b3 c65a          	ldab	#90
+ 300                     ; 127         return ((OS_MEM *)0);
+ 303 f95b5 20b3          	bra	LC001
+ 304 f95b7               L521:
+ 305                     ; 129     plink = (void **)addr;                            /* Create linked list of free memory blocks      */
+ 307 f95b7 ec8f          	ldd	OFST+0,s
+ 308 f95b9 6c84          	std	OFST-11,s
+ 309                     ; 130     pblk  = (INT8U *)addr;
+ 311 f95bb 6c80          	std	OFST-15,s
+ 312                     ; 131     loops  = nblks - 1u;
+ 314 f95bd ecf015        	ldd	OFST+6,s
+ 315 f95c0 eef013        	ldx	OFST+4,s
+ 316 f95c3 cd7711        	ldy	#L6
+ 317 f95c6 16c00e        	jsr	c_lsub
+ 319 f95c9 6c8c          	std	OFST-3,s
+ 320 f95cb 6e8a          	stx	OFST-5,s
+ 321                     ; 132     for (i = 0u; i < loops; i++) {
+ 323 f95cd 87            	clra	
+ 324 f95ce c7            	clrb	
+ 325 f95cf 6c88          	std	OFST-7,s
+ 326 f95d1 6c86          	std	OFST-9,s
+ 328 f95d3 2022          	bra	L01
+ 329 f95d5               L721:
+ 330                     ; 133         pblk +=  blksize;                             /* Point to the FOLLOWING block                  */
+ 332 f95d5 ec80          	ldd	OFST-15,s
+ 333 f95d7 ce0000        	ldx	#0
+ 334 f95da 19f017        	leay	OFST+8,s
+ 335 f95dd 16c003        	jsr	c_ladd
+ 337 f95e0 6c80          	std	OFST-15,s
+ 338                     ; 134        *plink = (void  *)pblk;                        /* Save pointer to NEXT block in CURRENT block   */
+ 340 f95e2 6cf30004      	std	[OFST-11,s]
+ 341                     ; 135         plink = (void **)pblk;                        /* Position to  NEXT      block                  */
+ 343 f95e6 6c84          	std	OFST-11,s
+ 344                     ; 132     for (i = 0u; i < loops; i++) {
+ 346 f95e8 ec88          	ldd	OFST-7,s
+ 347 f95ea c30001        	addd	#1
+ 348 f95ed 6c88          	std	OFST-7,s
+ 349 f95ef 2406          	bcc	L01
+ 350 f95f1 6287          	inc	OFST-8,s
+ 351 f95f3 2602          	bne	L01
+ 352 f95f5 6286          	inc	OFST-9,s
+ 353 f95f7               L01:
+ 356 f95f7 ac8c          	cpd	OFST-3,s
+ 357 f95f9 ec86          	ldd	OFST-9,s
+ 358 f95fb e28b          	sbcb	OFST-4,s
+ 359 f95fd a28a          	sbca	OFST-5,s
+ 360 f95ff 25d4          	blo	L721
+ 361                     ; 137     *plink              = (void *)0;                  /* Last memory block points to NULL              */
+ 363 f9601 87            	clra	
+ 364 f9602 c7            	clrb	
+ 365 f9603 6cf30004      	std	[OFST-11,s]
+ 366                     ; 138     pmem->OSMemAddr     = addr;                       /* Store start address of memory partition       */
+ 368 f9607 ec8f          	ldd	OFST+0,s
+ 369 f9609 ed82          	ldy	OFST-13,s
+ 370 f960b 6c40          	std	0,y
+ 371                     ; 139     pmem->OSMemFreeList = addr;                       /* Initialize pointer to pool of free blocks     */
+ 373 f960d 6c42          	std	2,y
+ 374                     ; 140     pmem->OSMemNFree    = nblks;                      /* Store number of free blocks in MCB            */
+ 376 f960f ecf015        	ldd	OFST+6,s
+ 377 f9612 6c4e          	std	14,y
+ 378 f9614 ecf013        	ldd	OFST+4,s
+ 379 f9617 6c4c          	std	12,y
+ 380                     ; 141     pmem->OSMemNBlks    = nblks;
+ 382 f9619 ecf015        	ldd	OFST+6,s
+ 383 f961c 6c4a          	std	10,y
+ 384 f961e ecf013        	ldd	OFST+4,s
+ 385 f9621 6c48          	std	8,y
+ 386                     ; 142     pmem->OSMemBlkSize  = blksize;                    /* Store block size of each memory blocks        */
+ 388 f9623 ecf019        	ldd	OFST+10,s
+ 389 f9626 6c46          	std	6,y
+ 390 f9628 ecf017        	ldd	OFST+8,s
+ 391 f962b 6c44          	std	4,y
+ 392                     ; 146     *perr               = OS_ERR_NONE;
+ 395 f962d 69f3001b      	clr	[OFST+12,s]
+ 396                     ; 147     return (pmem);
+ 398 f9631 b764          	tfr	y,d
+ 400 f9633 065570        	bra	L21
+ 466                     ; 171 _NEAR void  *OSMemGet (OS_MEM  *pmem,
+ 466                     ; 172                       INT8U   *perr)
+ 466                     ; 173 {
+ 467                     	switch	.text
+ 468 f9636               _OSMemGet:
+ 470 f9636 3b            	pshd	
+ 471 f9637 1b9d          	leas	-3,s
+ 472       00000003      OFST:	set	3
+ 475                     ; 176     OS_CPU_SR  cpu_sr = 0u;
+ 477                     ; 188     if (pmem == (OS_MEM *)0) {                        /* Must point to a valid memory partition        */
+ 479 f9639 046404        	tbne	d,L171
+ 480                     ; 189         *perr = OS_ERR_MEM_INVALID_PMEM;
+ 482 f963c c660          	ldab	#96
+ 483                     ; 190         return ((void *)0);
+ 486 f963e 203c          	bra	LC004
+ 487 f9640               L171:
+ 488                     ; 196     OS_ENTER_CRITICAL();
+ 491 f9640 167522        	jsr	_OS_CPU_SR_Save
+ 493 f9643 6b80          	stab	OFST-3,s
+ 494                     ; 197     if (pmem->OSMemNFree > 0u) {                      /* See if there are any free memory blocks       */
+ 496 f9645 ed83          	ldy	OFST+0,s
+ 497 f9647 ec4c          	ldd	12,y
+ 498 f9649 2604          	bne	LC003
+ 499 f964b ec4e          	ldd	14,y
+ 500 f964d 2726          	beq	L371
+ 501 f964f               LC003:
+ 502                     ; 198         pblk                = pmem->OSMemFreeList;    /* Yes, point to next free memory block          */
+ 504 f964f ee42          	ldx	2,y
+ 505 f9651 6e81          	stx	OFST-2,s
+ 506                     ; 199         pmem->OSMemFreeList = *(void **)pblk;         /*      Adjust pointer to new free list          */
+ 508 f9653 18020042      	movw	0,x,2,y
+ 509                     ; 200         pmem->OSMemNFree--;                           /*      One less memory block in this partition  */
+ 511 f9657 ec4e          	ldd	14,y
+ 512 f9659 830001        	subd	#1
+ 513 f965c 6c4e          	std	14,y
+ 514 f965e ec4c          	ldd	12,y
+ 515 f9660 c200          	sbcb	#0
+ 516 f9662 8200          	sbca	#0
+ 517 f9664 6c4c          	std	12,y
+ 518                     ; 201         OS_EXIT_CRITICAL();
+ 520 f9666 e680          	ldab	OFST-3,s
+ 521 f9668 87            	clra	
+ 522 f9669 167527        	jsr	_OS_CPU_SR_Restore
+ 524                     ; 202         *perr = OS_ERR_NONE;                          /*      No error                                 */
+ 526 f966c 69f30007      	clr	[OFST+4,s]
+ 527                     ; 204         return (pblk);                                /*      Return memory block to caller            */
+ 530 f9670 ec81          	ldd	OFST-2,s
+ 532 f9672               L02:
+ 534 f9672 1b85          	leas	5,s
+ 535 f9674 3d            	rts	
+ 536 f9675               L371:
+ 537                     ; 206     OS_EXIT_CRITICAL();
+ 539 f9675 e680          	ldab	OFST-3,s
+ 540 f9677 167527        	jsr	_OS_CPU_SR_Restore
+ 542                     ; 207     *perr = OS_ERR_MEM_NO_FREE_BLKS;                  /* No,  Notify caller of empty memory partition  */
+ 544 f967a c65d          	ldab	#93
+ 545                     ; 209     return ((void *)0);                               /*      Return NULL pointer to caller            */
+ 548 f967c               LC004:
+ 549 f967c 6bf30007      	stab	[OFST+4,s]
+ 550 f9680 87            	clra	
+ 551 f9681 c7            	clrb	
+ 553 f9682 20ee          	bra	L02
+ 628                     ; 235 _NEAR INT8U  OSMemNameGet (OS_MEM   *pmem,
+ 628                     ; 236                           INT8U   **pname,
+ 628                     ; 237                           INT8U    *perr)
+ 628                     ; 238 {
+ 629                     	switch	.text
+ 630 f9684               _OSMemNameGet:
+ 632 f9684 3b            	pshd	
+ 633       00000002      OFST:	set	2
+ 636                     ; 241     OS_CPU_SR  cpu_sr = 0u;
+ 638                     ; 254     if (pmem == (OS_MEM *)0) {                   /* Is 'pmem' a NULL pointer?                          */
+ 640 f9685 6cae          	std	2,-s
+ 641 f9687 2604          	bne	L132
+ 642                     ; 255         *perr = OS_ERR_MEM_INVALID_PMEM;
+ 644 f9689 c660          	ldab	#96
+ 645                     ; 256         return (0u);
+ 648 f968b 2006          	bra	LC005
+ 649 f968d               L132:
+ 650                     ; 258     if (pname == (INT8U **)0) {                  /* Is 'pname' a NULL pointer?                         */
+ 652 f968d ec86          	ldd	OFST+4,s
+ 653 f968f 260a          	bne	L332
+ 654                     ; 259         *perr = OS_ERR_PNAME_NULL;
+ 656 f9691 c60c          	ldab	#12
+ 657                     ; 260         return (0u);
+ 659 f9693               LC005:
+ 660 f9693 6bf30008      	stab	[OFST+6,s]
+ 661 f9697 c7            	clrb	
+ 663 f9698               L42:
+ 665 f9698 1b84          	leas	4,s
+ 666 f969a 3d            	rts	
+ 667 f969b               L332:
+ 668                     ; 263     if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
+ 670 f969b f61631        	ldab	_OSIntNesting
+ 671 f969e 2704          	beq	L532
+ 672                     ; 264         *perr = OS_ERR_NAME_GET_ISR;
+ 674 f96a0 c611          	ldab	#17
+ 675                     ; 265         return (0u);
+ 678 f96a2 20ef          	bra	LC005
+ 679 f96a4               L532:
+ 680                     ; 267     OS_ENTER_CRITICAL();
+ 682 f96a4 167522        	jsr	_OS_CPU_SR_Save
+ 684 f96a7 6b80          	stab	OFST-2,s
+ 685                     ; 268     *pname = pmem->OSMemName;
+ 687 f96a9 ed82          	ldy	OFST+0,s
+ 688 f96ab ece810        	ldd	16,y
+ 689 f96ae ee86          	ldx	OFST+4,s
+ 690 f96b0 6c00          	std	0,x
+ 691                     ; 269     len    = OS_StrLen(*pname);
+ 693 f96b2 164907        	jsr	_OS_StrLen
+ 695 f96b5 6b81          	stab	OFST-1,s
+ 696                     ; 270     OS_EXIT_CRITICAL();
+ 698 f96b7 e680          	ldab	OFST-2,s
+ 699 f96b9 87            	clra	
+ 700 f96ba 167527        	jsr	_OS_CPU_SR_Restore
+ 702                     ; 271     *perr  = OS_ERR_NONE;
+ 704 f96bd 69f30008      	clr	[OFST+6,s]
+ 705                     ; 272     return (len);
+ 707 f96c1 e681          	ldab	OFST-1,s
+ 709 f96c3 20d3          	bra	L42
+ 775                     ; 300 _NEAR void  OSMemNameSet (OS_MEM  *pmem,
+ 775                     ; 301                          INT8U   *pname,
+ 775                     ; 302                          INT8U   *perr)
+ 775                     ; 303 {
+ 776                     	switch	.text
+ 777 f96c5               _OSMemNameSet:
+ 779 f96c5 3b            	pshd	
+ 780 f96c6 37            	pshb	
+ 781       00000001      OFST:	set	1
+ 784                     ; 305     OS_CPU_SR  cpu_sr = 0u;
+ 786                     ; 318     if (pmem == (OS_MEM *)0) {                   /* Is 'pmem' a NULL pointer?                          */
+ 788 f96c7 046404        	tbne	d,L172
+ 789                     ; 319         *perr = OS_ERR_MEM_INVALID_PMEM;
+ 791 f96ca c660          	ldab	#96
+ 792                     ; 320         return;
+ 794 f96cc 2006          	bra	LC006
+ 795 f96ce               L172:
+ 796                     ; 322     if (pname == (INT8U *)0) {                   /* Is 'pname' a NULL pointer?                         */
+ 798 f96ce ec85          	ldd	OFST+4,s
+ 799 f96d0 2609          	bne	L372
+ 800                     ; 323         *perr = OS_ERR_PNAME_NULL;
+ 802 f96d2 c60c          	ldab	#12
+ 803 f96d4               LC006:
+ 804 f96d4 6bf30007      	stab	[OFST+6,s]
+ 805                     ; 324         return;
+ 806 f96d8               L03:
+ 809 f96d8 1b83          	leas	3,s
+ 810 f96da 3d            	rts	
+ 811 f96db               L372:
+ 812                     ; 327     if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
+ 814 f96db f61631        	ldab	_OSIntNesting
+ 815 f96de 2704          	beq	L572
+ 816                     ; 328         *perr = OS_ERR_NAME_SET_ISR;
+ 818 f96e0 c612          	ldab	#18
+ 819                     ; 329         return;
+ 821 f96e2 20f0          	bra	LC006
+ 822 f96e4               L572:
+ 823                     ; 331     OS_ENTER_CRITICAL();
+ 825 f96e4 167522        	jsr	_OS_CPU_SR_Save
+ 827 f96e7 6b80          	stab	OFST-1,s
+ 828                     ; 332     pmem->OSMemName = pname;
+ 830 f96e9 ec85          	ldd	OFST+4,s
+ 831 f96eb ee81          	ldx	OFST+0,s
+ 832 f96ed 6ce010        	std	16,x
+ 833                     ; 333     OS_EXIT_CRITICAL();
+ 835 f96f0 e680          	ldab	OFST-1,s
+ 836 f96f2 87            	clra	
+ 837 f96f3 167527        	jsr	_OS_CPU_SR_Restore
+ 839                     ; 335     *perr           = OS_ERR_NONE;
+ 842 f96f6 69f30007      	clr	[OFST+6,s]
+ 843                     ; 336 }
+ 845 f96fa 20dc          	bra	L03
+ 900                     ; 358 _NEAR INT8U  OSMemPut (OS_MEM  *pmem,
+ 900                     ; 359                       void    *pblk)
+ 900                     ; 360 {
+ 901                     	switch	.text
+ 902 f96fc               _OSMemPut:
+ 904 f96fc 3b            	pshd	
+ 905 f96fd 37            	pshb	
+ 906       00000001      OFST:	set	1
+ 909                     ; 362     OS_CPU_SR  cpu_sr = 0u;
+ 911                     ; 367     if (pmem == (OS_MEM *)0) {                   /* Must point to a valid memory partition             */
+ 913 f96fe 046404        	tbne	d,L523
+ 914                     ; 368         return (OS_ERR_MEM_INVALID_PMEM);
+ 916 f9701 c660          	ldab	#96
+ 918 f9703 2006          	bra	L63
+ 919 f9705               L523:
+ 920                     ; 370     if (pblk == (void *)0) {                     /* Must release a valid block                         */
+ 922 f9705 ec85          	ldd	OFST+4,s
+ 923 f9707 2605          	bne	L723
+ 924                     ; 371         return (OS_ERR_MEM_INVALID_PBLK);
+ 926 f9709 c65f          	ldab	#95
+ 928 f970b               L63:
+ 930 f970b 1b83          	leas	3,s
+ 931 f970d 3d            	rts	
+ 932 f970e               L723:
+ 933                     ; 377     OS_ENTER_CRITICAL();
+ 936 f970e 167522        	jsr	_OS_CPU_SR_Save
+ 938 f9711 6b80          	stab	OFST-1,s
+ 939                     ; 378     if (pmem->OSMemNFree >= pmem->OSMemNBlks) {  /* Make sure all blocks not already returned          */
+ 941 f9713 ed81          	ldy	OFST+0,s
+ 942 f9715 ec4e          	ldd	14,y
+ 943 f9717 ac4a          	cpd	10,y
+ 944 f9719 ec4c          	ldd	12,y
+ 945 f971b e249          	sbcb	9,y
+ 946 f971d a248          	sbca	8,y
+ 947 f971f 250a          	blo	L133
+ 948                     ; 379         OS_EXIT_CRITICAL();
+ 950 f9721 e680          	ldab	OFST-1,s
+ 951 f9723 87            	clra	
+ 952 f9724 167527        	jsr	_OS_CPU_SR_Restore
+ 954                     ; 381         return (OS_ERR_MEM_FULL);
+ 957 f9727 c65e          	ldab	#94
+ 959 f9729 20e0          	bra	L63
+ 960 f972b               L133:
+ 961                     ; 383     *(void **)pblk      = pmem->OSMemFreeList;   /* Insert released block into free block list         */
+ 963 f972b ec42          	ldd	2,y
+ 964 f972d 6cf30005      	std	[OFST+4,s]
+ 965                     ; 384     pmem->OSMemFreeList = pblk;
+ 967 f9731 18028542      	movw	OFST+4,s,2,y
+ 968                     ; 385     pmem->OSMemNFree++;                          /* One more memory block in this partition            */
+ 970 f9735 ec4e          	ldd	14,y
+ 971 f9737 c30001        	addd	#1
+ 972 f973a 6c4e          	std	14,y
+ 973 f973c 2406          	bcc	L43
+ 974 f973e 624d          	inc	13,y
+ 975 f9740 2602          	bne	L43
+ 976 f9742 624c          	inc	12,y
+ 977 f9744               L43:
+ 978                     ; 386     OS_EXIT_CRITICAL();
+ 980 f9744 e680          	ldab	OFST-1,s
+ 981 f9746 87            	clra	
+ 982 f9747 167527        	jsr	_OS_CPU_SR_Restore
+ 984                     ; 388     return (OS_ERR_NONE);                        /* Notify caller that memory block was released       */
+ 987 f974a c7            	clrb	
+ 989 f974b 20be          	bra	L63
+1101                     ; 411 _NEAR INT8U  OSMemQuery (OS_MEM       *pmem,
+1101                     ; 412                         OS_MEM_DATA  *p_mem_data)
+1101                     ; 413 {
+1102                     	switch	.text
+1103 f974d               _OSMemQuery:
+1105 f974d 3b            	pshd	
+1106 f974e 37            	pshb	
+1107       00000001      OFST:	set	1
+1110                     ; 415     OS_CPU_SR  cpu_sr = 0u;
+1112                     ; 421     if (pmem == (OS_MEM *)0) {                   /* Must point to a valid memory partition             */
+1114 f974f 046404        	tbne	d,L704
+1115                     ; 422         return (OS_ERR_MEM_INVALID_PMEM);
+1117 f9752 c660          	ldab	#96
+1119 f9754 2006          	bra	L24
+1120 f9756               L704:
+1121                     ; 424     if (p_mem_data == (OS_MEM_DATA *)0) {        /* Must release a valid storage area for the data     */
+1123 f9756 ec85          	ldd	OFST+4,s
+1124 f9758 2605          	bne	L114
+1125                     ; 425         return (OS_ERR_MEM_INVALID_PDATA);
+1127 f975a c661          	ldab	#97
+1129 f975c               L24:
+1131 f975c 1b83          	leas	3,s
+1132 f975e 3d            	rts	
+1133 f975f               L114:
+1134                     ; 428     OS_ENTER_CRITICAL();
+1136 f975f 167522        	jsr	_OS_CPU_SR_Save
+1138 f9762 6b80          	stab	OFST-1,s
+1139                     ; 429     p_mem_data->OSAddr     = pmem->OSMemAddr;
+1141 f9764 ee81          	ldx	OFST+0,s
+1142 f9766 ed85          	ldy	OFST+4,s
+1143 f9768 18020040      	movw	0,x,0,y
+1144                     ; 430     p_mem_data->OSFreeList = pmem->OSMemFreeList;
+1146 f976c 18020242      	movw	2,x,2,y
+1147                     ; 431     p_mem_data->OSBlkSize  = pmem->OSMemBlkSize;
+1149 f9770 18020444      	movw	4,x,4,y
+1150 f9774 18020646      	movw	6,x,6,y
+1151                     ; 432     p_mem_data->OSNBlks    = pmem->OSMemNBlks;
+1153 f9778 18020848      	movw	8,x,8,y
+1154 f977c 18020a4a      	movw	10,x,10,y
+1155                     ; 433     p_mem_data->OSNFree    = pmem->OSMemNFree;
+1157 f9780 18020c4c      	movw	12,x,12,y
+1158 f9784 18020e4e      	movw	14,x,14,y
+1159                     ; 434     OS_EXIT_CRITICAL();
+1161 f9788 87            	clra	
+1162 f9789 167527        	jsr	_OS_CPU_SR_Restore
+1164                     ; 435     p_mem_data->OSNUsed    = p_mem_data->OSNBlks - p_mem_data->OSNFree;
+1166 f978c ed85          	ldy	OFST+4,s
+1167 f978e ec4a          	ldd	10,y
+1168 f9790 ee48          	ldx	8,y
+1169 f9792 194c          	leay	12,y
+1170 f9794 16c00e        	jsr	c_lsub
+1172 f9797 ed85          	ldy	OFST+4,s
+1173 f9799 6ce812        	std	18,y
+1174 f979c 6ee810        	stx	16,y
+1175                     ; 436     return (OS_ERR_NONE);
+1177 f979f c7            	clrb	
+1179 f97a0 20ba          	bra	L24
+1225                     ; 456 _NEAR void  OS_MemInit (void)
+1225                     ; 457 {
+1226                     	switch	.text
+1227 f97a2               _OS_MemInit:
+1229 f97a2 1b9c          	leas	-4,s
+1230       00000004      OFST:	set	4
+1233                     ; 471     OS_MemClr((INT8U *)&OSMemTbl[0], sizeof(OSMemTbl));   /* Clear the memory partition table          */
+1235 f97a4 cc005a        	ldd	#90
+1236 f97a7 3b            	pshd	
+1237 f97a8 cc13e0        	ldd	#_OSMemTbl
+1238 f97ab 16485f        	jsr	_OS_MemClr
+1240 f97ae 1b82          	leas	2,s
+1241                     ; 472     for (i = 0u; i < (OS_MAX_MEM_PART - 1u); i++) {       /* Init. list of free memory partitions      */
+1243 f97b0 87            	clra	
+1244 f97b1 c7            	clrb	
+1245 f97b2 6c80          	std	OFST-4,s
+1246 f97b4               L534:
+1247                     ; 473         pmem                = &OSMemTbl[i];               /* Point to memory control block (MCB)       */
+1249 f97b4 cd0012        	ldy	#18
+1250 f97b7 13            	emul	
+1251 f97b8 c313e0        	addd	#_OSMemTbl
+1252 f97bb 6c82          	std	OFST-2,s
+1253                     ; 474         pmem->OSMemFreeList = (void *)&OSMemTbl[i + 1u];  /* Chain list of free partitions             */
+1255 f97bd ec80          	ldd	OFST-4,s
+1256 f97bf cd0012        	ldy	#18
+1257 f97c2 13            	emul	
+1258 f97c3 c313f2        	addd	#_OSMemTbl+18
+1259 f97c6 ed82          	ldy	OFST-2,s
+1260 f97c8 6c42          	std	2,y
+1261                     ; 476         pmem->OSMemName  = (INT8U *)(void *)"?";
+1263 f97ca cc7715        	ldd	#L344
+1264 f97cd 6ce810        	std	16,y
+1265                     ; 472     for (i = 0u; i < (OS_MAX_MEM_PART - 1u); i++) {       /* Init. list of free memory partitions      */
+1267 f97d0 ec80          	ldd	OFST-4,s
+1268 f97d2 c30001        	addd	#1
+1269 f97d5 6c80          	std	OFST-4,s
+1272 f97d7 8c0004        	cpd	#4
+1273 f97da 25d8          	blo	L534
+1274                     ; 479     pmem                = &OSMemTbl[i];
+1276 f97dc cd0012        	ldy	#18
+1277 f97df 13            	emul	
+1278 f97e0 c313e0        	addd	#_OSMemTbl
+1279 f97e3 6c82          	std	OFST-2,s
+1280                     ; 480     pmem->OSMemFreeList = (void *)0;                      /* Initialize last node                      */
+1282 f97e5 87            	clra	
+1283 f97e6 c7            	clrb	
+1284 f97e7 ed82          	ldy	OFST-2,s
+1285 f97e9 6c42          	std	2,y
+1286                     ; 482     pmem->OSMemName = (INT8U *)(void *)"?";
+1288 f97eb cc7715        	ldd	#L344
+1289 f97ee 6ce810        	std	16,y
+1290                     ; 485     OSMemFreeList   = &OSMemTbl[0];                       /* Point to beginning of free list           */
+1292 f97f1 cc13e0        	ldd	#_OSMemTbl
+1293 f97f4 7c143a        	std	_OSMemFreeList
+1294                     ; 487 }
+1297 f97f7 1b84          	leas	4,s
+1298 f97f9 3d            	rts	
+1310                     	xref	_OS_StrLen
+1311                     	xdef	_OS_MemInit
+1312                     	xref	_OS_MemClr
+1313                     	xdef	_OSMemQuery
+1314                     	xdef	_OSMemPut
+1315                     	xdef	_OSMemNameSet
+1316                     	xdef	_OSMemNameGet
+1317                     	xdef	_OSMemGet
+1318                     	xdef	_OSMemCreate
+1319                     	xref	_OSMemTbl
+1320                     	xref	_OSMemFreeList
+1321                     	xref	_OSIntNesting
+1322                     	xref	_OS_CPU_SR_Restore
+1323                     	xref	_OS_CPU_SR_Save
+1324                     	switch	.const
+1325 fb715               L344:
+1326 fb715 3f00          	dc.b	"?",0
+1347                     	xref	c_ladd
+1348                     	xref	c_lsub
+1349                     	end

@@ -1,0 +1,89 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+4017                     ; 41 static void initHardware(void)
+4017                     ; 42 {
+4018                     	switch	.text
+4019 f8037               L3462_initHardware:
+4023                     ; 46     INITRG = 0x00;                // Keep registers at default location
+4025 f8037 c7            	clrb	
+4026 f8038 5b11          	stab	_INITRG
+4027                     ; 48     INITEE = 0x01;                // Keep 4K EEPROM at default location
+4029 f803a 52            	incb	
+4030 f803b 5b12          	stab	_INITEE
+4031                     ; 51     INITRM = 0x09;                // Keep 12K RAM  at default location
+4033 f803d c609          	ldab	#9
+4034 f803f 5b10          	stab	_INITRM
+4035                     ; 53     MODE   = 0x80;                // Normal Single Chip mode
+4037 f8041 c680          	ldab	#128
+4038 f8043 5b0b          	stab	_MODE
+4039                     ; 54     CLKSEL = 0x00;                // SYSCLK derived from OSCCLK,
+4041 f8045 c7            	clrb	
+4042 f8046 5b39          	stab	_CLKSEL
+4043                     ; 56     PLLCTL = 0x80;                // Crystal monitor enabled, PLL off
+4045 f8048 c680          	ldab	#128
+4046 f804a 5b3a          	stab	_PLLCTL
+4047                     ; 57     RTICTL = 0x00;                // RTI Prescale off
+4049 f804c c7            	clrb	
+4050 f804d 5b3b          	stab	_RTICTL
+4051                     ; 58     COPCTL = 0x00;                // Disable the watchdog
+4053 f804f 5b3c          	stab	_COPCTL
+4054                     ; 60     TSCR2 = TSCR2_PRESCALER_BITS; // Disable timer overflow interrupt,
+4056 f8051 c602          	ldab	#2
+4057 f8053 5b4d          	stab	_TSCR2
+4058                     ; 65 }
+4061 f8055 3d            	rts	
+4096                     ; 67 _NEAR void TestTask (void *pdata)
+4096                     ; 68 {
+4097                     	switch	.text
+4098 f8056               _TestTask:
+4100 f8056 3b            	pshd	
+4101       00000000      OFST:	set	0
+4104                     ; 69     pdata = pdata;
+4106 f8057 6c80          	std	OFST+0,s
+4107 f8059               L1072:
+4108                     ; 71         OSTimeDly(1);
+4110 f8059 ce0000        	ldx	#0
+4111 f805c cc0001        	ldd	#1
+4112 f805f 166e6d        	jsr	_OSTimeDly
+4115 f8062 20f5          	bra	L1072
+4144                     ; 75 _NEAR void main(void)
+4144                     ; 76 {
+4145                     	switch	.text
+4146 f8064               _main:
+4150                     ; 78     initHardware();
+4152 f8064 07d1          	jsr	L3462_initHardware
+4154                     ; 81     OSInit();
+4156 f8066 16436d        	jsr	_OSInit
+4158                     ; 83     OSTaskCreate(
+4158                     ; 84         TestTask,                 // task's address
+4158                     ; 85         (void *)0,                // ptr to data to pass to task
+4158                     ; 86         &TestTaskStk[99],         // task's top of stack
+4158                     ; 87         PRIO_TEST_TASK);          // task's priority level
+4160 f8069 87            	clra	
+4161 f806a c7            	clrb	
+4162 f806b 3b            	pshd	
+4163 f806c cc1163        	ldd	#_TestTaskStk+99
+4164 f806f 3b            	pshd	
+4165 f8070 87            	clra	
+4166 f8071 c7            	clrb	
+4167 f8072 3b            	pshd	
+4168 f8073 cc4056        	ldd	#_TestTask
+4169 f8076 166833        	jsr	_OSTaskCreate
+4171 f8079 1b86          	leas	6,s
+4172                     ; 89     OSStart();
+4174 f807b 16445b        	jsr	_OSStart
+4176                     ; 90 }
+4179 f807e 3d            	rts	
+4203                     	xdef	_main
+4204                     	xdef	_TestTask
+4205                     	switch	.bss
+4206 01100               _TestTaskStk:
+4207 01100 000000000000  	ds.b	100
+4208                     	xdef	_TestTaskStk
+4209                     	xref	_OSStart
+4210                     	xref	_OSInit
+4211                     	xref	_OSTimeDly
+4212                     	xref	_OSTaskCreate
+4233                     	end

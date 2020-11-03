@@ -1,0 +1,1154 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+ 233                     ; 70 _NEAR void  *OSQAccept (OS_EVENT  *pevent,
+ 233                     ; 71                        INT8U     *perr)
+ 233                     ; 72 {
+ 234                     	switch	.text
+ 235 f9dbd               _OSQAccept:
+ 237 f9dbd 3b            	pshd	
+ 238 f9dbe 1b9b          	leas	-5,s
+ 239       00000005      OFST:	set	5
+ 242                     ; 76     OS_CPU_SR  cpu_sr = 0u;
+ 244                     ; 89     if (pevent == (OS_EVENT *)0) {               /* Validate 'pevent'                                  */
+ 246 f9dc0 046404        	tbne	d,L531
+ 247                     ; 90         *perr = OS_ERR_PEVENT_NULL;
+ 249 f9dc3 c604          	ldab	#4
+ 250                     ; 91         return ((void *)0);
+ 253 f9dc5 200a          	bra	LC001
+ 254 f9dc7               L531:
+ 255                     ; 94     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {/* Validate event block type                          */
+ 257 f9dc7 e6f30005      	ldab	[OFST+0,s]
+ 258 f9dcb c102          	cmpb	#2
+ 259 f9dcd 270b          	beq	L731
+ 260                     ; 95         *perr = OS_ERR_EVENT_TYPE;
+ 262 f9dcf c601          	ldab	#1
+ 263                     ; 96         return ((void *)0);
+ 265 f9dd1               LC001:
+ 266 f9dd1 6bf30009      	stab	[OFST+4,s]
+ 267 f9dd5 87            	clra	
+ 268 f9dd6 c7            	clrb	
+ 270 f9dd7               L6:
+ 272 f9dd7 1b87          	leas	7,s
+ 273 f9dd9 3d            	rts	
+ 274 f9dda               L731:
+ 275                     ; 98     OS_ENTER_CRITICAL();
+ 277 f9dda 167522        	jsr	_OS_CPU_SR_Save
+ 279 f9ddd 6b84          	stab	OFST-1,s
+ 280                     ; 99     pq = (OS_Q *)pevent->OSEventPtr;             /* Point at queue control block                       */
+ 282 f9ddf ed85          	ldy	OFST+0,s
+ 283 f9de1 ed41          	ldy	1,y
+ 284 f9de3 6d80          	sty	OFST-5,s
+ 285                     ; 100     if (pq->OSQEntries > 0u) {                   /* See if any messages in the queue                   */
+ 287 f9de5 ec4c          	ldd	12,y
+ 288 f9de7 271d          	beq	L141
+ 289                     ; 101         pmsg = *pq->OSQOut++;                    /* Yes, extract oldest message from the queue         */
+ 291 f9de9 ee48          	ldx	8,y
+ 292 f9deb 18023182      	movw	2,x+,OFST-3,s
+ 293 f9def 6e48          	stx	8,y
+ 294                     ; 102         pq->OSQEntries--;                        /* Update the number of entries in the queue          */
+ 296 f9df1 ee4c          	ldx	12,y
+ 297 f9df3 09            	dex	
+ 298 f9df4 6e4c          	stx	12,y
+ 299                     ; 103         if (pq->OSQOut == pq->OSQEnd) {          /* Wrap OUT pointer if we are at the end of the queue */
+ 301 f9df6 ec48          	ldd	8,y
+ 302 f9df8 ac44          	cpd	4,y
+ 303 f9dfa 2604          	bne	L341
+ 304                     ; 104             pq->OSQOut = pq->OSQStart;
+ 306 f9dfc 18024248      	movw	2,y,8,y
+ 307 f9e00               L341:
+ 308                     ; 106         *perr = OS_ERR_NONE;
+ 310 f9e00 69f30009      	clr	[OFST+4,s]
+ 312 f9e04 2009          	bra	L541
+ 313 f9e06               L141:
+ 314                     ; 108         *perr = OS_ERR_Q_EMPTY;
+ 316 f9e06 c61f          	ldab	#31
+ 317 f9e08 6bf30009      	stab	[OFST+4,s]
+ 318                     ; 109         pmsg  = (void *)0;                       /* Queue is empty                                     */
+ 320 f9e0c c7            	clrb	
+ 321 f9e0d 6c82          	std	OFST-3,s
+ 322 f9e0f               L541:
+ 323                     ; 111     OS_EXIT_CRITICAL();
+ 325 f9e0f e684          	ldab	OFST-1,s
+ 326 f9e11 87            	clra	
+ 327 f9e12 167527        	jsr	_OS_CPU_SR_Restore
+ 329                     ; 112     return (pmsg);                               /* Return message received (or NULL)                  */
+ 331 f9e15 ec82          	ldd	OFST-3,s
+ 333 f9e17 20be          	bra	L6
+ 415                     ; 136 _NEAR OS_EVENT  *OSQCreate (void    **start,
+ 415                     ; 137                            INT16U    size)
+ 415                     ; 138 {
+ 416                     	switch	.text
+ 417 f9e19               _OSQCreate:
+ 419 f9e19 3b            	pshd	
+ 420 f9e1a 1b9b          	leas	-5,s
+ 421       00000005      OFST:	set	5
+ 424                     ; 142     OS_CPU_SR  cpu_sr = 0u;
+ 426                     ; 154     if (OSIntNesting > 0u) {                     /* See if called from ISR ...                         */
+ 428 f9e1c f61631        	ldab	_OSIntNesting
+ 429 f9e1f 2705          	beq	L702
+ 430                     ; 155         return ((OS_EVENT *)0);                  /* ... can't CREATE from an ISR                       */
+ 432 f9e21 87            	clra	
+ 433 f9e22 c7            	clrb	
+ 436 f9e23 1b87          	leas	7,s
+ 437 f9e25 3d            	rts	
+ 438 f9e26               L702:
+ 439                     ; 157     OS_ENTER_CRITICAL();
+ 441 f9e26 167522        	jsr	_OS_CPU_SR_Save
+ 443 f9e29 6b84          	stab	OFST-1,s
+ 444                     ; 158     pevent = OSEventFreeList;                    /* Get next free event control block                  */
+ 446 f9e2b fd16f7        	ldy	_OSEventFreeList
+ 447 f9e2e 6d80          	sty	OFST-5,s
+ 448                     ; 159     if (OSEventFreeList != (OS_EVENT *)0) {      /* See if pool of free ECB pool was empty             */
+ 450 f9e30 2705          	beq	L112
+ 451                     ; 160         OSEventFreeList = (OS_EVENT *)OSEventFreeList->OSEventPtr;
+ 453 f9e32 18054116f7    	movw	1,y,_OSEventFreeList
+ 454 f9e37               L112:
+ 455                     ; 162     OS_EXIT_CRITICAL();
+ 457 f9e37 87            	clra	
+ 458 f9e38 167527        	jsr	_OS_CPU_SR_Restore
+ 460                     ; 163     if (pevent != (OS_EVENT *)0) {               /* See if we have an event control block              */
+ 462 f9e3b ec80          	ldd	OFST-5,s
+ 463 f9e3d 275b          	beq	L312
+ 464                     ; 164         OS_ENTER_CRITICAL();
+ 466 f9e3f 167522        	jsr	_OS_CPU_SR_Save
+ 468 f9e42 6b84          	stab	OFST-1,s
+ 469                     ; 165         pq = OSQFreeList;                        /* Get a free queue control block                     */
+ 471 f9e44 fd13de        	ldy	_OSQFreeList
+ 472 f9e47 6d82          	sty	OFST-3,s
+ 473                     ; 166         if (pq != (OS_Q *)0) {                   /* Were we able to get a queue control block ?        */
+ 475 f9e49 273f          	beq	L512
+ 476                     ; 167             OSQFreeList            = OSQFreeList->OSQPtr; /* Yes, Adjust free list pointer to next free*/
+ 478 f9e4b 18054013de    	movw	0,y,_OSQFreeList
+ 479                     ; 168             OS_EXIT_CRITICAL();
+ 481 f9e50 87            	clra	
+ 482 f9e51 167527        	jsr	_OS_CPU_SR_Restore
+ 484                     ; 169             pq->OSQStart           = start;               /*      Initialize the queue                 */
+ 486 f9e54 ed82          	ldy	OFST-3,s
+ 487 f9e56 18028542      	movw	OFST+0,s,2,y
+ 488                     ; 170             pq->OSQEnd             = &start[size];
+ 490 f9e5a ec89          	ldd	OFST+4,s
+ 491 f9e5c 59            	lsld	
+ 492 f9e5d e385          	addd	OFST+0,s
+ 493 f9e5f 6c44          	std	4,y
+ 494                     ; 171             pq->OSQIn              = start;
+ 496 f9e61 ec85          	ldd	OFST+0,s
+ 497 f9e63 6c46          	std	6,y
+ 498                     ; 172             pq->OSQOut             = start;
+ 500 f9e65 6c48          	std	8,y
+ 501                     ; 173             pq->OSQSize            = size;
+ 503 f9e67 1802894a      	movw	OFST+4,s,10,y
+ 504                     ; 174             pq->OSQEntries         = 0u;
+ 506 f9e6b 87            	clra	
+ 507 f9e6c c7            	clrb	
+ 508 f9e6d 6c4c          	std	12,y
+ 509                     ; 175             pevent->OSEventType    = OS_EVENT_TYPE_Q;
+ 511 f9e6f c602          	ldab	#2
+ 512 f9e71 ed80          	ldy	OFST-5,s
+ 513 f9e73 6b40          	stab	0,y
+ 514                     ; 176             pevent->OSEventCnt     = 0u;
+ 516 f9e75 c7            	clrb	
+ 517 f9e76 6c43          	std	3,y
+ 518                     ; 177             pevent->OSEventPtr     = pq;
+ 520 f9e78 18028241      	movw	OFST-3,s,1,y
+ 521                     ; 179             pevent->OSEventName    = (INT8U *)(void *)"?";
+ 523 f9e7c cc7719        	ldd	#L712
+ 524 f9e7f 6c4e          	std	14,y
+ 525                     ; 181             OS_EventWaitListInit(pevent);                 /*      Initialize the wait list             */
+ 527 f9e81 b764          	tfr	y,d
+ 528 f9e83 164701        	jsr	_OS_EventWaitListInit
+ 530                     ; 183             OS_TRACE_Q_CREATE(pevent, pevent->OSEventName);
+ 532 f9e86 ec80          	ldd	OFST-5,s
+ 533 f9e88 2010          	bra	L312
+ 534 f9e8a               L512:
+ 535                     ; 185             pevent->OSEventPtr = (void *)OSEventFreeList; /* No,  Return event control block on error  */
+ 537 f9e8a ed80          	ldy	OFST-5,s
+ 538 f9e8c 18014116f7    	movw	_OSEventFreeList,1,y
+ 539                     ; 186             OSEventFreeList    = pevent;
+ 541 f9e91 7d16f7        	sty	_OSEventFreeList
+ 542                     ; 187             OS_EXIT_CRITICAL();
+ 544 f9e94 87            	clra	
+ 545 f9e95 167527        	jsr	_OS_CPU_SR_Restore
+ 547                     ; 188             pevent = (OS_EVENT *)0;
+ 549 f9e98 87            	clra	
+ 550 f9e99 c7            	clrb	
+ 551 f9e9a               L312:
+ 552                     ; 191     return (pevent);
+ 556 f9e9a 1b87          	leas	7,s
+ 557 f9e9c 3d            	rts	
+ 658                     ; 241 _NEAR OS_EVENT  *OSQDel (OS_EVENT  *pevent,
+ 658                     ; 242                         INT8U      opt,
+ 658                     ; 243                         INT8U     *perr)
+ 658                     ; 244 {
+ 659                     	switch	.text
+ 660 f9e9d               _OSQDel:
+ 662 f9e9d 3b            	pshd	
+ 663 f9e9e 1b9c          	leas	-4,s
+ 664       00000004      OFST:	set	4
+ 667                     ; 249     OS_CPU_SR  cpu_sr = 0u;
+ 669                     ; 269     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+ 671 f9ea0 046404        	tbne	d,L103
+ 672                     ; 270         *perr = OS_ERR_PEVENT_NULL;
+ 674 f9ea3 c604          	ldab	#4
+ 675                     ; 271         return (pevent);
+ 678 f9ea5 200a          	bra	L41
+ 679 f9ea7               L103:
+ 680                     ; 277     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {          /* Validate event block type                */
+ 683 f9ea7 e6f30004      	ldab	[OFST+0,s]
+ 684 f9eab c102          	cmpb	#2
+ 685 f9ead 270b          	beq	L303
+ 686                     ; 278         *perr = OS_ERR_EVENT_TYPE;
+ 688 f9eaf c601          	ldab	#1
+ 689                     ; 280         return (pevent);
+ 693 f9eb1               L41:
+ 694 f9eb1 6bf3000a      	stab	[OFST+6,s]
+ 695 f9eb5 ec84          	ldd	OFST+0,s
+ 697 f9eb7 1b86          	leas	6,s
+ 698 f9eb9 3d            	rts	
+ 699 f9eba               L303:
+ 700                     ; 282     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+ 702 f9eba f61631        	ldab	_OSIntNesting
+ 703 f9ebd 2704          	beq	L503
+ 704                     ; 283         *perr = OS_ERR_DEL_ISR;                            /* ... can't DELETE from an ISR             */
+ 706 f9ebf c60f          	ldab	#15
+ 707                     ; 285         return (pevent);
+ 711 f9ec1 20ee          	bra	L41
+ 712 f9ec3               L503:
+ 713                     ; 287     OS_ENTER_CRITICAL();
+ 715 f9ec3 167522        	jsr	_OS_CPU_SR_Save
+ 717 f9ec6 6b82          	stab	OFST-2,s
+ 718                     ; 288     if (pevent->OSEventGrp != 0u) {                        /* See if any tasks waiting on queue        */
+ 720 f9ec8 ed84          	ldy	OFST+0,s
+ 721 f9eca e645          	ldab	5,y
+ 722 f9ecc 2706          	beq	L703
+ 723                     ; 289         tasks_waiting = OS_TRUE;                           /* Yes                                      */
+ 725 f9ece c601          	ldab	#1
+ 726 f9ed0 6b83          	stab	OFST-1,s
+ 728 f9ed2 2002          	bra	L113
+ 729 f9ed4               L703:
+ 730                     ; 291         tasks_waiting = OS_FALSE;                          /* No                                       */
+ 732 f9ed4 6983          	clr	OFST-1,s
+ 733 f9ed6               L113:
+ 734                     ; 293     switch (opt) {
+ 736 f9ed6 e689          	ldab	OFST+5,s
+ 738 f9ed8 270d          	beq	L322
+ 739 f9eda 040160        	dbeq	b,L523
+ 740                     ; 338         default:
+ 740                     ; 339              OS_EXIT_CRITICAL();
+ 742 f9edd e682          	ldab	OFST-2,s
+ 743 f9edf 87            	clra	
+ 744 f9ee0 167527        	jsr	_OS_CPU_SR_Restore
+ 746                     ; 340              *perr                  = OS_ERR_INVALID_OPT;
+ 748 f9ee3 c607          	ldab	#7
+ 749                     ; 341              pevent_return          = pevent;
+ 751                     ; 342              break;
+ 753 f9ee5 203a          	bra	LC003
+ 754 f9ee7               L322:
+ 755                     ; 294         case OS_DEL_NO_PEND:                               /* Delete queue only if no task waiting     */
+ 755                     ; 295              if (tasks_waiting == OS_FALSE) {
+ 757 f9ee7 e683          	ldab	OFST-1,s
+ 758 f9ee9 262e          	bne	L713
+ 759                     ; 297                  pevent->OSEventName    = (INT8U *)(void *)"?";
+ 761 f9eeb cc7719        	ldd	#L712
+ 762 f9eee 6c4e          	std	14,y
+ 763                     ; 299                  pq                     = (OS_Q *)pevent->OSEventPtr;  /* Return OS_Q to free list     */
+ 765 f9ef0 ee41          	ldx	1,y
+ 766 f9ef2 6e80          	stx	OFST-4,s
+ 767                     ; 300                  pq->OSQPtr             = OSQFreeList;
+ 769 f9ef4 18010013de    	movw	_OSQFreeList,0,x
+ 770                     ; 301                  OSQFreeList            = pq;
+ 772 f9ef9 7e13de        	stx	_OSQFreeList
+ 773                     ; 302                  pevent->OSEventType    = OS_EVENT_TYPE_UNUSED;
+ 775 f9efc 87            	clra	
+ 776 f9efd 6a40          	staa	0,y
+ 777                     ; 303                  pevent->OSEventPtr     = OSEventFreeList; /* Return Event Control Block to free list  */
+ 779 f9eff 18014116f7    	movw	_OSEventFreeList,1,y
+ 780                     ; 304                  pevent->OSEventCnt     = 0u;
+ 782 f9f04 c7            	clrb	
+ 783 f9f05 6c43          	std	3,y
+ 784                     ; 305                  OSEventFreeList        = pevent;          /* Get next free event control block        */
+ 786 f9f07 18058416f7    	movw	OFST+0,s,_OSEventFreeList
+ 787                     ; 306                  OS_EXIT_CRITICAL();
+ 789 f9f0c e682          	ldab	OFST-2,s
+ 790 f9f0e 167527        	jsr	_OS_CPU_SR_Restore
+ 792                     ; 307                  *perr                  = OS_ERR_NONE;
+ 794 f9f11 87            	clra	
+ 795 f9f12 6af3000a      	staa	[OFST+6,s]
+ 796                     ; 308                  pevent_return          = (OS_EVENT *)0;   /* Queue has been deleted                   */
+ 798 f9f16 c7            	clrb	
+ 800 f9f17 200e          	bra	LC002
+ 801 f9f19               L713:
+ 802                     ; 310                  OS_EXIT_CRITICAL();
+ 804 f9f19 e682          	ldab	OFST-2,s
+ 805 f9f1b 87            	clra	
+ 806 f9f1c 167527        	jsr	_OS_CPU_SR_Restore
+ 808                     ; 311                  *perr                  = OS_ERR_TASK_WAITING;
+ 810 f9f1f c649          	ldab	#73
+ 811                     ; 312                  pevent_return          = pevent;
+ 813 f9f21               LC003:
+ 814 f9f21 6bf3000a      	stab	[OFST+6,s]
+ 815 f9f25 ec84          	ldd	OFST+0,s
+ 816 f9f27               LC002:
+ 817 f9f27 6c80          	std	OFST-4,s
+ 818 f9f29 204a          	bra	L513
+ 819 f9f2b               L323:
+ 820                     ; 318                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_Q, OS_STAT_PEND_ABORT);
+ 822 f9f2b cc0002        	ldd	#2
+ 823 f9f2e 3b            	pshd	
+ 824 f9f2f c604          	ldab	#4
+ 825 f9f31 3b            	pshd	
+ 826 f9f32 c7            	clrb	
+ 827 f9f33 3b            	pshd	
+ 828 f9f34 ec8a          	ldd	OFST+6,s
+ 829 f9f36 164554        	jsr	_OS_EventTaskRdy
+ 831 f9f39 1b86          	leas	6,s
+ 832 f9f3b ed84          	ldy	OFST+0,s
+ 833 f9f3d               L523:
+ 834                     ; 316         case OS_DEL_ALWAYS:                                /* Always delete the queue                  */
+ 834                     ; 317              while (pevent->OSEventGrp != 0u) {            /* Ready ALL tasks waiting for queue        */
+ 836 f9f3d e645          	ldab	5,y
+ 837 f9f3f 26ea          	bne	L323
+ 838                     ; 321              pevent->OSEventName    = (INT8U *)(void *)"?";
+ 840 f9f41 cc7719        	ldd	#L712
+ 841 f9f44 6c4e          	std	14,y
+ 842                     ; 323              pq                     = (OS_Q *)pevent->OSEventPtr;   /* Return OS_Q to free list        */
+ 844 f9f46 ee41          	ldx	1,y
+ 845 f9f48 6e80          	stx	OFST-4,s
+ 846                     ; 324              pq->OSQPtr             = OSQFreeList;
+ 848 f9f4a 18010013de    	movw	_OSQFreeList,0,x
+ 849                     ; 325              OSQFreeList            = pq;
+ 851 f9f4f 7e13de        	stx	_OSQFreeList
+ 852                     ; 326              pevent->OSEventType    = OS_EVENT_TYPE_UNUSED;
+ 854 f9f52 87            	clra	
+ 855 f9f53 6a40          	staa	0,y
+ 856                     ; 327              pevent->OSEventPtr     = OSEventFreeList;     /* Return Event Control Block to free list  */
+ 858 f9f55 18014116f7    	movw	_OSEventFreeList,1,y
+ 859                     ; 328              pevent->OSEventCnt     = 0u;
+ 861 f9f5a c7            	clrb	
+ 862 f9f5b 6c43          	std	3,y
+ 863                     ; 329              OSEventFreeList        = pevent;              /* Get next free event control block        */
+ 865 f9f5d 18058416f7    	movw	OFST+0,s,_OSEventFreeList
+ 866                     ; 330              OS_EXIT_CRITICAL();
+ 868 f9f62 e682          	ldab	OFST-2,s
+ 869 f9f64 167527        	jsr	_OS_CPU_SR_Restore
+ 871                     ; 331              if (tasks_waiting == OS_TRUE) {               /* Reschedule only if task(s) were waiting  */
+ 873 f9f67 e683          	ldab	OFST-1,s
+ 874 f9f69 042103        	dbne	b,L133
+ 875                     ; 332                  OS_Sched();                               /* Find highest priority task ready to run  */
+ 877 f9f6c 16488b        	jsr	_OS_Sched
+ 879 f9f6f               L133:
+ 880                     ; 334              *perr                  = OS_ERR_NONE;
+ 882 f9f6f 87            	clra	
+ 883 f9f70 6af3000a      	staa	[OFST+6,s]
+ 884                     ; 335              pevent_return          = (OS_EVENT *)0;       /* Queue has been deleted                   */
+ 886 f9f74 c7            	clrb	
+ 887                     ; 336              break;
+ 889 f9f75               L513:
+ 890                     ; 347     return (pevent_return);
+ 895 f9f75 1b86          	leas	6,s
+ 896 f9f77 3d            	rts	
+ 953                     ; 372 _NEAR INT8U  OSQFlush (OS_EVENT *pevent)
+ 953                     ; 373 {
+ 954                     	switch	.text
+ 955 f9f78               _OSQFlush:
+ 957 f9f78 3b            	pshd	
+ 958 f9f79 1b9d          	leas	-3,s
+ 959       00000003      OFST:	set	3
+ 962                     ; 376     OS_CPU_SR  cpu_sr = 0u;
+ 964                     ; 382     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+ 966 f9f7b 046404        	tbne	d,L363
+ 967                     ; 383         return (OS_ERR_PEVENT_NULL);
+ 969 f9f7e c604          	ldab	#4
+ 971 f9f80 200a          	bra	L02
+ 972 f9f82               L363:
+ 973                     ; 385     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {     /* Validate event block type                     */
+ 975 f9f82 e6f30003      	ldab	[OFST+0,s]
+ 976 f9f86 c102          	cmpb	#2
+ 977 f9f88 2705          	beq	L563
+ 978                     ; 386         return (OS_ERR_EVENT_TYPE);
+ 980 f9f8a c601          	ldab	#1
+ 982 f9f8c               L02:
+ 984 f9f8c 1b85          	leas	5,s
+ 985 f9f8e 3d            	rts	
+ 986 f9f8f               L563:
+ 987                     ; 389     OS_ENTER_CRITICAL();
+ 989 f9f8f 167522        	jsr	_OS_CPU_SR_Save
+ 991 f9f92 6b82          	stab	OFST-1,s
+ 992                     ; 390     pq             = (OS_Q *)pevent->OSEventPtr;      /* Point to queue storage structure              */
+ 994 f9f94 ed83          	ldy	OFST+0,s
+ 995 f9f96 ed41          	ldy	1,y
+ 996 f9f98 6d80          	sty	OFST-3,s
+ 997                     ; 391     pq->OSQIn      = pq->OSQStart;
+ 999 f9f9a ec42          	ldd	2,y
+1000 f9f9c 6c46          	std	6,y
+1001                     ; 392     pq->OSQOut     = pq->OSQStart;
+1003 f9f9e 6c48          	std	8,y
+1004                     ; 393     pq->OSQEntries = 0u;
+1006 f9fa0 87            	clra	
+1007 f9fa1 c7            	clrb	
+1008 f9fa2 6c4c          	std	12,y
+1009                     ; 394     OS_EXIT_CRITICAL();
+1011 f9fa4 e682          	ldab	OFST-1,s
+1012 f9fa6 167527        	jsr	_OS_CPU_SR_Restore
+1014                     ; 395     return (OS_ERR_NONE);
+1016 f9fa9 c7            	clrb	
+1018 f9faa 20e0          	bra	L02
+1109                     ; 436 _NEAR void  *OSQPend (OS_EVENT  *pevent,
+1109                     ; 437                 INT32U     timeout,
+1109                     ; 438                 INT8U     *perr)
+1109                     ; 439 {
+1110                     	switch	.text
+1111 f9fac               _OSQPend:
+1113 f9fac 3b            	pshd	
+1114 f9fad 1b9b          	leas	-5,s
+1115       00000005      OFST:	set	5
+1118                     ; 443     OS_CPU_SR  cpu_sr = 0u;
+1120                     ; 455     if (pevent == (OS_EVENT *)0) {               /* Validate 'pevent'                                  */
+1122 f9faf 046404        	tbne	d,L734
+1123                     ; 456         *perr = OS_ERR_PEVENT_NULL;
+1125 f9fb2 c604          	ldab	#4
+1126                     ; 457         return ((void *)0);
+1129 f9fb4 200a          	bra	LC004
+1130 f9fb6               L734:
+1131                     ; 463     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {/* Validate event block type                          */
+1134 f9fb6 e6f30005      	ldab	[OFST+0,s]
+1135 f9fba c102          	cmpb	#2
+1136 f9fbc 270b          	beq	L144
+1137                     ; 464         *perr = OS_ERR_EVENT_TYPE;
+1139 f9fbe c601          	ldab	#1
+1140                     ; 466         return ((void *)0);
+1143 f9fc0               LC004:
+1144 f9fc0 6bf3000d      	stab	[OFST+8,s]
+1145 f9fc4 87            	clra	
+1146 f9fc5 c7            	clrb	
+1148 f9fc6               L42:
+1150 f9fc6 1b87          	leas	7,s
+1151 f9fc8 3d            	rts	
+1152 f9fc9               L144:
+1153                     ; 468     if (OSIntNesting > 0u) {                     /* See if called from ISR ...                         */
+1155 f9fc9 f61631        	ldab	_OSIntNesting
+1156 f9fcc 2704          	beq	L344
+1157                     ; 469         *perr = OS_ERR_PEND_ISR;                 /* ... can't PEND from an ISR                         */
+1159 f9fce c602          	ldab	#2
+1160                     ; 471         return ((void *)0);
+1164 f9fd0 20ee          	bra	LC004
+1165 f9fd2               L344:
+1166                     ; 473     if (OSLockNesting > 0u) {                    /* See if called with scheduler locked ...            */
+1168 f9fd2 f61630        	ldab	_OSLockNesting
+1169 f9fd5 2704          	beq	L544
+1170                     ; 474         *perr = OS_ERR_PEND_LOCKED;              /* ... can't PEND when locked                         */
+1172 f9fd7 c60d          	ldab	#13
+1173                     ; 476         return ((void *)0);
+1177 f9fd9 20e5          	bra	LC004
+1178 f9fdb               L544:
+1179                     ; 478     OS_ENTER_CRITICAL();
+1181 f9fdb 167522        	jsr	_OS_CPU_SR_Save
+1183 f9fde 6b84          	stab	OFST-1,s
+1184                     ; 479     pq = (OS_Q *)pevent->OSEventPtr;             /* Point at queue control block                       */
+1186 f9fe0 ed85          	ldy	OFST+0,s
+1187 f9fe2 ed41          	ldy	1,y
+1188 f9fe4 6d80          	sty	OFST-5,s
+1189                     ; 480     if (pq->OSQEntries > 0u) {                   /* See if any messages in the queue                   */
+1191 f9fe6 ec4c          	ldd	12,y
+1192 f9fe8 2725          	beq	L744
+1193                     ; 481         pmsg = *pq->OSQOut++;                    /* Yes, extract oldest message from the queue         */
+1195 f9fea ee48          	ldx	8,y
+1196 f9fec 18023182      	movw	2,x+,OFST-3,s
+1197 f9ff0 6e48          	stx	8,y
+1198                     ; 482         pq->OSQEntries--;                        /* Update the number of entries in the queue          */
+1200 f9ff2 ee4c          	ldx	12,y
+1201 f9ff4 09            	dex	
+1202 f9ff5 6e4c          	stx	12,y
+1203                     ; 483         if (pq->OSQOut == pq->OSQEnd) {          /* Wrap OUT pointer if we are at the end of the queue */
+1205 f9ff7 ec48          	ldd	8,y
+1206 f9ff9 ac44          	cpd	4,y
+1207 f9ffb 2604          	bne	L154
+1208                     ; 484             pq->OSQOut = pq->OSQStart;
+1210 f9ffd 18024248      	movw	2,y,8,y
+1211 fa001               L154:
+1212                     ; 486         OS_EXIT_CRITICAL();
+1214 fa001 e684          	ldab	OFST-1,s
+1215 fa003 87            	clra	
+1216 fa004 167527        	jsr	_OS_CPU_SR_Restore
+1218                     ; 487         *perr = OS_ERR_NONE;
+1220 fa007 69f3000d      	clr	[OFST+8,s]
+1221                     ; 489         return (pmsg);                           /* Return message received                            */
+1224 fa00b ec82          	ldd	OFST-3,s
+1226 fa00d 20b7          	bra	L42
+1227 fa00f               L744:
+1228                     ; 491     OSTCBCur->OSTCBStat     |= OS_STAT_Q;        /* Task will have to pend for a message to be posted  */
+1230 fa00f fd157d        	ldy	_OSTCBCur
+1231 fa012 0ce82204      	bset	34,y,4
+1232                     ; 492     OSTCBCur->OSTCBStatPend  = OS_STAT_PEND_OK;
+1234 fa016 69e823        	clr	35,y
+1235                     ; 493     OSTCBCur->OSTCBDly       = timeout;          /* Load timeout into TCB                              */
+1237 fa019 ec8b          	ldd	OFST+6,s
+1238 fa01b 6ce820        	std	32,y
+1239 fa01e ec89          	ldd	OFST+4,s
+1240 fa020 6ce81e        	std	30,y
+1241                     ; 494     OS_EventTaskWait(pevent);                    /* Suspend task until event or timeout occurs         */
+1243 fa023 ec85          	ldd	OFST+0,s
+1244 fa025 1645e8        	jsr	_OS_EventTaskWait
+1246                     ; 495     OS_EXIT_CRITICAL();
+1248 fa028 e684          	ldab	OFST-1,s
+1249 fa02a 87            	clra	
+1250 fa02b 167527        	jsr	_OS_CPU_SR_Restore
+1252                     ; 496     OS_Sched();                                  /* Find next highest priority task ready to run       */
+1254 fa02e 16488b        	jsr	_OS_Sched
+1256                     ; 497     OS_ENTER_CRITICAL();
+1258 fa031 167522        	jsr	_OS_CPU_SR_Save
+1260 fa034 6b84          	stab	OFST-1,s
+1261                     ; 498     switch (OSTCBCur->OSTCBStatPend) {                /* See if we timed-out or aborted                */
+1263 fa036 fd157d        	ldy	_OSTCBCur
+1264 fa039 e6e823        	ldab	35,y
+1266 fa03c 2708          	beq	L763
+1267 fa03e 040117        	dbeq	b,L373
+1268 fa041 04010d        	dbeq	b,L173
+1269 fa044 2012          	bra	L373
+1270 fa046               L763:
+1271                     ; 499         case OS_STAT_PEND_OK:                         /* Extract message from TCB (Put there by QPost) */
+1271                     ; 500              pmsg =  OSTCBCur->OSTCBMsg;
+1273 fa046 ece818        	ldd	24,y
+1274 fa049 6c82          	std	OFST-3,s
+1275                     ; 501             *perr =  OS_ERR_NONE;
+1277 fa04b 69f3000d      	clr	[OFST+8,s]
+1278                     ; 502              break;
+1280 fa04f 201e          	bra	L554
+1281 fa051               L173:
+1282                     ; 504         case OS_STAT_PEND_ABORT:
+1282                     ; 505              pmsg = (void *)0;
+1284 fa051 87            	clra	
+1285 fa052 6c82          	std	OFST-3,s
+1286                     ; 506             *perr =  OS_ERR_PEND_ABORT;               /* Indicate that we aborted                      */
+1288 fa054 c60e          	ldab	#14
+1289                     ; 507              break;
+1291 fa056 2010          	bra	LC005
+1292 fa058               L373:
+1293                     ; 509         case OS_STAT_PEND_TO:
+1293                     ; 510         default:
+1293                     ; 511              OS_EventTaskRemove(OSTCBCur, pevent);
+1295 fa058 ec85          	ldd	OFST+0,s
+1296 fa05a 3b            	pshd	
+1297 fa05b b764          	tfr	y,d
+1298 fa05d 16468f        	jsr	_OS_EventTaskRemove
+1300 fa060 1b82          	leas	2,s
+1301                     ; 512              pmsg = (void *)0;
+1303 fa062 87            	clra	
+1304 fa063 c7            	clrb	
+1305 fa064 6c82          	std	OFST-3,s
+1306                     ; 513             *perr =  OS_ERR_TIMEOUT;                  /* Indicate that we didn't get event within TO   */
+1308 fa066 c60a          	ldab	#10
+1309 fa068               LC005:
+1310 fa068 6bf3000d      	stab	[OFST+8,s]
+1311                     ; 514              break;
+1313 fa06c fd157d        	ldy	_OSTCBCur
+1314 fa06f               L554:
+1315                     ; 516     OSTCBCur->OSTCBStat          =  OS_STAT_RDY;      /* Set   task  status to ready                   */
+1317 fa06f c7            	clrb	
+1318 fa070 6be822        	stab	34,y
+1319                     ; 517     OSTCBCur->OSTCBStatPend      =  OS_STAT_PEND_OK;  /* Clear pend  status                            */
+1321 fa073 87            	clra	
+1322 fa074 6ae823        	staa	35,y
+1323                     ; 518     OSTCBCur->OSTCBEventPtr      = (OS_EVENT  *)0;    /* Clear event pointers                          */
+1325 fa077 6ce812        	std	18,y
+1326                     ; 520     OSTCBCur->OSTCBEventMultiPtr = (OS_EVENT **)0;
+1328 fa07a 6ce814        	std	20,y
+1329                     ; 521     OSTCBCur->OSTCBEventMultiRdy = (OS_EVENT  *)0;
+1331 fa07d 6ce816        	std	22,y
+1332                     ; 523     OSTCBCur->OSTCBMsg           = (void      *)0;    /* Clear  received message                       */
+1334 fa080 6ce818        	std	24,y
+1335                     ; 524     OS_EXIT_CRITICAL();
+1337 fa083 e684          	ldab	OFST-1,s
+1338 fa085 167527        	jsr	_OS_CPU_SR_Restore
+1340                     ; 527     return (pmsg);                                    /* Return received message                       */
+1343 fa088 ec82          	ldd	OFST-3,s
+1346 fa08a 1b87          	leas	7,s
+1347 fa08c 3d            	rts	
+1418                     ; 564 _NEAR INT8U  OSQPendAbort (OS_EVENT  *pevent,
+1418                     ; 565                           INT8U      opt,
+1418                     ; 566                           INT8U     *perr)
+1418                     ; 567 {
+1419                     	switch	.text
+1420 fa08d               _OSQPendAbort:
+1422 fa08d 3b            	pshd	
+1423       00000002      OFST:	set	2
+1426                     ; 570     OS_CPU_SR  cpu_sr = 0u;
+1428                     ; 583     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+1430 fa08e 6cae          	std	2,-s
+1431 fa090 2604          	bne	L515
+1432                     ; 584         *perr = OS_ERR_PEVENT_NULL;
+1434 fa092 c604          	ldab	#4
+1435                     ; 585         return (0u);
+1438 fa094 200a          	bra	LC006
+1439 fa096               L515:
+1440                     ; 588     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {          /* Validate event block type                */
+1442 fa096 e6f30002      	ldab	[OFST+0,s]
+1443 fa09a c102          	cmpb	#2
+1444 fa09c 270a          	beq	L715
+1445                     ; 589         *perr = OS_ERR_EVENT_TYPE;
+1447 fa09e c601          	ldab	#1
+1448                     ; 590         return (0u);
+1450 fa0a0               LC006:
+1451 fa0a0 6bf30008      	stab	[OFST+6,s]
+1452 fa0a4 c7            	clrb	
+1454 fa0a5               L03:
+1456 fa0a5 1b84          	leas	4,s
+1457 fa0a7 3d            	rts	
+1458 fa0a8               L715:
+1459                     ; 592     OS_ENTER_CRITICAL();
+1461 fa0a8 167522        	jsr	_OS_CPU_SR_Save
+1463 fa0ab 6b81          	stab	OFST-1,s
+1464                     ; 593     if (pevent->OSEventGrp != 0u) {                        /* See if any task waiting on queue?        */
+1466 fa0ad ed82          	ldy	OFST+0,s
+1467 fa0af e745          	tst	5,y
+1468 fa0b1 274a          	beq	L125
+1469                     ; 594         nbr_tasks = 0u;
+1471 fa0b3 6980          	clr	OFST-2,s
+1472                     ; 595         switch (opt) {
+1474 fa0b5 e687          	ldab	OFST+5,s
+1476 fa0b7 271f          	beq	L164
+1477 fa0b9 040116        	dbeq	b,L135
+1478 fa0bc 201a          	bra	L164
+1479 fa0be               L725:
+1480                     ; 598                      (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_Q, OS_STAT_PEND_ABORT);
+1482 fa0be cc0002        	ldd	#2
+1483 fa0c1 3b            	pshd	
+1484 fa0c2 c604          	ldab	#4
+1485 fa0c4 3b            	pshd	
+1486 fa0c5 c7            	clrb	
+1487 fa0c6 3b            	pshd	
+1488 fa0c7 ec88          	ldd	OFST+6,s
+1489 fa0c9 164554        	jsr	_OS_EventTaskRdy
+1491 fa0cc 1b86          	leas	6,s
+1492                     ; 599                      nbr_tasks++;
+1494 fa0ce 6280          	inc	OFST-2,s
+1495 fa0d0 ed82          	ldy	OFST+0,s
+1496 fa0d2               L135:
+1497                     ; 596             case OS_PEND_OPT_BROADCAST:                    /* Do we need to abort ALL waiting tasks?   */
+1497                     ; 597                  while (pevent->OSEventGrp != 0u) {        /* Yes, ready ALL tasks waiting on queue    */
+1499 fa0d2 e645          	ldab	5,y
+1500 fa0d4 26e8          	bne	L725
+1501                     ; 601                  break;
+1503 fa0d6 2012          	bra	L525
+1504 fa0d8               L164:
+1505                     ; 603             case OS_PEND_OPT_NONE:
+1505                     ; 604             default:                                       /* No,  ready HPT       waiting on queue    */
+1505                     ; 605                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_Q, OS_STAT_PEND_ABORT);
+1507 fa0d8 cc0002        	ldd	#2
+1508 fa0db 3b            	pshd	
+1509 fa0dc c604          	ldab	#4
+1510 fa0de 3b            	pshd	
+1511 fa0df c7            	clrb	
+1512 fa0e0 3b            	pshd	
+1513 fa0e1 b764          	tfr	y,d
+1514 fa0e3 164554        	jsr	_OS_EventTaskRdy
+1516 fa0e6 1b86          	leas	6,s
+1517                     ; 606                  nbr_tasks++;
+1519 fa0e8 6280          	inc	OFST-2,s
+1520                     ; 607                  break;
+1522 fa0ea               L525:
+1523                     ; 609         OS_EXIT_CRITICAL();
+1525 fa0ea e681          	ldab	OFST-1,s
+1526 fa0ec 87            	clra	
+1527 fa0ed 167527        	jsr	_OS_CPU_SR_Restore
+1529                     ; 610         OS_Sched();                                        /* Find HPT ready to run                    */
+1531 fa0f0 16488b        	jsr	_OS_Sched
+1533                     ; 611         *perr = OS_ERR_PEND_ABORT;
+1535 fa0f3 c60e          	ldab	#14
+1536 fa0f5 6bf30008      	stab	[OFST+6,s]
+1537                     ; 612         return (nbr_tasks);
+1539 fa0f9 e680          	ldab	OFST-2,s
+1541 fa0fb 20a8          	bra	L03
+1542 fa0fd               L125:
+1543                     ; 614     OS_EXIT_CRITICAL();
+1545 fa0fd 87            	clra	
+1546 fa0fe 167527        	jsr	_OS_CPU_SR_Restore
+1548                     ; 615     *perr = OS_ERR_NONE;
+1550 fa101 c7            	clrb	
+1551 fa102 6bf30008      	stab	[OFST+6,s]
+1552                     ; 616     return (0u);                                           /* No tasks waiting on queue                */
+1555 fa106 209d          	bra	L03
+1624                     ; 641 _NEAR INT8U  OSQPost (OS_EVENT  *pevent,
+1624                     ; 642                      void      *pmsg)
+1624                     ; 643 {
+1625                     	switch	.text
+1626 fa108               _OSQPost:
+1628 fa108 3b            	pshd	
+1629 fa109 1b9d          	leas	-3,s
+1630       00000003      OFST:	set	3
+1633                     ; 646     OS_CPU_SR  cpu_sr = 0u;
+1635                     ; 651     if (pevent == (OS_EVENT *)0) {                     /* Validate 'pevent'                            */
+1637 fa10b 046404        	tbne	d,L175
+1638                     ; 652         return (OS_ERR_PEVENT_NULL);
+1640 fa10e c604          	ldab	#4
+1642 fa110 200a          	bra	L43
+1643 fa112               L175:
+1644                     ; 658     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {      /* Validate event block type                    */
+1647 fa112 e6f30003      	ldab	[OFST+0,s]
+1648 fa116 c102          	cmpb	#2
+1649 fa118 2705          	beq	L375
+1650                     ; 660         return (OS_ERR_EVENT_TYPE);
+1653 fa11a c601          	ldab	#1
+1655 fa11c               L43:
+1657 fa11c 1b85          	leas	5,s
+1658 fa11e 3d            	rts	
+1659 fa11f               L375:
+1660                     ; 662     OS_ENTER_CRITICAL();
+1662 fa11f 167522        	jsr	_OS_CPU_SR_Save
+1664 fa122 6b82          	stab	OFST-1,s
+1665                     ; 663     if (pevent->OSEventGrp != 0u) {                    /* See if any task pending on queue             */
+1667 fa124 ed83          	ldy	OFST+0,s
+1668 fa126 e645          	ldab	5,y
+1669 fa128 271b          	beq	L575
+1670                     ; 665         (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_Q, OS_STAT_PEND_OK);
+1672 fa12a 87            	clra	
+1673 fa12b c7            	clrb	
+1674 fa12c 3b            	pshd	
+1675 fa12d c604          	ldab	#4
+1676 fa12f 3b            	pshd	
+1677 fa130 ec8b          	ldd	OFST+8,s
+1678 fa132 3b            	pshd	
+1679 fa133 b764          	tfr	y,d
+1680 fa135 164554        	jsr	_OS_EventTaskRdy
+1682 fa138 1b86          	leas	6,s
+1683                     ; 666         OS_EXIT_CRITICAL();
+1685 fa13a e682          	ldab	OFST-1,s
+1686 fa13c 87            	clra	
+1687 fa13d 167527        	jsr	_OS_CPU_SR_Restore
+1689                     ; 667         OS_Sched();                                    /* Find highest priority task ready to run      */
+1691 fa140 16488b        	jsr	_OS_Sched
+1693                     ; 669         return (OS_ERR_NONE);
+1697 fa143 2031          	bra	LC007
+1698 fa145               L575:
+1699                     ; 671     pq = (OS_Q *)pevent->OSEventPtr;                   /* Point to queue control block                 */
+1701 fa145 ed41          	ldy	1,y
+1702 fa147 6d80          	sty	OFST-3,s
+1703                     ; 672     if (pq->OSQEntries >= pq->OSQSize) {               /* Make sure queue is not full                  */
+1705 fa149 ec4c          	ldd	12,y
+1706 fa14b ac4a          	cpd	10,y
+1707 fa14d 250a          	blo	L775
+1708                     ; 673         OS_EXIT_CRITICAL();
+1710 fa14f e682          	ldab	OFST-1,s
+1711 fa151 87            	clra	
+1712 fa152 167527        	jsr	_OS_CPU_SR_Restore
+1714                     ; 675         return (OS_ERR_Q_FULL);
+1717 fa155 c61e          	ldab	#30
+1719 fa157 20c3          	bra	L43
+1720 fa159               L775:
+1721                     ; 677     *pq->OSQIn++ = pmsg;                               /* Insert message into queue                    */
+1723 fa159 ee46          	ldx	6,y
+1724 fa15b 18028731      	movw	OFST+4,s,2,x+
+1725 fa15f 6e46          	stx	6,y
+1726                     ; 678     pq->OSQEntries++;                                  /* Update the nbr of entries in the queue       */
+1728 fa161 ee4c          	ldx	12,y
+1729 fa163 08            	inx	
+1730 fa164 6e4c          	stx	12,y
+1731                     ; 679     if (pq->OSQIn == pq->OSQEnd) {                     /* Wrap IN ptr if we are at end of queue        */
+1733 fa166 ec46          	ldd	6,y
+1734 fa168 ac44          	cpd	4,y
+1735 fa16a 2604          	bne	L106
+1736                     ; 680         pq->OSQIn = pq->OSQStart;
+1738 fa16c 18024246      	movw	2,y,6,y
+1739 fa170               L106:
+1740                     ; 682     OS_EXIT_CRITICAL();
+1742 fa170 e682          	ldab	OFST-1,s
+1743 fa172 87            	clra	
+1744 fa173 167527        	jsr	_OS_CPU_SR_Restore
+1746                     ; 685     return (OS_ERR_NONE);
+1749 fa176               LC007:
+1750 fa176 c7            	clrb	
+1752 fa177 20a3          	bra	L43
+1821                     ; 712 _NEAR INT8U  OSQPostFront (OS_EVENT  *pevent,
+1821                     ; 713                           void      *pmsg)
+1821                     ; 714 {
+1822                     	switch	.text
+1823 fa179               _OSQPostFront:
+1825 fa179 3b            	pshd	
+1826 fa17a 1b9d          	leas	-3,s
+1827       00000003      OFST:	set	3
+1830                     ; 717     OS_CPU_SR  cpu_sr = 0u;
+1832                     ; 723     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+1834 fa17c 046404        	tbne	d,L736
+1835                     ; 724         return (OS_ERR_PEVENT_NULL);
+1837 fa17f c604          	ldab	#4
+1839 fa181 200a          	bra	L04
+1840 fa183               L736:
+1841                     ; 730     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {     /* Validate event block type                     */
+1844 fa183 e6f30003      	ldab	[OFST+0,s]
+1845 fa187 c102          	cmpb	#2
+1846 fa189 2705          	beq	L146
+1847                     ; 732         return (OS_ERR_EVENT_TYPE);
+1850 fa18b c601          	ldab	#1
+1852 fa18d               L04:
+1854 fa18d 1b85          	leas	5,s
+1855 fa18f 3d            	rts	
+1856 fa190               L146:
+1857                     ; 734     OS_ENTER_CRITICAL();
+1859 fa190 167522        	jsr	_OS_CPU_SR_Save
+1861 fa193 6b82          	stab	OFST-1,s
+1862                     ; 735     if (pevent->OSEventGrp != 0u) {                   /* See if any task pending on queue              */
+1864 fa195 ed83          	ldy	OFST+0,s
+1865 fa197 e645          	ldab	5,y
+1866 fa199 271b          	beq	L346
+1867                     ; 737         (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_Q, OS_STAT_PEND_OK);
+1869 fa19b 87            	clra	
+1870 fa19c c7            	clrb	
+1871 fa19d 3b            	pshd	
+1872 fa19e c604          	ldab	#4
+1873 fa1a0 3b            	pshd	
+1874 fa1a1 ec8b          	ldd	OFST+8,s
+1875 fa1a3 3b            	pshd	
+1876 fa1a4 b764          	tfr	y,d
+1877 fa1a6 164554        	jsr	_OS_EventTaskRdy
+1879 fa1a9 1b86          	leas	6,s
+1880                     ; 738         OS_EXIT_CRITICAL();
+1882 fa1ab e682          	ldab	OFST-1,s
+1883 fa1ad 87            	clra	
+1884 fa1ae 167527        	jsr	_OS_CPU_SR_Restore
+1886                     ; 739         OS_Sched();                                   /* Find highest priority task ready to run       */
+1888 fa1b1 16488b        	jsr	_OS_Sched
+1890                     ; 741         return (OS_ERR_NONE);
+1894 fa1b4 202f          	bra	LC008
+1895 fa1b6               L346:
+1896                     ; 743     pq = (OS_Q *)pevent->OSEventPtr;                  /* Point to queue control block                  */
+1898 fa1b6 ed41          	ldy	1,y
+1899 fa1b8 6d80          	sty	OFST-3,s
+1900                     ; 744     if (pq->OSQEntries >= pq->OSQSize) {              /* Make sure queue is not full                   */
+1902 fa1ba ec4c          	ldd	12,y
+1903 fa1bc ac4a          	cpd	10,y
+1904 fa1be 250a          	blo	L546
+1905                     ; 745         OS_EXIT_CRITICAL();
+1907 fa1c0 e682          	ldab	OFST-1,s
+1908 fa1c2 87            	clra	
+1909 fa1c3 167527        	jsr	_OS_CPU_SR_Restore
+1911                     ; 747         return (OS_ERR_Q_FULL);
+1914 fa1c6 c61e          	ldab	#30
+1916 fa1c8 20c3          	bra	L04
+1917 fa1ca               L546:
+1918                     ; 749     if (pq->OSQOut == pq->OSQStart) {                 /* Wrap OUT ptr if we are at the 1st queue entry */
+1920 fa1ca ee48          	ldx	8,y
+1921 fa1cc ae42          	cpx	2,y
+1922 fa1ce 2604          	bne	L746
+1923                     ; 750         pq->OSQOut = pq->OSQEnd;
+1925 fa1d0 ee44          	ldx	4,y
+1926 fa1d2 6e48          	stx	8,y
+1927 fa1d4               L746:
+1928                     ; 752     pq->OSQOut--;
+1930                     ; 753     *pq->OSQOut = pmsg;                               /* Insert message into queue                     */
+1932 fa1d4 1802872e      	movw	OFST+4,s,2,-x
+1933 fa1d8 6e48          	stx	8,y
+1934                     ; 754     pq->OSQEntries++;                                 /* Update the nbr of entries in the queue        */
+1936 fa1da ee4c          	ldx	12,y
+1937 fa1dc 08            	inx	
+1938 fa1dd 6e4c          	stx	12,y
+1939                     ; 755     OS_EXIT_CRITICAL();
+1941 fa1df e682          	ldab	OFST-1,s
+1942 fa1e1 87            	clra	
+1943 fa1e2 167527        	jsr	_OS_CPU_SR_Restore
+1945                     ; 757     return (OS_ERR_NONE);
+1948 fa1e5               LC008:
+1949 fa1e5 c7            	clrb	
+1951 fa1e6 20a5          	bra	L04
+2027                     ; 792 _NEAR INT8U  OSQPostOpt (OS_EVENT  *pevent,
+2027                     ; 793                         void      *pmsg,
+2027                     ; 794                         INT8U      opt)
+2027                     ; 795 {
+2028                     	switch	.text
+2029 fa1e8               _OSQPostOpt:
+2031 fa1e8 3b            	pshd	
+2032 fa1e9 1b9d          	leas	-3,s
+2033       00000003      OFST:	set	3
+2036                     ; 798     OS_CPU_SR  cpu_sr = 0u;
+2038                     ; 804     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+2040 fa1eb 046404        	tbne	d,L707
+2041                     ; 805         return (OS_ERR_PEVENT_NULL);
+2043 fa1ee c604          	ldab	#4
+2045 fa1f0 200a          	bra	L44
+2046 fa1f2               L707:
+2047                     ; 811     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {     /* Validate event block type                     */
+2050 fa1f2 e6f30003      	ldab	[OFST+0,s]
+2051 fa1f6 c102          	cmpb	#2
+2052 fa1f8 2705          	beq	L117
+2053                     ; 813         return (OS_ERR_EVENT_TYPE);
+2056 fa1fa c601          	ldab	#1
+2058 fa1fc               L44:
+2060 fa1fc 1b85          	leas	5,s
+2061 fa1fe 3d            	rts	
+2062 fa1ff               L117:
+2063                     ; 815     OS_ENTER_CRITICAL();
+2065 fa1ff 167522        	jsr	_OS_CPU_SR_Save
+2067 fa202 6b82          	stab	OFST-1,s
+2068                     ; 816     if (pevent->OSEventGrp != 0x00u) {                /* See if any task pending on queue              */
+2070 fa204 ed83          	ldy	OFST+0,s
+2071 fa206 e645          	ldab	5,y
+2072 fa208 273e          	beq	L317
+2073                     ; 817         if ((opt & OS_POST_OPT_BROADCAST) != 0x00u) { /* Do we need to post msg to ALL waiting tasks ? */
+2075 fa20a 0f8a011a      	brclr	OFST+7,s,1,L517
+2077 fa20e 2014          	bra	L127
+2078 fa210               L717:
+2079                     ; 819                 (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_Q, OS_STAT_PEND_OK);
+2081 fa210 87            	clra	
+2082 fa211 c7            	clrb	
+2083 fa212 3b            	pshd	
+2084 fa213 c604          	ldab	#4
+2085 fa215 3b            	pshd	
+2086 fa216 ec8b          	ldd	OFST+8,s
+2087 fa218 3b            	pshd	
+2088 fa219 ec89          	ldd	OFST+6,s
+2089 fa21b 164554        	jsr	_OS_EventTaskRdy
+2091 fa21e 1b86          	leas	6,s
+2092 fa220 ed83          	ldy	OFST+0,s
+2093 fa222 e645          	ldab	5,y
+2094 fa224               L127:
+2095                     ; 818             while (pevent->OSEventGrp != 0u) {        /* Yes, Post to ALL tasks waiting on queue       */
+2097 fa224 26ea          	bne	L717
+2099 fa226 2010          	bra	L527
+2100 fa228               L517:
+2101                     ; 822             (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_Q, OS_STAT_PEND_OK);
+2103 fa228 87            	clra	
+2104 fa229 c7            	clrb	
+2105 fa22a 3b            	pshd	
+2106 fa22b c604          	ldab	#4
+2107 fa22d 3b            	pshd	
+2108 fa22e ec8b          	ldd	OFST+8,s
+2109 fa230 3b            	pshd	
+2110 fa231 b764          	tfr	y,d
+2111 fa233 164554        	jsr	_OS_EventTaskRdy
+2113 fa236 1b86          	leas	6,s
+2114 fa238               L527:
+2115                     ; 824         OS_EXIT_CRITICAL();
+2117 fa238 e682          	ldab	OFST-1,s
+2118 fa23a 87            	clra	
+2119 fa23b 167527        	jsr	_OS_CPU_SR_Restore
+2121                     ; 825         if ((opt & OS_POST_OPT_NO_SCHED) == 0u) {     /* See if scheduler needs to be invoked          */
+2123 fa23e 0e8a0403      	brset	OFST+7,s,4,L727
+2124                     ; 826             OS_Sched();                               /* Find highest priority task ready to run       */
+2126 fa242 16488b        	jsr	_OS_Sched
+2128 fa245               L727:
+2129                     ; 829         return (OS_ERR_NONE);
+2132 fa245 c7            	clrb	
+2134 fa246 20b4          	bra	L44
+2135 fa248               L317:
+2136                     ; 831     pq = (OS_Q *)pevent->OSEventPtr;                  /* Point to queue control block                  */
+2138 fa248 ed41          	ldy	1,y
+2139 fa24a 6d80          	sty	OFST-3,s
+2140                     ; 832     if (pq->OSQEntries >= pq->OSQSize) {              /* Make sure queue is not full                   */
+2142 fa24c ec4c          	ldd	12,y
+2143 fa24e ac4a          	cpd	10,y
+2144 fa250 250a          	blo	L137
+2145                     ; 833         OS_EXIT_CRITICAL();
+2147 fa252 e682          	ldab	OFST-1,s
+2148 fa254 87            	clra	
+2149 fa255 167527        	jsr	_OS_CPU_SR_Restore
+2151                     ; 835         return (OS_ERR_Q_FULL);
+2154 fa258 c61e          	ldab	#30
+2156 fa25a 20a0          	bra	L44
+2157 fa25c               L137:
+2158                     ; 837     if ((opt & OS_POST_OPT_FRONT) != 0x00u) {         /* Do we post to the FRONT of the queue?         */
+2160 fa25c 0f8a0212      	brclr	OFST+7,s,2,L337
+2161                     ; 838         if (pq->OSQOut == pq->OSQStart) {             /* Yes, Post as LIFO, Wrap OUT pointer if we ... */
+2163 fa260 ee48          	ldx	8,y
+2164 fa262 ae42          	cpx	2,y
+2165 fa264 2604          	bne	L537
+2166                     ; 839             pq->OSQOut = pq->OSQEnd;                  /*      ... are at the 1st queue entry           */
+2168 fa266 ee44          	ldx	4,y
+2169 fa268 6e48          	stx	8,y
+2170 fa26a               L537:
+2171                     ; 841         pq->OSQOut--;
+2173                     ; 842         *pq->OSQOut = pmsg;                           /*      Insert message into queue                */
+2175 fa26a 1802872e      	movw	OFST+4,s,2,-x
+2176 fa26e 6e48          	stx	8,y
+2178 fa270 2010          	bra	L737
+2179 fa272               L337:
+2180                     ; 844         *pq->OSQIn++ = pmsg;                          /*      Insert message into queue                */
+2182 fa272 ee46          	ldx	6,y
+2183 fa274 18028731      	movw	OFST+4,s,2,x+
+2184 fa278 6e46          	stx	6,y
+2185                     ; 845         if (pq->OSQIn == pq->OSQEnd) {                /*      Wrap IN ptr if we are at end of queue    */
+2187 fa27a ae44          	cpx	4,y
+2188 fa27c 2604          	bne	L737
+2189                     ; 846             pq->OSQIn = pq->OSQStart;
+2191 fa27e 18024246      	movw	2,y,6,y
+2192 fa282               L737:
+2193                     ; 849     pq->OSQEntries++;                                 /* Update the nbr of entries in the queue        */
+2195 fa282 ee4c          	ldx	12,y
+2196 fa284 08            	inx	
+2197 fa285 6e4c          	stx	12,y
+2198                     ; 850     OS_EXIT_CRITICAL();
+2200 fa287 e682          	ldab	OFST-1,s
+2201 fa289 87            	clra	
+2202 fa28a 167527        	jsr	_OS_CPU_SR_Restore
+2204                     ; 852     return (OS_ERR_NONE);
+2207 fa28d c7            	clrb	
+2210 fa28e 1b85          	leas	5,s
+2211 fa290 3d            	rts	
+2355                     ; 876 _NEAR INT8U  OSQQuery (OS_EVENT  *pevent,
+2355                     ; 877                       OS_Q_DATA *p_q_data)
+2355                     ; 878 {
+2356                     	switch	.text
+2357 fa291               _OSQQuery:
+2359 fa291 3b            	pshd	
+2360 fa292 1b9a          	leas	-6,s
+2361       00000006      OFST:	set	6
+2364                     ; 884     OS_CPU_SR   cpu_sr = 0u;
+2366                     ; 890     if (pevent == (OS_EVENT *)0) {                     /* Validate 'pevent'                            */
+2368 fa294 046404        	tbne	d,L5301
+2369                     ; 891         return (OS_ERR_PEVENT_NULL);
+2371 fa297 c604          	ldab	#4
+2373 fa299 2006          	bra	L05
+2374 fa29b               L5301:
+2375                     ; 893     if (p_q_data == (OS_Q_DATA *)0) {                  /* Validate 'p_q_data'                          */
+2377 fa29b ec8a          	ldd	OFST+4,s
+2378 fa29d 2605          	bne	L7301
+2379                     ; 894         return (OS_ERR_PDATA_NULL);
+2381 fa29f c609          	ldab	#9
+2383 fa2a1               L05:
+2385 fa2a1 1b88          	leas	8,s
+2386 fa2a3 3d            	rts	
+2387 fa2a4               L7301:
+2388                     ; 897     if (pevent->OSEventType != OS_EVENT_TYPE_Q) {      /* Validate event block type                    */
+2390 fa2a4 e6f30006      	ldab	[OFST+0,s]
+2391 fa2a8 c102          	cmpb	#2
+2392 fa2aa 2704          	beq	L1401
+2393                     ; 898         return (OS_ERR_EVENT_TYPE);
+2395 fa2ac c601          	ldab	#1
+2397 fa2ae 20f1          	bra	L05
+2398 fa2b0               L1401:
+2399                     ; 900     OS_ENTER_CRITICAL();
+2401 fa2b0 167522        	jsr	_OS_CPU_SR_Save
+2403 fa2b3 6b85          	stab	OFST-1,s
+2404                     ; 901     p_q_data->OSEventGrp = pevent->OSEventGrp;         /* Copy message queue wait list                 */
+2406 fa2b5 ed8a          	ldy	OFST+4,s
+2407 fa2b7 ee86          	ldx	OFST+0,s
+2408 fa2b9 180a054e      	movb	5,x,14,y
+2409                     ; 902     psrc                 = &pevent->OSEventTbl[0];
+2411 fa2bd ed86          	ldy	OFST+0,s
+2412 fa2bf 1946          	leay	6,y
+2413 fa2c1 6d83          	sty	OFST-3,s
+2414                     ; 903     pdest                = &p_q_data->OSEventTbl[0];
+2416 fa2c3 ed8a          	ldy	OFST+4,s
+2417 fa2c5 1946          	leay	6,y
+2418 fa2c7 6d80          	sty	OFST-6,s
+2419                     ; 904     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
+2421 fa2c9 6982          	clr	OFST-4,s
+2422 fa2cb ee83          	ldx	OFST-3,s
+2423 fa2cd               L3401:
+2424                     ; 905         *pdest++ = *psrc++;
+2426 fa2cd 180a3070      	movb	1,x+,1,y+
+2427                     ; 904     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
+2429 fa2d1 6282          	inc	OFST-4,s
+2432 fa2d3 e682          	ldab	OFST-4,s
+2433 fa2d5 c108          	cmpb	#8
+2434 fa2d7 25f4          	blo	L3401
+2435 fa2d9 6e83          	stx	OFST-3,s
+2436                     ; 907     pq = (OS_Q *)pevent->OSEventPtr;
+2438 fa2db ed86          	ldy	OFST+0,s
+2439 fa2dd ed41          	ldy	1,y
+2440 fa2df 6d80          	sty	OFST-6,s
+2441                     ; 908     if (pq->OSQEntries > 0u) {
+2443 fa2e1 ec4c          	ldd	12,y
+2444 fa2e3 2704          	beq	L1501
+2445                     ; 909         p_q_data->OSMsg = *pq->OSQOut;                 /* Get next message to return if available      */
+2447 fa2e5 eceb0008      	ldd	[8,y]
+2449 fa2e9               L1501:
+2450                     ; 911         p_q_data->OSMsg = (void *)0;
+2452 fa2e9 ed8a          	ldy	OFST+4,s
+2453 fa2eb 6c40          	std	0,y
+2454                     ; 913     p_q_data->OSNMsgs = pq->OSQEntries;
+2456 fa2ed ee80          	ldx	OFST-6,s
+2457 fa2ef 18020c42      	movw	12,x,2,y
+2458                     ; 914     p_q_data->OSQSize = pq->OSQSize;
+2460 fa2f3 18020a44      	movw	10,x,4,y
+2461                     ; 915     OS_EXIT_CRITICAL();
+2463 fa2f7 e685          	ldab	OFST-1,s
+2464 fa2f9 87            	clra	
+2465 fa2fa 167527        	jsr	_OS_CPU_SR_Restore
+2467                     ; 916     return (OS_ERR_NONE);
+2469 fa2fd c7            	clrb	
+2471 fa2fe 20a1          	bra	L05
+2536                     ; 936 _NEAR void  OS_QInit (void)
+2536                     ; 937 {
+2537                     	switch	.text
+2538 fa300               _OS_QInit:
+2540 fa300 1b9a          	leas	-6,s
+2541       00000006      OFST:	set	6
+2544                     ; 951     OS_MemClr((INT8U *)&OSQTbl[0], sizeof(OSQTbl));  /* Clear the queue table                          */
+2546 fa302 cc0038        	ldd	#56
+2547 fa305 3b            	pshd	
+2548 fa306 cc13a6        	ldd	#_OSQTbl
+2549 fa309 16485f        	jsr	_OS_MemClr
+2551 fa30c 1b82          	leas	2,s
+2552                     ; 952     for (ix = 0u; ix < (OS_MAX_QS - 1u); ix++) {     /* Init. list of free QUEUE control blocks        */
+2554 fa30e 87            	clra	
+2555 fa30f c7            	clrb	
+2556 fa310 b746          	tfr	d,y
+2557 fa312 6d80          	sty	OFST-6,s
+2558 fa314               L7011:
+2559                     ; 953         ix_next = ix + 1u;
+2561 fa314 02            	iny	
+2562 fa315 6d82          	sty	OFST-4,s
+2563                     ; 954         pq1 = &OSQTbl[ix];
+2565 fa317 cd000e        	ldy	#14
+2566 fa31a 13            	emul	
+2567 fa31b c313a6        	addd	#_OSQTbl
+2568 fa31e 6c84          	std	OFST-2,s
+2569                     ; 955         pq2 = &OSQTbl[ix_next];
+2571 fa320 ec82          	ldd	OFST-4,s
+2572 fa322 cd000e        	ldy	#14
+2573 fa325 13            	emul	
+2574 fa326 c313a6        	addd	#_OSQTbl
+2575 fa329 6c82          	std	OFST-4,s
+2576                     ; 956         pq1->OSQPtr = pq2;
+2578 fa32b 6cf30004      	std	[OFST-2,s]
+2579                     ; 952     for (ix = 0u; ix < (OS_MAX_QS - 1u); ix++) {     /* Init. list of free QUEUE control blocks        */
+2581 fa32f ed80          	ldy	OFST-6,s
+2582 fa331 02            	iny	
+2585 fa332 b764          	tfr	y,d
+2586 fa334 6c80          	std	OFST-6,s
+2587 fa336 8c0003        	cpd	#3
+2588 fa339 25d9          	blo	L7011
+2589                     ; 958     pq1         = &OSQTbl[ix];
+2591 fa33b cd000e        	ldy	#14
+2592 fa33e 13            	emul	
+2593 fa33f c313a6        	addd	#_OSQTbl
+2594 fa342 6c84          	std	OFST-2,s
+2595                     ; 959     pq1->OSQPtr = (OS_Q *)0;
+2597 fa344 87            	clra	
+2598 fa345 c7            	clrb	
+2599 fa346 6cf30004      	std	[OFST-2,s]
+2600                     ; 960     OSQFreeList = &OSQTbl[0];
+2602 fa34a cc13a6        	ldd	#_OSQTbl
+2603 fa34d 7c13de        	std	_OSQFreeList
+2604                     ; 962 }
+2607 fa350 1b86          	leas	6,s
+2608 fa352 3d            	rts	
+2620                     	xref	_OS_Sched
+2621                     	xdef	_OS_QInit
+2622                     	xref	_OS_MemClr
+2623                     	xref	_OS_EventWaitListInit
+2624                     	xref	_OS_EventTaskRemove
+2625                     	xref	_OS_EventTaskWait
+2626                     	xref	_OS_EventTaskRdy
+2627                     	xdef	_OSQQuery
+2628                     	xdef	_OSQPostOpt
+2629                     	xdef	_OSQPostFront
+2630                     	xdef	_OSQPost
+2631                     	xdef	_OSQPendAbort
+2632                     	xdef	_OSQPend
+2633                     	xdef	_OSQFlush
+2634                     	xdef	_OSQDel
+2635                     	xdef	_OSQCreate
+2636                     	xdef	_OSQAccept
+2637                     	xref	_OSQTbl
+2638                     	xref	_OSQFreeList
+2639                     	xref	_OSTCBCur
+2640                     	xref	_OSLockNesting
+2641                     	xref	_OSIntNesting
+2642                     	xref	_OSEventFreeList
+2643                     	xref	_OS_CPU_SR_Restore
+2644                     	xref	_OS_CPU_SR_Save
+2645                     .const:	section	.data
+2646 fb719               L712:
+2647 fb719 3f00          	dc.b	"?",0
+2668                     	end

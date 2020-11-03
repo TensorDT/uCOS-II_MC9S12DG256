@@ -1,0 +1,135 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+  14                     .const:	section	.data
+  15 fff80               __vect:
+  17 fff80 74a4          	dc.w	_SoftwareTrap63
+  19 fff82 74a6          	dc.w	_SoftwareTrap62
+  21 fff84 74a8          	dc.w	_SoftwareTrap61
+  23 fff86 74aa          	dc.w	_SoftwareTrap60
+  25 fff88 74ac          	dc.w	_SoftwareTrap59
+  27 fff8a 74ae          	dc.w	_SoftwareTrap58
+  29 fff8c 74b0          	dc.w	_SoftwareTrap57
+  31 fff8e 74b2          	dc.w	_SoftwareTrap56
+  33 fff90 74b4          	dc.w	_SoftwareTrap55
+  35 fff92 74b6          	dc.w	_SoftwareTrap54
+  37 fff94 74b8          	dc.w	_SoftwareTrap53
+  39 fff96 74ba          	dc.w	_SoftwareTrap52
+  41 fff98 74bc          	dc.w	_SoftwareTrap51
+  43 fff9a 74be          	dc.w	_SoftwareTrap50
+  45 fff9c 74c0          	dc.w	_SoftwareTrap49
+  47 fff9e 74c2          	dc.w	_SoftwareTrap48
+  49 fffa0 74c4          	dc.w	_SoftwareTrap47
+  51 fffa2 74c6          	dc.w	_SoftwareTrap46
+  53 fffa4 74c8          	dc.w	_SoftwareTrap45
+  55 fffa6 74ca          	dc.w	_SoftwareTrap44
+  57 fffa8 74cc          	dc.w	_SoftwareTrap43
+  59 fffaa 74ce          	dc.w	_SoftwareTrap42
+  61 fffac 74d0          	dc.w	_SoftwareTrap41
+  63 fffae 74d2          	dc.w	_SoftwareTrap40
+  65 fffb0 74d4          	dc.w	_SoftwareTrap39
+  67 fffb2 74d6          	dc.w	_SoftwareTrap38
+  69 fffb4 74d8          	dc.w	_SoftwareTrap37
+  71 fffb6 74da          	dc.w	_SoftwareTrap36
+  73 fffb8 74dc          	dc.w	_SoftwareTrap35
+  75 fffba 74de          	dc.w	_SoftwareTrap34
+  77 fffbc 74e0          	dc.w	_SoftwareTrap33
+  79 fffbe 74e2          	dc.w	_SoftwareTrap32
+  81 fffc0 74e4          	dc.w	_SoftwareTrap31
+  83 fffc2 74e6          	dc.w	_SoftwareTrap30
+  85 fffc4 74e8          	dc.w	_SoftwareTrap29
+  87 fffc6 74ea          	dc.w	_SoftwareTrap28
+  89 fffc8 74ec          	dc.w	_SoftwareTrap27
+  91 fffca 74ee          	dc.w	_SoftwareTrap26
+  93 fffcc 74f0          	dc.w	_SoftwareTrap25
+  95 fffce 74f2          	dc.w	_SoftwareTrap24
+  97 fffd0 74f4          	dc.w	_SoftwareTrap23
+  99 fffd2 74f6          	dc.w	_SoftwareTrap22
+ 101 fffd4 74f8          	dc.w	_SoftwareTrap21
+ 103 fffd6 74fa          	dc.w	_SoftwareTrap20
+ 105 fffd8 74fc          	dc.w	_SoftwareTrap19
+ 107 fffda 74fe          	dc.w	_SoftwareTrap18
+ 109 fffdc 7500          	dc.w	_SoftwareTrap17
+ 111 fffde 7502          	dc.w	_SoftwareTrap16
+ 113 fffe0 756d          	dc.w	_OSTickISR
+ 115 fffe2 7506          	dc.w	_SoftwareTrap14
+ 117 fffe4 7508          	dc.w	_SoftwareTrap13
+ 119 fffe6 750a          	dc.w	_SoftwareTrap12
+ 121 fffe8 750c          	dc.w	_SoftwareTrap11
+ 123 fffea 750e          	dc.w	_SoftwareTrap10
+ 125 fffec 7510          	dc.w	_SoftwareTrap09
+ 127 fffee 7512          	dc.w	_SoftwareTrap08
+ 129 ffff0 7514          	dc.w	_SoftwareTrap07
+ 131 ffff2 7516          	dc.w	_SoftwareTrap06
+ 133 ffff4 7518          	dc.w	_SoftwareTrap05
+ 135 ffff6 753b          	dc.w	_OSCtxSw
+ 137 ffff8 751c          	dc.w	_SoftwareTrap03
+ 139 ffffa 751e          	dc.w	_SoftwareTrap02
+ 141 ffffc 7520          	dc.w	_SoftwareTrap01
+ 142 ffffe f800          	dc.w	-2048
+ 176                     	xdef	__vect
+ 177                     	xref	_OSCtxSw
+ 178                     	xref	_OSTickISR
+ 179                     	xref	_SoftwareTrap01
+ 180                     	xref	_SoftwareTrap02
+ 181                     	xref	_SoftwareTrap03
+ 182                     	xref	_SoftwareTrap05
+ 183                     	xref	_SoftwareTrap06
+ 184                     	xref	_SoftwareTrap07
+ 185                     	xref	_SoftwareTrap08
+ 186                     	xref	_SoftwareTrap09
+ 187                     	xref	_SoftwareTrap10
+ 188                     	xref	_SoftwareTrap11
+ 189                     	xref	_SoftwareTrap12
+ 190                     	xref	_SoftwareTrap13
+ 191                     	xref	_SoftwareTrap14
+ 192                     	xref	_SoftwareTrap16
+ 193                     	xref	_SoftwareTrap17
+ 194                     	xref	_SoftwareTrap18
+ 195                     	xref	_SoftwareTrap19
+ 196                     	xref	_SoftwareTrap20
+ 197                     	xref	_SoftwareTrap21
+ 198                     	xref	_SoftwareTrap22
+ 199                     	xref	_SoftwareTrap23
+ 200                     	xref	_SoftwareTrap24
+ 201                     	xref	_SoftwareTrap25
+ 202                     	xref	_SoftwareTrap26
+ 203                     	xref	_SoftwareTrap27
+ 204                     	xref	_SoftwareTrap28
+ 205                     	xref	_SoftwareTrap29
+ 206                     	xref	_SoftwareTrap30
+ 207                     	xref	_SoftwareTrap31
+ 208                     	xref	_SoftwareTrap32
+ 209                     	xref	_SoftwareTrap33
+ 210                     	xref	_SoftwareTrap34
+ 211                     	xref	_SoftwareTrap35
+ 212                     	xref	_SoftwareTrap36
+ 213                     	xref	_SoftwareTrap37
+ 214                     	xref	_SoftwareTrap38
+ 215                     	xref	_SoftwareTrap39
+ 216                     	xref	_SoftwareTrap40
+ 217                     	xref	_SoftwareTrap41
+ 218                     	xref	_SoftwareTrap42
+ 219                     	xref	_SoftwareTrap43
+ 220                     	xref	_SoftwareTrap44
+ 221                     	xref	_SoftwareTrap45
+ 222                     	xref	_SoftwareTrap46
+ 223                     	xref	_SoftwareTrap47
+ 224                     	xref	_SoftwareTrap48
+ 225                     	xref	_SoftwareTrap49
+ 226                     	xref	_SoftwareTrap50
+ 227                     	xref	_SoftwareTrap51
+ 228                     	xref	_SoftwareTrap52
+ 229                     	xref	_SoftwareTrap53
+ 230                     	xref	_SoftwareTrap54
+ 231                     	xref	_SoftwareTrap55
+ 232                     	xref	_SoftwareTrap56
+ 233                     	xref	_SoftwareTrap57
+ 234                     	xref	_SoftwareTrap58
+ 235                     	xref	_SoftwareTrap59
+ 236                     	xref	_SoftwareTrap60
+ 237                     	xref	_SoftwareTrap61
+ 238                     	xref	_SoftwareTrap62
+ 239                     	xref	_SoftwareTrap63
+ 259                     	end

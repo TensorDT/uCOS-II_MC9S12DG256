@@ -1,0 +1,183 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+  44                     ; 82 _NEAR void  OSInitHookBegin (void)
+  44                     ; 83 {
+  45                     	switch	.text
+  46 f8aa7               _OSInitHookBegin:
+  50                     ; 85     OSTmrCtr = 0;
+  52 f8aa7 87            	clra	
+  53 f8aa8 c7            	clrb	
+  54 f8aa9 7c16fd        	std	L3_OSTmrCtr
+  55                     ; 87 }
+  58 f8aac 3d            	rts	
+  80                     ; 103 _NEAR void  OSInitHookEnd (void)
+  80                     ; 104 {
+  81                     	switch	.text
+  82 f8aad               _OSInitHookEnd:
+  86                     ; 105 }
+  89 f8aad 3d            	rts	
+ 503                     ; 121 _NEAR void  OSTaskCreateHook (OS_TCB *ptcb)
+ 503                     ; 122 {
+ 504                     	switch	.text
+ 505 f8aae               _OSTaskCreateHook:
+ 509                     ; 126     (void)ptcb;                                                         /* Prevent compiler warning                                 */
+ 511                     ; 128 }
+ 514 f8aae 3d            	rts	
+ 550                     ; 143 _NEAR void  OSTaskDelHook (OS_TCB *ptcb)
+ 550                     ; 144 {
+ 551                     	switch	.text
+ 552 f8aaf               _OSTaskDelHook:
+ 556                     ; 148     (void)ptcb;                                                         /* Prevent compiler warning                                 */
+ 558                     ; 150 }
+ 561 f8aaf 3d            	rts	
+ 583                     ; 166 _NEAR void  OSTaskIdleHook (void)
+ 583                     ; 167 {
+ 584                     	switch	.text
+ 585 f8ab0               _OSTaskIdleHook:
+ 589                     ; 171 }
+ 592 f8ab0 3d            	rts	
+ 628                     ; 188 _NEAR void  OSTaskReturnHook (OS_TCB *ptcb)
+ 628                     ; 189 {
+ 629                     	switch	.text
+ 630 f8ab1               _OSTaskReturnHook:
+ 634                     ; 193     (void)ptcb;                                                         /* Prevent compiler warning                                 */
+ 636                     ; 195 }
+ 639 f8ab1 3d            	rts	
+ 661                     ; 211 _NEAR void  OSTaskStatHook (void)
+ 661                     ; 212 {
+ 662                     	switch	.text
+ 663 f8ab2               _OSTaskStatHook:
+ 667                     ; 216 }
+ 670 f8ab2 3d            	rts	
+ 869                     ; 305 _NEAR OS_STK *OSTaskStkInit (
+ 869                     ; 306     void (*task)(void *pd),       // task start address
+ 869                     ; 307     void *p_arg,                  // task argument pointer
+ 869                     ; 308     OS_STK *ptos,                 // task top of stack pointer
+ 869                     ; 309     INT16U opt)                   // options
+ 869                     ; 310 {
+ 870                     	switch	.text
+ 871 f8ab3               _OSTaskStkInit:
+ 873 f8ab3 3b            	pshd	
+ 874 f8ab4 1b98          	leas	-8,s
+ 875       00000008      OFST:	set	8
+ 878                     ; 316     (void)&opt;                                  // 'opt' is not used, prevent warning
+ 880                     ; 318     bstk    = (INT8U *)ptos;                     // Load stack pointer
+ 882 f8ab6 ed8e          	ldy	OFST+6,s
+ 883                     ; 323     addrTemp_UN.addr = (INT32U)OSTaskAbort;
+ 885 f8ab8 ce0000        	ldx	#0
+ 886 f8abb cc4af4        	ldd	#_OSTaskAbort
+ 887 f8abe 6e82          	stx	OFST-6,s
+ 888                     ; 324     *--bstk = addrTemp_UN.addr32_ST.byte0;       // address low byte  (simulated calling fn)
+ 890 f8ac0 03            	dey	
+ 891 f8ac1 6b7f          	stab	1,y-
+ 892                     ; 325     *--bstk = addrTemp_UN.addr32_ST.byte1;       // address high byte (simulated calling fn)
+ 894 f8ac3 6a7f          	staa	1,y-
+ 895                     ; 327     *--bstk = addrTemp_UN.addr32_ST.byte2;       // address page      (simulated calling fn)
+ 897 f8ac5 180a837f      	movb	OFST-5,s,1,y-
+ 898                     ; 331     addrTemp_UN.addr = (INT32U)task;
+ 900 f8ac9 ec88          	ldd	OFST+0,s
+ 901 f8acb 6c84          	std	OFST-4,s
+ 902 f8acd 6e82          	stx	OFST-6,s
+ 903                     ; 332     *--bstk = addrTemp_UN.addr32_ST.byte0;       // address low byte  (task)
+ 905 f8acf 6b7f          	stab	1,y-
+ 906                     ; 333     *--bstk = addrTemp_UN.addr32_ST.byte1;       // address high byte (task)
+ 908 f8ad1 6a7f          	staa	1,y-
+ 909                     ; 335     *--bstk = (INT8U)0x22;                       // Y Register low byte  (simulated)
+ 911 f8ad3 c622          	ldab	#34
+ 912 f8ad5 6b7f          	stab	1,y-
+ 913                     ; 336     *--bstk = (INT8U)0x22;                       // Y Register high byte (simulated)
+ 915 f8ad7 6b7f          	stab	1,y-
+ 916                     ; 338     *--bstk = (INT8U)0x11;                       // X Register low byte  (simulated)
+ 918 f8ad9 c611          	ldab	#17
+ 919 f8adb 6b7f          	stab	1,y-
+ 920                     ; 339     *--bstk = (INT8U)0x11;                       // X Register high byte (simulated)
+ 922 f8add 6b7f          	stab	1,y-
+ 923                     ; 341     valueTemp_UN.value = (INT16U)p_arg;
+ 925 f8adf ec8c          	ldd	OFST+4,s
+ 926 f8ae1 6c86          	std	OFST-2,s
+ 927                     ; 342     *--bstk = valueTemp_UN.value16_ST.byte1;     // A register / D register high task arg
+ 929 f8ae3 6a7f          	staa	1,y-
+ 930                     ; 343     *--bstk = valueTemp_UN.value16_ST.byte0;     // B register / D register low  task arg
+ 932 f8ae5 6b7f          	stab	1,y-
+ 933                     ; 345     *--bstk = 0xC0;                              // CCR Register (Disable STOP instruction and XIRQ)
+ 935 f8ae7 c6c0          	ldab	#192
+ 936 f8ae9 6b7f          	stab	1,y-
+ 937                     ; 348     *--bstk = addrTemp_UN.addr32_ST.byte2;       // address page (task)
+ 939 f8aeb 180a8340      	movb	OFST-5,s,0,y
+ 940                     ; 350     return ((OS_STK *)bstk);                     // Return pointer to new top-of-stack
+ 942 f8aef b764          	tfr	y,d
+ 945 f8af1 1b8a          	leas	10,s
+ 946 f8af3 3d            	rts	
+ 969                     ; 371 _NEAR void  OSTaskAbort (void)
+ 969                     ; 372 {
+ 970                     	switch	.text
+ 971 f8af4               _OSTaskAbort:
+ 975                     ; 373     OSTaskDel(OS_PRIO_SELF);
+ 977 f8af4 cc00ff        	ldd	#255
+ 978 f8af7 16697c        	jsr	_OSTaskDel
+ 980                     ; 374 }
+ 983 f8afa 3d            	rts	
+1005                     ; 393 _NEAR void  OSTaskSwHook (void)
+1005                     ; 394 {
+1006                     	switch	.text
+1007 f8afb               _OSTaskSwHook:
+1011                     ; 398 }
+1014 f8afb 3d            	rts	
+1050                     ; 413 _NEAR void  OSTCBInitHook (OS_TCB *ptcb)
+1050                     ; 414 {
+1051                     	switch	.text
+1052 f8afc               _OSTCBInitHook:
+1056                     ; 418     (void)ptcb;                                                         /* Prevent compiler warning                                 */
+1058                     ; 420 }
+1061 f8afc 3d            	rts	
+1085                     ; 436 _NEAR void  OSTimeTickHook (void)
+1085                     ; 437 {
+1086                     	switch	.text
+1087 f8afd               _OSTimeTickHook:
+1091                     ; 443     OSTmrCtr++;
+1093 f8afd fd16fd        	ldy	L3_OSTmrCtr
+1094 f8b00 02            	iny	
+1095 f8b01 7d16fd        	sty	L3_OSTmrCtr
+1096                     ; 444     if (OSTmrCtr >= (OS_TICKS_PER_SEC / OS_TMR_CFG_TICKS_PER_SEC)) {
+1098 f8b04 ce0000        	ldx	#0
+1099 f8b07 8df000        	cpy	#-4096
+1100 f8b0a b754          	tfr	x,d
+1101 f8b0c c200          	sbcb	#0
+1102 f8b0e 8200          	sbca	#0
+1103 f8b10 2508          	blo	L735
+1104                     ; 445         OSTmrCtr = 0;
+1106 f8b12 87            	clra	
+1107 f8b13 c7            	clrb	
+1108 f8b14 7c16fd        	std	L3_OSTmrCtr
+1109                     ; 446         OSTmrSignal();
+1111 f8b17 16720f        	jsr	_OSTmrSignal
+1113 f8b1a               L735:
+1114                     ; 449 }
+1117 f8b1a 3d            	rts	
+1139                     ; 454 _NEAR void  OSTickISRHandler (void)
+1139                     ; 455 {
+1140                     	switch	.text
+1141 f8b1b               _OSTickISRHandler:
+1145                     ; 457 }
+1148 f8b1b 3d            	rts	
+1169                     	switch	.bss
+1170 016fd               L3_OSTmrCtr:
+1171 016fd 0000          	ds.b	2
+1172                     	xdef	_OSTaskAbort
+1173                     	xdef	_OSTimeTickHook
+1174                     	xdef	_OSTCBInitHook
+1175                     	xdef	_OSTaskSwHook
+1176                     	xdef	_OSTaskStkInit
+1177                     	xdef	_OSTaskStatHook
+1178                     	xdef	_OSTaskReturnHook
+1179                     	xdef	_OSTaskIdleHook
+1180                     	xdef	_OSTaskDelHook
+1181                     	xdef	_OSTaskCreateHook
+1182                     	xdef	_OSInitHookEnd
+1183                     	xdef	_OSInitHookBegin
+1184                     	xref	_OSTmrSignal
+1185                     	xref	_OSTaskDel
+1186                     	xdef	_OSTickISRHandler
+1207                     	end

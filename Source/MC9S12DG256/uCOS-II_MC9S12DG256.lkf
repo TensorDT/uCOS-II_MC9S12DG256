@@ -1,0 +1,262 @@
+#######################################################################
+#   File name:  uCOSII_MC9S12DG256.lkf
+#
+#   Purpose:    Cosmic linker file for creating the uC/OS-II RTOS for
+#               the MC9S12DG256.
+#
+#   Target:     MC9S12DG256
+#
+#   Revisions:
+#
+#    ##  dd mmm yyyy  who  description
+#    01  26 Oct 2020  GPM  Initial revision
+#
+#   Notes:
+#   Refer to the COSMIC C Cross Compiler User’s Guide for NXP HC12/HCS12
+#   (Version 4.8).
+#
+#   Refer to the MC9S12DT256 Device User Guide (which also covers the
+#   MC9S12DG256) including the S12MMCV4.pdf (HCS12 Microcontrollers
+#   Module Mapping Control, S12MMCV4 Rev. 4 2/2003).
+#
+#   The memory layout is as indicated in the table below (assumes that
+#   INITRM=0x11, INITRG=0x00, INITEE=0x01, and MODE=0x80):
+#
+#   Physical        Logical        Size      Memory
+#   Addr (hex)      Addr (hex)     (hex)      Type
+#   ----------      ----------   ----------  --------------------------------
+#   000000-0003FF   0000-03FF    400 ( 1K)   registers
+#   000400-000FFF   0400-0FFF    C00 ( 3K)   EEPROM (see note below)
+#   001000-003FFF   1000-3FFF   3000 (12K)   RAM (see note below)
+#   0C0000-0C3FFF   8000-BFFF   4000 (16K)   flash (page 0x30)
+#   0C4000-0C7FFF   8000-BFFF   4000 (16K)   flash (page 0x31)
+#   0C8000-0CBFFF   8000-BFFF   4000 (16K)   flash (page 0x32)
+#   0CC000-0CFFFF   8000-BFFF   4000 (16K)   flash (page 0x33)
+#   0D0000-0D3FFF   8000-BFFF   4000 (16K)   flash (page 0x34)
+#   0D4000-0D7FFF   8000-BFFF   4000 (16K)   flash (page 0x35)
+#   0D8000-0DBFFF   8000-BFFF   4000 (16K)   flash (page 0x36)
+#   0DC000-0DFFFF   8000-BFFF   4000 (16K)   flash (page 0x37)
+#   0E0000-0E3FFF   8000-BFFF   4000 (16K)   flash (page 0x38)
+#   0E4000-0E7FFF   8000-BFFF   4000 (16K)   flash (page 0x39)
+#   0E8000-0EBFFF   8000-BFFF   4000 (16K)   flash (page 0x3A)
+#   0EC000-0EFFFF   8000-BFFF   4000 (16K)   flash (page 0x3B)
+#   0F0000-0F3FFF   8000-BFFF   4000 (16K)   flash (page 0x3C)
+#   0F4000-0F7FFF   8000-BFFF   4000 (16K)   flash (page 0x3D)  
+#   0F8000-0FBFFF   4000-7FFF   4000 (16K)   flash (page 0x3E see note below)
+#   0FC000-0FFFFF   C000-FFFF   4000 (16K)   flash (page 0x3F see note below)
+#
+#   FLASH NOTE:
+#     Flash pages 0x3E and 0x3F are always visible. Pages 0x30 through 0x3D
+#     are truly paged.
+#
+#   EEPROM NOTE:
+#     Although there is 4K of EEPROM, the first 1K is not accessible as
+#     that memory is used by the 1K register bank.
+#
+#   RAM NOTE:
+#     The first 256 bytes are referred to as "zero-page" as the variables
+#     in those bytes need only be referenced by a single byte.
+#     The stack is allocated at the end of the RAM space and grows toward
+#     the beginning of RAM.
+#
+#   Note that
+#     MEMSIZ0=0x25
+#        REG_SW0 = 0 => 1KB allocated system register space
+#        EEP_SW1=1, EEP_SW0=0 => 4KB allocated EEPROM space
+#        RAM_SW2=1, RAM_SW1=0, RAM_SW0=1 =>
+#            12KB allocated RAM space, 16KB mappable,
+#            0x1000 reset base address
+#     MEMSIZ1=0x81
+#       ROM_SW1=1, ROM_SW0=0 => 48KB allocated flash space
+#           (in our case 0x4000-0xFFFF)
+#       PAG_SW1=0, PAG_SW0=1 => 768K off-chip space, 256KB on-chip space
+#
+#   The jump table is allocated code space 0x0FF7E0-0x0FF7FF (in page 0x3F).
+#
+#   By design, the bootloader is allocated code space
+#   0x0FFA00-0xFFEFF (1.25KB in page 0x3F) and the boot code is allocated
+#   code space 0x0FF800-0xFF9FF (0.5KB in page 0x3F).
+#
+#   The interrupt vector table is allocated code space
+#   0x0FFF80-0x0FFFFF (128 bytes at end of page 0x3F).
+#
+#   Note that the start-up file crtsi_s256.s requires that the
+#   following symbols be defined within the linker file:
+#     __memory  the end of bss segment
+#     __sbss    the start of the bss segment
+#     __stack   initial value for the stack pointer, end of RAM
+#
+#   Linker segment option cheat sheet:
+#   (see COSMIC guide, pp. 323-326/538)
+#   -a*  make current segment follow segment *   
+#   -b*  set physical start address to *
+#   -ck  mark segment for checksum
+#   -ik  mark segment as checksum segment
+#   -it  mark segment to store values for auto-initialized data
+#   -m*  set max segment size (bytes) to *
+#   -o*  set logical start address to *
+#   -s*  set segment space name to * for overlap checking
+#
+#######################################################################
+
+#######################################################################
+# Reserved memory in unbanked page 0x3F for Jump Table (0xFF7E0-0xFF7FF)
+#######################################################################
++seg .ftext -b0xFF7E0 -o0xF7E0 -m0x0020 -n.jmptbl -sCODE
++seg .const -a.jmptbl -n.jmptbl_const -sCODE
+#jump_table.o
+
+#######################################################################
+# Reserve memory in unbanked page 0x3F for boot code (0x0FF800-0xFF9FF)
+# and bootloader (0x0FFA00-0xFFF7F) use.
+#######################################################################
++seg .ftext -b0xFF800 -o0xF800 -m0x0200 -n.rsvd_pg_3F_boot  -sCODE
++seg .const -a.rsvd_pg_3F_boot -n.boot_const -sCODE
+#startup.o
+#booting.o
+
++seg .ftext -b0xFFA00 -o0xFA00 -m0x0580 -n.rsvd_pg_3F_btldr -sCODE
++seg .const -a.rsvd_pg_3F_btldr -n.btldr_const -sCODE
+#bootloader.o
+
+#######################################################################
+# Reserve memory in unbanked page 0x3F for the Interrupt Vector
+# Table (0xFFF80-0xFFFFF)
+#######################################################################
++seg .const -b 0xFFF80 -o0xFF80 -m0x0080 -n.vectbl -sCODE
+#vector.o
+
+#######################################################################
+# EEPROM definitions (0x000400-0x000FFF)
+# Note that the last 16 bytes of EEPROM are protected/reserved
+# (see S12EETS4KV2.pdf) so the actual available memory size is
+# 0xC00-0x010=0xBF0.
+#
+# Use @eeprom type qualifier to define variables to be located in
+# EEPROM.
+#######################################################################
++seg .eeprom -b0x0400 -o0x0400 -m0x0BF0     # EEPROM
+
+#######################################################################
+# RAM definitions (0x001000-0x003FFF)
+# Use @dir type qualifier to defined variables to be located in
+# zero page memory.
+#######################################################################
++seg .bsct -b0x1000 -m0x100 -n.bsct -sRAM   # initialized zero page
++seg .ubsct -a.bsct -n.ubsct -sRAM          # uninitialized zero page
+
++seg .data -b0x1100 -m0x2F00 -n.data -sRAM  # initialized static data
++seg .bss -a.data -n.bss -sRAM              # uninitialized static data
+
++def __sbss=@.bss
++def __subsct=@.ubsct
+
+#######################################################################
+# Flash definitions (0x0C0000-0x0FFFFF)
+# Sixteen 16K flash pages (page 0x30 - page 0x3F)
+# The first fourteen pages (0x30-0x3D) are banked
+# The last two pages (0x3E-0x3F) are unbanked (i.e., always visible)
+#   Physical        Logical     Size         Page
+#   Addr (hex)      Addr (hex)  (hex, dec)
+#   0C0000-0C3FFF   8000-BFFF   4000 (16K)   0x30
+#   0C4000-0C7FFF   8000-BFFF   4000 (16K)   0x31
+#   0C8000-0CBFFF   8000-BFFF   4000 (16K)   0x32
+#   0CC000-0CFFFF   8000-BFFF   4000 (16K)   0x33
+#   0D0000-0D3FFF   8000-BFFF   4000 (16K)   0x34
+#   0D4000-0D7FFF   8000-BFFF   4000 (16K)   0x35
+#   0D8000-0DBFFF   8000-BFFF   4000 (16K)   0x36
+#   0DC000-0DFFFF   8000-BFFF   4000 (16K)   0x37
+#   0E0000-0E3FFF   8000-BFFF   4000 (16K)   0x38
+#   0E4000-0E7FFF   8000-BFFF   4000 (16K)   0x39
+#   0E8000-0EBFFF   8000-BFFF   4000 (16K)   0x3A
+#   0EC000-0EFFFF   8000-BFFF   4000 (16K)   0x3B
+#   0F0000-0F3FFF   8000-BFFF   4000 (16K)   0x3C
+#   0F4000-0F7FFF   8000-BFFF   4000 (16K)   0x3D  
+#   0F8000-0FBFFF   4000-7FFF   4000 (16K)   0x3E (always visible)
+#   0FC000-0FFFFF   C000-FFFF   4000 (16K)   0x3F (always visible)
+# Use @near modifier for functions to be in unbanked section (.text).
+# Use @far  modifier for functions to be in banked area (.ftext).
+# Use @interrupt modifier for interrupt service routines (must be in
+# an "always available" (unbanked) page).
+# Checksum the flash page contents.
+#######################################################################
+
+##### Unbanked Flash #####
+# Locate the code containing the startup functions, OS, main function,
+# and interrupt handlers to be in the unbanked (fixed) flash.
+
+##### Unbanked Page 0x3E #####
+# Locate code (and related constants) for non-banked flash page 0x3E
++seg .text -b0xF8000 -o0x4000 -m0x4000 -n.fxpg3E_code -sCODE -ck
++seg NON_BANKED -a.fxpg3E_code -nNON_BANKED -sCODE -ck
++seg .const -aNON_BANKED -n.fxpg3E_const -sCODE -ck
+.\Build-Debug\os_core.o
+.\Build-Debug\os_cpu_a.o
+.\Build-Debug\os_cpu_c.o
+.\Build-Debug\os_dbg_r.o
+.\Build-Debug\os_flag.o
+.\Build-Debug\os_mbox.o
+.\Build-Debug\os_mem.o
+.\Build-Debug\os_mutex.o
+.\Build-Debug\os_q.o
+.\Build-Debug\os_sem.o
+.\Build-Debug\os_task.o
+.\Build-Debug\os_time.o
+.\Build-Debug\os_tmr.o
+.\Build-Debug\ucos_ii.o
+
+##### Unbanked Page 0x3F #####
+# Locate code (and related constants) for non-banked flash page 0x3F
+# Store values here for automatic initialization (-it)
+# Note that the code execution starting point *MUST* start at
+# 0xFC000 as that is the starting application execution address in the
+# case of a bootload error (see bootloader.c).
+# Note that space is reserved (see above) for the jump table, bootloader,
+# boot code, and interrupt vector table at the end of page 0x3F.
++seg .text -b0xFC000 -o0xC000 -m0x37E0 -n.fxpg3F_code -sCODE -ck
++seg .const -a.fxpg3F_code -n.fxpg3F_const -sCODE -it -ck
+#crtsi_s256.o
+#main.o
+#lib_ascii.o
+#lib_mem.o
+#lib_str.o
+
+##### Banked Flash (Pages 0x30-0x3D) #####
+# Define the 14 banked flash pages (0x30-0x3D). 
++seg .ftext -b0xC0000 -o0x8000 -w0x4000 -m38000 -n.banked_pages -sCODE -ck
++seg .const -a.banked_pages -sCODE -ck
+
+##### Interrupt Vector Table #####
+# Definte the memory space for the interrupt vector table
++seg .vector -b0xFFF80 -o0xFF80 -m80 -sCODE
+
+# Library files *MUST* be place after all objects that may call their
+# modules to avoid unresolved references (per manual p. 335/538).
+# Prior linker file indicates not to use libf.h12 (doesn't work properly).
+# The double-precision library MUST be linked BEFORE the other libraries
+# (per manual p. 335/538).
+# Library object files must be in an *UNBANKED* (fixed) flash page.
++seg .text -a.fxpg3F_const -n.fxpg3F_libs -ck
+
+libe.h12                     # EEPROM library (MUST be first lib!)
+libd.h12                     # C double precision float library
+libi.h12                     # C integer library
+libm.h12                     # machine library
+
+# Checksum segment within Flash Page 0x3F
++seg .cksum -a.fxpg3F_libs -ik      
+
+
+
+
+#######################################################################
+# End Definitions
+# These define the locations required by the start-up (crtsx) file.
+# These definitions must be AFTER object files are included.
+#######################################################################
++def __memory=@.bss                         # define bss end symbol
+
+# Define the stack pointer to the byte just after the end of fixed RAM
+# since the stack grows downward. Be careful that it doesn't collide
+# with the .data and .bss segments!
++def __stack=0x4000                         # define stack ptr init val

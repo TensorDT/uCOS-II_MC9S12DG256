@@ -1,0 +1,1089 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+ 142                     ; 93 _NEAR BOOLEAN  OSMutexAccept (OS_EVENT  *pevent,
+ 142                     ; 94                              INT8U     *perr)
+ 142                     ; 95 {
+ 143                     	switch	.text
+ 144 f97fa               _OSMutexAccept:
+ 146 f97fa 3b            	pshd	
+ 147       00000002      OFST:	set	2
+ 150                     ; 98     OS_CPU_SR  cpu_sr = 0u;
+ 152                     ; 111     if (pevent == (OS_EVENT *)0) {                     /* Validate 'pevent'                            */
+ 154 f97fb 6cae          	std	2,-s
+ 155 f97fd 2604          	bne	L17
+ 156                     ; 112         *perr = OS_ERR_PEVENT_NULL;
+ 158 f97ff c604          	ldab	#4
+ 159                     ; 113         return (OS_FALSE);
+ 162 f9801 200a          	bra	LC001
+ 163 f9803               L17:
+ 164                     ; 116     if (pevent->OSEventType != OS_EVENT_TYPE_MUTEX) {  /* Validate event block type                    */
+ 166 f9803 e6f30002      	ldab	[OFST+0,s]
+ 167 f9807 c104          	cmpb	#4
+ 168 f9809 270a          	beq	L37
+ 169                     ; 117         *perr = OS_ERR_EVENT_TYPE;
+ 171 f980b c601          	ldab	#1
+ 172                     ; 118         return (OS_FALSE);
+ 174 f980d               LC001:
+ 175 f980d 6bf30006      	stab	[OFST+4,s]
+ 176 f9811 c7            	clrb	
+ 178 f9812               L6:
+ 180 f9812 1b84          	leas	4,s
+ 181 f9814 3d            	rts	
+ 182 f9815               L37:
+ 183                     ; 120     if (OSIntNesting > 0u) {                           /* Make sure it's not called from an ISR        */
+ 185 f9815 f61631        	ldab	_OSIntNesting
+ 186 f9818 2704          	beq	L57
+ 187                     ; 121         *perr = OS_ERR_PEND_ISR;
+ 189 f981a c602          	ldab	#2
+ 190                     ; 122         return (OS_FALSE);
+ 193 f981c 20ef          	bra	LC001
+ 194 f981e               L57:
+ 195                     ; 124     OS_ENTER_CRITICAL();                               /* Get value (0 or 1) of Mutex                  */
+ 197 f981e 167522        	jsr	_OS_CPU_SR_Save
+ 199 f9821 6b80          	stab	OFST-2,s
+ 200                     ; 125     pcp = (INT8U)(pevent->OSEventCnt >> 8u);           /* Get PCP from mutex                           */
+ 202 f9823 ed82          	ldy	OFST+0,s
+ 203 f9825 180a4381      	movb	3,y,OFST-1,s
+ 204                     ; 126     if ((pevent->OSEventCnt & OS_MUTEX_KEEP_LOWER_8) == OS_MUTEX_AVAILABLE) {
+ 206 f9829 e644          	ldab	4,y
+ 207 f982b 87            	clra	
+ 208 f982c 8c00ff        	cpd	#255
+ 209 f982f 263a          	bne	L77
+ 210                     ; 127         pevent->OSEventCnt &= OS_MUTEX_KEEP_UPPER_8;   /*      Mask off LSByte (Acquire Mutex)         */
+ 212 f9831 6a44          	staa	4,y
+ 213                     ; 128         pevent->OSEventCnt |= (INT16U)OSTCBCur->OSTCBPrio;  /* Save current task priority in LSByte    */
+ 215 f9833 fe157d        	ldx	_OSTCBCur
+ 216 f9836 e6e024        	ldab	36,x
+ 217 f9839 ea44          	orab	4,y
+ 218 f983b aa43          	oraa	3,y
+ 219 f983d 6c43          	std	3,y
+ 220                     ; 129         pevent->OSEventPtr  = (void *)OSTCBCur;        /*      Link TCB of task owning Mutex           */
+ 222 f983f 6e41          	stx	1,y
+ 223                     ; 130         if ((pcp != OS_PRIO_MUTEX_CEIL_DIS) &&
+ 223                     ; 131             (OSTCBCur->OSTCBPrio <= pcp)) {            /*      PCP 'must' have a SMALLER prio ...      */
+ 225 f9841 e681          	ldab	OFST-1,s
+ 226 f9843 048117        	ibeq	b,L101
+ 228 f9846 b756          	tfr	x,y
+ 229 f9848 e6e824        	ldab	36,y
+ 230 f984b e181          	cmpb	OFST-1,s
+ 231 f984d 220e          	bhi	L101
+ 232                     ; 132              OS_EXIT_CRITICAL();                       /*      ... than current task!                  */
+ 234 f984f e680          	ldab	OFST-2,s
+ 235 f9851 87            	clra	
+ 236 f9852 167527        	jsr	_OS_CPU_SR_Restore
+ 238                     ; 133             *perr = OS_ERR_PCP_LOWER;
+ 240 f9855 c678          	ldab	#120
+ 241 f9857 6bf30006      	stab	[OFST+4,s]
+ 243 f985b 200a          	bra	L301
+ 244 f985d               L101:
+ 245                     ; 135              OS_EXIT_CRITICAL();
+ 247 f985d e680          	ldab	OFST-2,s
+ 248 f985f 87            	clra	
+ 249 f9860 167527        	jsr	_OS_CPU_SR_Restore
+ 251                     ; 136             *perr = OS_ERR_NONE;
+ 253 f9863 69f30006      	clr	[OFST+4,s]
+ 254 f9867               L301:
+ 255                     ; 138         return (OS_TRUE);
+ 257 f9867 c601          	ldab	#1
+ 259 f9869 20a7          	bra	L6
+ 260 f986b               L77:
+ 261                     ; 140     OS_EXIT_CRITICAL();
+ 263 f986b e680          	ldab	OFST-2,s
+ 264 f986d 167527        	jsr	_OS_CPU_SR_Restore
+ 266                     ; 141     *perr = OS_ERR_NONE;
+ 268 f9870 c7            	clrb	
+ 269 f9871 6bf30006      	stab	[OFST+4,s]
+ 270                     ; 142     return (OS_FALSE);
+ 274 f9875 1b84          	leas	4,s
+ 275 f9877 3d            	rts	
+ 344                     ; 187 _NEAR OS_EVENT  *OSMutexCreate (INT8U   prio,
+ 344                     ; 188                                INT8U  *perr)
+ 344                     ; 189 {
+ 345                     	switch	.text
+ 346 f9878               _OSMutexCreate:
+ 348 f9878 3b            	pshd	
+ 349 f9879 1b9d          	leas	-3,s
+ 350       00000003      OFST:	set	3
+ 353                     ; 192     OS_CPU_SR  cpu_sr = 0u;
+ 355                     ; 213     if (prio != OS_PRIO_MUTEX_CEIL_DIS) {
+ 357 f987b c1ff          	cmpb	#255
+ 358 f987d 2708          	beq	L731
+ 359                     ; 214         if (prio >= OS_LOWEST_PRIO) {                      /* Validate PCP                             */
+ 361 f987f c13f          	cmpb	#63
+ 362 f9881 2504          	blo	L731
+ 363                     ; 215            *perr = OS_ERR_PRIO_INVALID;
+ 365 f9883 c62a          	ldab	#42
+ 366                     ; 216             return ((OS_EVENT *)0);
+ 369 f9885 2007          	bra	LC002
+ 370 f9887               L731:
+ 371                     ; 220     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+ 373 f9887 f61631        	ldab	_OSIntNesting
+ 374 f988a 270b          	beq	L341
+ 375                     ; 221         *perr = OS_ERR_CREATE_ISR;                         /* ... can't CREATE mutex from an ISR       */
+ 377 f988c c610          	ldab	#16
+ 378                     ; 222         return ((OS_EVENT *)0);
+ 380 f988e               LC002:
+ 381 f988e 6bf30007      	stab	[OFST+4,s]
+ 382 f9892 87            	clra	
+ 383 f9893 c7            	clrb	
+ 385 f9894               L21:
+ 387 f9894 1b85          	leas	5,s
+ 388 f9896 3d            	rts	
+ 389 f9897               L341:
+ 390                     ; 224     OS_ENTER_CRITICAL();
+ 392 f9897 167522        	jsr	_OS_CPU_SR_Save
+ 394 f989a 6b82          	stab	OFST-1,s
+ 395                     ; 225     if (prio != OS_PRIO_MUTEX_CEIL_DIS) {
+ 397 f989c e684          	ldab	OFST+1,s
+ 398 f989e c1ff          	cmpb	#255
+ 399 f98a0 2720          	beq	L541
+ 400                     ; 226         if (OSTCBPrioTbl[prio] != (OS_TCB *)0) {           /* Mutex priority must not already exist    */
+ 402 f98a2 87            	clra	
+ 403 f98a3 59            	lsld	
+ 404 f98a4 b746          	tfr	d,y
+ 405 f98a6 ecea14f7      	ldd	_OSTCBPrioTbl,y
+ 406 f98aa 270a          	beq	L741
+ 407                     ; 227             OS_EXIT_CRITICAL();                            /* Task already exist at priority ...       */
+ 409 f98ac e682          	ldab	OFST-1,s
+ 410 f98ae 87            	clra	
+ 411 f98af 167527        	jsr	_OS_CPU_SR_Restore
+ 413                     ; 228            *perr = OS_ERR_PRIO_EXIST;                      /* ... ceiling priority                     */
+ 415 f98b2 c628          	ldab	#40
+ 416                     ; 229             return ((OS_EVENT *)0);
+ 419 f98b4 20d8          	bra	LC002
+ 420 f98b6               L741:
+ 421                     ; 231         OSTCBPrioTbl[prio] = OS_TCB_RESERVED;              /* Reserve the table entry                  */
+ 423 f98b6 e684          	ldab	OFST+1,s
+ 424 f98b8 59            	lsld	
+ 425 f98b9 b746          	tfr	d,y
+ 426 f98bb cc0001        	ldd	#1
+ 427 f98be 6cea14f7      	std	_OSTCBPrioTbl,y
+ 428 f98c2               L541:
+ 429                     ; 234     pevent = OSEventFreeList;                              /* Get next free event control block        */
+ 431 f98c2 fc16f7        	ldd	_OSEventFreeList
+ 432 f98c5 6c80          	std	OFST-3,s
+ 433                     ; 235     if (pevent == (OS_EVENT *)0) {                         /* See if an ECB was available              */
+ 435 f98c7 261f          	bne	L151
+ 436                     ; 236         if (prio != OS_PRIO_MUTEX_CEIL_DIS) {
+ 438 f98c9 e684          	ldab	OFST+1,s
+ 439 f98cb c1ff          	cmpb	#255
+ 440 f98cd 2709          	beq	L351
+ 441                     ; 237             OSTCBPrioTbl[prio] = (OS_TCB *)0;              /* No, Release the table entry              */
+ 443 f98cf 59            	lsld	
+ 444 f98d0 b746          	tfr	d,y
+ 445 f98d2 87            	clra	
+ 446 f98d3 c7            	clrb	
+ 447 f98d4 6cea14f7      	std	_OSTCBPrioTbl,y
+ 448 f98d8               L351:
+ 449                     ; 239         OS_EXIT_CRITICAL();
+ 451 f98d8 e682          	ldab	OFST-1,s
+ 452 f98da 87            	clra	
+ 453 f98db 167527        	jsr	_OS_CPU_SR_Restore
+ 455                     ; 240        *perr = OS_ERR_PEVENT_NULL;                         /* No more event control blocks             */
+ 457 f98de c604          	ldab	#4
+ 458 f98e0 6bf30007      	stab	[OFST+4,s]
+ 459                     ; 241         return (pevent);
+ 461 f98e4 ec80          	ldd	OFST-3,s
+ 463 f98e6 20ac          	bra	L21
+ 464 f98e8               L151:
+ 465                     ; 243     OSEventFreeList     = (OS_EVENT *)OSEventFreeList->OSEventPtr; /* Adjust the free list             */
+ 467 f98e8 b746          	tfr	d,y
+ 468 f98ea 18054116f7    	movw	1,y,_OSEventFreeList
+ 469                     ; 244     OS_EXIT_CRITICAL();
+ 471 f98ef e682          	ldab	OFST-1,s
+ 472 f98f1 87            	clra	
+ 473 f98f2 167527        	jsr	_OS_CPU_SR_Restore
+ 475                     ; 245     pevent->OSEventType = OS_EVENT_TYPE_MUTEX;
+ 477 f98f5 c604          	ldab	#4
+ 478 f98f7 ed80          	ldy	OFST-3,s
+ 479 f98f9 6b40          	stab	0,y
+ 480                     ; 246     pevent->OSEventCnt  = (INT16U)((INT16U)prio << 8u) | OS_MUTEX_AVAILABLE; /* Resource is avail.     */
+ 482 f98fb cc00ff        	ldd	#255
+ 483 f98fe aa84          	oraa	OFST+1,s
+ 484 f9900 6c43          	std	3,y
+ 485                     ; 247     pevent->OSEventPtr  = (void *)0;                       /* No task owning the mutex                 */
+ 487 f9902 87            	clra	
+ 488 f9903 c7            	clrb	
+ 489 f9904 6c41          	std	1,y
+ 490                     ; 249     pevent->OSEventName = (INT8U *)(void *)"?";
+ 492 f9906 cc7717        	ldd	#L551
+ 493 f9909 6c4e          	std	14,y
+ 494                     ; 251     OS_EventWaitListInit(pevent);
+ 496 f990b b764          	tfr	y,d
+ 497 f990d 164701        	jsr	_OS_EventWaitListInit
+ 499                     ; 253    *perr = OS_ERR_NONE;
+ 502 f9910 69f30007      	clr	[OFST+4,s]
+ 503                     ; 254     return (pevent);
+ 505 f9914 ec80          	ldd	OFST-3,s
+ 508 f9916 1b85          	leas	5,s
+ 509 f9918 3d            	rts	
+ 945                     ; 301 _NEAR OS_EVENT  *OSMutexDel (OS_EVENT  *pevent,
+ 945                     ; 302                             INT8U      opt,
+ 945                     ; 303                             INT8U     *perr)
+ 945                     ; 304 {
+ 946                     	switch	.text
+ 947 f9919               _OSMutexDel:
+ 949 f9919 3b            	pshd	
+ 950 f991a 1b9a          	leas	-6,s
+ 951       00000006      OFST:	set	6
+ 954                     ; 311     OS_CPU_SR  cpu_sr = 0u;
+ 956                     ; 331     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+ 958 f991c 046404        	tbne	d,L334
+ 959                     ; 332         *perr = OS_ERR_PEVENT_NULL;
+ 961 f991f c604          	ldab	#4
+ 962                     ; 333         return (pevent);
+ 965 f9921 200a          	bra	L61
+ 966 f9923               L334:
+ 967                     ; 339     if (pevent->OSEventType != OS_EVENT_TYPE_MUTEX) {      /* Validate event block type                */
+ 970 f9923 e6f30006      	ldab	[OFST+0,s]
+ 971 f9927 c104          	cmpb	#4
+ 972 f9929 270b          	beq	L534
+ 973                     ; 340         *perr = OS_ERR_EVENT_TYPE;
+ 975 f992b c601          	ldab	#1
+ 976                     ; 342         return (pevent);
+ 980 f992d               L61:
+ 981 f992d 6bf3000c      	stab	[OFST+6,s]
+ 982 f9931 ec86          	ldd	OFST+0,s
+ 984 f9933 1b88          	leas	8,s
+ 985 f9935 3d            	rts	
+ 986 f9936               L534:
+ 987                     ; 344     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+ 989 f9936 f61631        	ldab	_OSIntNesting
+ 990 f9939 2704          	beq	L734
+ 991                     ; 345         *perr = OS_ERR_DEL_ISR;                            /* ... can't DELETE from an ISR             */
+ 993 f993b c60f          	ldab	#15
+ 994                     ; 347         return (pevent);
+ 998 f993d 20ee          	bra	L61
+ 999 f993f               L734:
+1000                     ; 349     OS_ENTER_CRITICAL();
+1002 f993f 167522        	jsr	_OS_CPU_SR_Save
+1004 f9942 6b83          	stab	OFST-3,s
+1005                     ; 350     if (pevent->OSEventGrp != 0u) {                        /* See if any tasks waiting on mutex        */
+1007 f9944 ed86          	ldy	OFST+0,s
+1008 f9946 e645          	ldab	5,y
+1009 f9948 2706          	beq	L144
+1010                     ; 351         tasks_waiting = OS_TRUE;                           /* Yes                                      */
+1012 f994a c601          	ldab	#1
+1013 f994c 6b84          	stab	OFST-2,s
+1015 f994e 2002          	bra	L344
+1016 f9950               L144:
+1017                     ; 353         tasks_waiting = OS_FALSE;                          /* No                                       */
+1019 f9950 6984          	clr	OFST-2,s
+1020 f9952               L344:
+1021                     ; 355     switch (opt) {
+1023 f9952 e68b          	ldab	OFST+5,s
+1025 f9954 270d          	beq	L751
+1026 f9956 040154        	dbeq	b,L161
+1027                     ; 413         default:
+1027                     ; 414              OS_EXIT_CRITICAL();
+1029 f9959 e683          	ldab	OFST-3,s
+1030 f995b 87            	clra	
+1031 f995c 167527        	jsr	_OS_CPU_SR_Restore
+1033                     ; 415              *perr         = OS_ERR_INVALID_OPT;
+1035 f995f c607          	ldab	#7
+1036                     ; 416              pevent_return = pevent;
+1038                     ; 417              break;
+1040 f9961 2040          	bra	LC004
+1041 f9963               L751:
+1042                     ; 356         case OS_DEL_NO_PEND:                               /* DELETE MUTEX ONLY IF NO TASK WAITING --- */
+1042                     ; 357              if (tasks_waiting == OS_FALSE) {
+1044 f9963 e684          	ldab	OFST-2,s
+1045 f9965 2634          	bne	L154
+1046                     ; 359                  pevent->OSEventName   = (INT8U *)(void *)"?";
+1048 f9967 cc7717        	ldd	#L551
+1049 f996a 6c4e          	std	14,y
+1050                     ; 361                  pcp                   = (INT8U)(pevent->OSEventCnt >> 8u);
+1052 f996c e643          	ldab	3,y
+1053 f996e 6b82          	stab	OFST-4,s
+1054                     ; 362                  if (pcp != OS_PRIO_MUTEX_CEIL_DIS) {
+1056 f9970 c1ff          	cmpb	#255
+1057 f9972 270c          	beq	L354
+1058                     ; 363                      OSTCBPrioTbl[pcp] = (OS_TCB *)0;      /* Free up the PCP                          */
+1060 f9974 87            	clra	
+1061 f9975 59            	lsld	
+1062 f9976 b746          	tfr	d,y
+1063 f9978 87            	clra	
+1064 f9979 c7            	clrb	
+1065 f997a 6cea14f7      	std	_OSTCBPrioTbl,y
+1066 f997e ed86          	ldy	OFST+0,s
+1067 f9980               L354:
+1068                     ; 365                  pevent->OSEventType   = OS_EVENT_TYPE_UNUSED;
+1070 f9980 87            	clra	
+1071 f9981 6a40          	staa	0,y
+1072                     ; 366                  pevent->OSEventPtr    = OSEventFreeList;  /* Return Event Control Block to free list  */
+1074 f9983 18014116f7    	movw	_OSEventFreeList,1,y
+1075                     ; 367                  pevent->OSEventCnt    = 0u;
+1077 f9988 c7            	clrb	
+1078 f9989 6c43          	std	3,y
+1079                     ; 368                  OSEventFreeList       = pevent;
+1081 f998b 7d16f7        	sty	_OSEventFreeList
+1082                     ; 369                  OS_EXIT_CRITICAL();
+1084 f998e e683          	ldab	OFST-3,s
+1085 f9990 167527        	jsr	_OS_CPU_SR_Restore
+1087                     ; 370                  *perr                 = OS_ERR_NONE;
+1089 f9993 87            	clra	
+1090 f9994 6af3000c      	staa	[OFST+6,s]
+1091                     ; 371                  pevent_return         = (OS_EVENT *)0;    /* Mutex has been deleted                   */
+1093 f9998 c7            	clrb	
+1095 f9999 200e          	bra	LC003
+1096 f999b               L154:
+1097                     ; 373                  OS_EXIT_CRITICAL();
+1099 f999b e683          	ldab	OFST-3,s
+1100 f999d 87            	clra	
+1101 f999e 167527        	jsr	_OS_CPU_SR_Restore
+1103                     ; 374                  *perr                 = OS_ERR_TASK_WAITING;
+1105 f99a1 c649          	ldab	#73
+1106                     ; 375                  pevent_return         = pevent;
+1108 f99a3               LC004:
+1109 f99a3 6bf3000c      	stab	[OFST+6,s]
+1110 f99a7 ec86          	ldd	OFST+0,s
+1111 f99a9               LC003:
+1112 f99a9 6c80          	std	OFST-6,s
+1113 f99ab 2075          	bra	L744
+1114 f99ad               L161:
+1115                     ; 379         case OS_DEL_ALWAYS:                                /* ALWAYS DELETE THE MUTEX ---------------- */
+1115                     ; 380              pcp  = (INT8U)(pevent->OSEventCnt >> 8u);                       /* Get PCP of mutex       */
+1117 f99ad e643          	ldab	3,y
+1118 f99af 6b82          	stab	OFST-4,s
+1119                     ; 381              if (pcp != OS_PRIO_MUTEX_CEIL_DIS) {
+1121 f99b1 04812e        	ibeq	b,L764
+1122                     ; 382                  prio = (INT8U)(pevent->OSEventCnt & OS_MUTEX_KEEP_LOWER_8); /* Get owner's orig prio  */
+1124 f99b4 180a4485      	movb	4,y,OFST-1,s
+1125                     ; 383                  ptcb = (OS_TCB *)pevent->OSEventPtr;
+1127 f99b8 ed41          	ldy	1,y
+1128 f99ba 6d80          	sty	OFST-6,s
+1129                     ; 384                  if (ptcb != (OS_TCB *)0) {                /* See if any task owns the mutex           */
+1131 f99bc 2724          	beq	L764
+1132                     ; 385                      if (ptcb->OSTCBPrio == pcp) {         /* See if original prio was changed         */
+1134 f99be e6e824        	ldab	36,y
+1135 f99c1 e182          	cmpb	OFST-4,s
+1136 f99c3 261d          	bne	L764
+1137                     ; 387                          OSMutex_RdyAtPrio(ptcb, prio);    /* Yes, Restore the task's original prio    */
+1140 f99c5 e685          	ldab	OFST-1,s
+1141 f99c7 87            	clra	
+1142 f99c8 3b            	pshd	
+1143 f99c9 b764          	tfr	y,d
+1144 f99cb 165d3b        	jsr	L3_OSMutex_RdyAtPrio
+1146 f99ce 1b82          	leas	2,s
+1147 f99d0 2010          	bra	L764
+1148 f99d2               L564:
+1149                     ; 392                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_MUTEX, OS_STAT_PEND_ABORT);
+1151 f99d2 cc0002        	ldd	#2
+1152 f99d5 3b            	pshd	
+1153 f99d6 c610          	ldab	#16
+1154 f99d8 3b            	pshd	
+1155 f99d9 c7            	clrb	
+1156 f99da 3b            	pshd	
+1157 f99db b764          	tfr	y,d
+1158 f99dd 164554        	jsr	_OS_EventTaskRdy
+1160 f99e0 1b86          	leas	6,s
+1161 f99e2               L764:
+1162                     ; 391              while (pevent->OSEventGrp != 0u) {            /* Ready ALL tasks waiting for mutex        */
+1164 f99e2 ed86          	ldy	OFST+0,s
+1165 f99e4 e645          	ldab	5,y
+1166 f99e6 26ea          	bne	L564
+1167                     ; 395              pevent->OSEventName   = (INT8U *)(void *)"?";
+1169 f99e8 cc7717        	ldd	#L551
+1170 f99eb 6c4e          	std	14,y
+1171                     ; 397              pcp                   = (INT8U)(pevent->OSEventCnt >> 8u);
+1173 f99ed e643          	ldab	3,y
+1174 f99ef 6b82          	stab	OFST-4,s
+1175                     ; 398              if (pcp != OS_PRIO_MUTEX_CEIL_DIS) {
+1177 f99f1 c1ff          	cmpb	#255
+1178 f99f3 270c          	beq	L374
+1179                     ; 399                  OSTCBPrioTbl[pcp] = (OS_TCB *)0;          /* Free up the PCP                          */
+1181 f99f5 87            	clra	
+1182 f99f6 59            	lsld	
+1183 f99f7 b746          	tfr	d,y
+1184 f99f9 87            	clra	
+1185 f99fa c7            	clrb	
+1186 f99fb 6cea14f7      	std	_OSTCBPrioTbl,y
+1187 f99ff ed86          	ldy	OFST+0,s
+1188 f9a01               L374:
+1189                     ; 401              pevent->OSEventType   = OS_EVENT_TYPE_UNUSED;
+1191 f9a01 87            	clra	
+1192 f9a02 6a40          	staa	0,y
+1193                     ; 402              pevent->OSEventPtr    = OSEventFreeList;      /* Return Event Control Block to free list  */
+1195 f9a04 18014116f7    	movw	_OSEventFreeList,1,y
+1196                     ; 403              pevent->OSEventCnt    = 0u;
+1198 f9a09 c7            	clrb	
+1199 f9a0a 6c43          	std	3,y
+1200                     ; 404              OSEventFreeList       = pevent;               /* Get next free event control block        */
+1202 f9a0c 7d16f7        	sty	_OSEventFreeList
+1203                     ; 405              OS_EXIT_CRITICAL();
+1205 f9a0f e683          	ldab	OFST-3,s
+1206 f9a11 167527        	jsr	_OS_CPU_SR_Restore
+1208                     ; 406              if (tasks_waiting == OS_TRUE) {               /* Reschedule only if task(s) were waiting  */
+1210 f9a14 e684          	ldab	OFST-2,s
+1211 f9a16 042103        	dbne	b,L574
+1212                     ; 407                  OS_Sched();                               /* Find highest priority task ready to run  */
+1214 f9a19 16488b        	jsr	_OS_Sched
+1216 f9a1c               L574:
+1217                     ; 409              *perr         = OS_ERR_NONE;
+1219 f9a1c 87            	clra	
+1220 f9a1d 6af3000c      	staa	[OFST+6,s]
+1221                     ; 410              pevent_return = (OS_EVENT *)0;                /* Mutex has been deleted                   */
+1223 f9a21 c7            	clrb	
+1224                     ; 411              break;
+1226 f9a22               L744:
+1227                     ; 422     return (pevent_return);
+1232 f9a22 1b88          	leas	8,s
+1233 f9a24 3d            	rts	
+1356                     ; 467 _NEAR void  OSMutexPend (OS_EVENT  *pevent,
+1356                     ; 468                         INT32U     timeout,
+1356                     ; 469                         INT8U     *perr)
+1356                     ; 470 {
+1357                     	switch	.text
+1358 f9a25               _OSMutexPend:
+1360 f9a25 3b            	pshd	
+1361 f9a26 1b99          	leas	-7,s
+1362       00000007      OFST:	set	7
+1365                     ; 478     OS_CPU_SR  cpu_sr = 0u;
+1367                     ; 490     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+1369 f9a28 046404        	tbne	d,L165
+1370                     ; 491         *perr = OS_ERR_PEVENT_NULL;
+1372 f9a2b c604          	ldab	#4
+1373                     ; 492         return;
+1375 f9a2d 200a          	bra	LC005
+1376 f9a2f               L165:
+1377                     ; 498     if (pevent->OSEventType != OS_EVENT_TYPE_MUTEX) {      /* Validate event block type                */
+1380 f9a2f e6f30007      	ldab	[OFST+0,s]
+1381 f9a33 c104          	cmpb	#4
+1382 f9a35 2709          	beq	L365
+1383                     ; 499         *perr = OS_ERR_EVENT_TYPE;
+1385 f9a37 c601          	ldab	#1
+1386 f9a39               LC005:
+1387 f9a39 6bf3000f      	stab	[OFST+8,s]
+1388                     ; 501         return;
+1389 f9a3d               L23:
+1393 f9a3d 1b89          	leas	9,s
+1394 f9a3f 3d            	rts	
+1395 f9a40               L365:
+1396                     ; 503     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+1398 f9a40 f61631        	ldab	_OSIntNesting
+1399 f9a43 2704          	beq	L565
+1400                     ; 504         *perr = OS_ERR_PEND_ISR;                           /* ... can't PEND from an ISR               */
+1402 f9a45 c602          	ldab	#2
+1403                     ; 506         return;
+1406 f9a47 20f0          	bra	LC005
+1407 f9a49               L565:
+1408                     ; 508     if (OSLockNesting > 0u) {                              /* See if called with scheduler locked ...  */
+1410 f9a49 f61630        	ldab	_OSLockNesting
+1411 f9a4c 2704          	beq	L765
+1412                     ; 509         *perr = OS_ERR_PEND_LOCKED;                        /* ... can't PEND when locked               */
+1414 f9a4e c60d          	ldab	#13
+1415                     ; 511         return;
+1418 f9a50 20e7          	bra	LC005
+1419 f9a52               L765:
+1420                     ; 514     OS_ENTER_CRITICAL();
+1422 f9a52 167522        	jsr	_OS_CPU_SR_Save
+1424 f9a55 6b86          	stab	OFST-1,s
+1425                     ; 515     pcp = (INT8U)(pevent->OSEventCnt >> 8u);               /* Get PCP from mutex                       */
+1427 f9a57 ed87          	ldy	OFST+0,s
+1428 f9a59 180a4385      	movb	3,y,OFST-2,s
+1429                     ; 517     if ((INT8U)(pevent->OSEventCnt & OS_MUTEX_KEEP_LOWER_8) == OS_MUTEX_AVAILABLE) {
+1431 f9a5d e644          	ldab	4,y
+1432 f9a5f 04a135        	ibne	b,L175
+1433                     ; 518         pevent->OSEventCnt &= OS_MUTEX_KEEP_UPPER_8;       /* Yes, Acquire the resource                */
+1435 f9a62 87            	clra	
+1436 f9a63 6a44          	staa	4,y
+1437                     ; 519         pevent->OSEventCnt |= (INT16U)OSTCBCur->OSTCBPrio; /*      Save priority of owning task        */
+1439 f9a65 fe157d        	ldx	_OSTCBCur
+1440 f9a68 e6e024        	ldab	36,x
+1441 f9a6b ea44          	orab	4,y
+1442 f9a6d aa43          	oraa	3,y
+1443 f9a6f 6c43          	std	3,y
+1444                     ; 520         pevent->OSEventPtr  = (void *)OSTCBCur;            /*      Point to owning task's OS_TCB       */
+1446 f9a71 6e41          	stx	1,y
+1447                     ; 521         if ((pcp != OS_PRIO_MUTEX_CEIL_DIS) &&
+1447                     ; 522             (OSTCBCur->OSTCBPrio <= pcp)) {                /*      PCP 'must' have a SMALLER prio ...  */
+1449 f9a73 e685          	ldab	OFST-2,s
+1450 f9a75 048113        	ibeq	b,L375
+1452 f9a78 b756          	tfr	x,y
+1453 f9a7a e6e824        	ldab	36,y
+1454 f9a7d e185          	cmpb	OFST-2,s
+1455 f9a7f 220a          	bhi	L375
+1456                     ; 523              OS_EXIT_CRITICAL();                           /*      ... than current task!              */
+1458 f9a81 e686          	ldab	OFST-1,s
+1459 f9a83 87            	clra	
+1460 f9a84 167527        	jsr	_OS_CPU_SR_Restore
+1462                     ; 524             *perr = OS_ERR_PCP_LOWER;
+1464 f9a87 c678          	ldab	#120
+1466 f9a89 20ae          	bra	LC005
+1467 f9a8b               L375:
+1468                     ; 526              OS_EXIT_CRITICAL();
+1470 f9a8b e686          	ldab	OFST-1,s
+1471 f9a8d 87            	clra	
+1472 f9a8e 167527        	jsr	_OS_CPU_SR_Restore
+1474                     ; 527             *perr = OS_ERR_NONE;
+1476 f9a91 69f3000f      	clr	[OFST+8,s]
+1477                     ; 530         return;
+1480 f9a95 20a6          	bra	L23
+1481 f9a97               L175:
+1482                     ; 532     if (pcp != OS_PRIO_MUTEX_CEIL_DIS) {
+1484 f9a97 e685          	ldab	OFST-2,s
+1485 f9a99 52            	incb	
+1486 f9a9a 182700f4      	beq	L775
+1487                     ; 533         mprio = (INT8U)(pevent->OSEventCnt & OS_MUTEX_KEEP_LOWER_8); /*  Get priority of mutex owner   */
+1489 f9a9e 180a4482      	movb	4,y,OFST-5,s
+1490                     ; 534         ptcb  = (OS_TCB *)(pevent->OSEventPtr);                   /*     Point to TCB of mutex owner   */
+1492 f9aa2 ed41          	ldy	1,y
+1493 f9aa4 6d80          	sty	OFST-7,s
+1494                     ; 535         if (ptcb->OSTCBPrio > pcp) {                              /*     Need to promote prio of owner?*/
+1496 f9aa6 e6e824        	ldab	36,y
+1497 f9aa9 e185          	cmpb	OFST-2,s
+1498 f9aab 182300e3      	bls	L775
+1499                     ; 536             if (mprio > OSTCBCur->OSTCBPrio) {
+1501 f9aaf e682          	ldab	OFST-5,s
+1502 f9ab1 fd157d        	ldy	_OSTCBCur
+1503 f9ab4 e1e824        	cmpb	36,y
+1504 f9ab7 182300d7      	bls	L775
+1505                     ; 537                 y = ptcb->OSTCBY;
+1507 f9abb ed80          	ldy	OFST-7,s
+1508 f9abd e6e826        	ldab	38,y
+1509 f9ac0 6b82          	stab	OFST-5,s
+1510                     ; 538                 if ((OSRdyTbl[y] & ptcb->OSTCBBitX) != 0u) {      /*     See if mutex owner is ready   */
+1512 f9ac2 b796          	exg	b,y
+1513 f9ac4 ee80          	ldx	OFST-7,s
+1514 f9ac6 e6e027        	ldab	39,x
+1515 f9ac9 e4ea1625      	andb	_OSRdyTbl,y
+1516 f9acd 2720          	beq	L506
+1517                     ; 539                     OSRdyTbl[y] &= (OS_PRIO)~ptcb->OSTCBBitX;     /*     Yes, Remove owner from Rdy ...*/
+1519 f9acf e6e027        	ldab	39,x
+1520 f9ad2 51            	comb	
+1521 f9ad3 e4ea1625      	andb	_OSRdyTbl,y
+1522 f9ad7 6bea1625      	stab	_OSRdyTbl,y
+1523                     ; 540                     if (OSRdyTbl[y] == 0u) {                      /*          ... list at current prio */
+1525 f9adb 260c          	bne	L706
+1526                     ; 541                         OSRdyGrp &= (OS_PRIO)~ptcb->OSTCBBitY;
+1528 f9add b756          	tfr	x,y
+1529 f9adf e6e828        	ldab	40,y
+1530 f9ae2 51            	comb	
+1531 f9ae3 f4162d        	andb	_OSRdyGrp
+1532 f9ae6 7b162d        	stab	_OSRdyGrp
+1533 f9ae9               L706:
+1534                     ; 543                     rdy = OS_TRUE;
+1536 f9ae9 c601          	ldab	#1
+1537 f9aeb 6b82          	stab	OFST-5,s
+1539 f9aed 2028          	bra	L116
+1540 f9aef               L506:
+1541                     ; 545                     pevent2 = ptcb->OSTCBEventPtr;
+1543 f9aef b756          	tfr	x,y
+1544 f9af1 ece812        	ldd	18,y
+1545 f9af4 6c83          	std	OFST-4,s
+1546                     ; 546                     if (pevent2 != (OS_EVENT *)0) {               /* Remove from event wait list       */
+1548 f9af6 271d          	beq	L316
+1549                     ; 547                         y = ptcb->OSTCBY;
+1551 f9af8 e6e826        	ldab	38,y
+1552 f9afb 6b82          	stab	OFST-5,s
+1553                     ; 548                         pevent2->OSEventTbl[y] &= (OS_PRIO)~ptcb->OSTCBBitX;
+1555 f9afd ed83          	ldy	OFST-4,s
+1556 f9aff 19ed          	leay	b,y
+1557 f9b01 e6e027        	ldab	39,x
+1558 f9b04 51            	comb	
+1559 f9b05 e446          	andb	6,y
+1560 f9b07 6b46          	stab	6,y
+1561                     ; 549                         if (pevent2->OSEventTbl[y] == 0u) {
+1563 f9b09 260a          	bne	L316
+1564                     ; 550                             pevent2->OSEventGrp &= (OS_PRIO)~ptcb->OSTCBBitY;
+1566 f9b0b ed83          	ldy	OFST-4,s
+1567 f9b0d e6e028        	ldab	40,x
+1568 f9b10 51            	comb	
+1569 f9b11 e445          	andb	5,y
+1570 f9b13 6b45          	stab	5,y
+1571 f9b15               L316:
+1572                     ; 553                     rdy = OS_FALSE;                        /* No                                       */
+1574 f9b15 6982          	clr	OFST-5,s
+1575 f9b17               L116:
+1576                     ; 555                 ptcb->OSTCBPrio = pcp;                     /* Change owner task prio to PCP            */
+1578 f9b17 e685          	ldab	OFST-2,s
+1579 f9b19 ed80          	ldy	OFST-7,s
+1580 f9b1b 6be824        	stab	36,y
+1581                     ; 560                 ptcb->OSTCBY    = (INT8U)( ptcb->OSTCBPrio >> 3u);
+1584 f9b1e 54            	lsrb	
+1585 f9b1f 54            	lsrb	
+1586 f9b20 54            	lsrb	
+1587 f9b21 6be826        	stab	38,y
+1588                     ; 561                 ptcb->OSTCBX    = (INT8U)( ptcb->OSTCBPrio & 0x07u);
+1590 f9b24 e6e824        	ldab	36,y
+1591 f9b27 c407          	andb	#7
+1592 f9b29 6be825        	stab	37,y
+1593                     ; 566                 ptcb->OSTCBBitY = (OS_PRIO)(1uL << ptcb->OSTCBY);
+1595 f9b2c c601          	ldab	#1
+1596 f9b2e a6e826        	ldaa	38,y
+1597 f9b31 2704          	beq	L22
+1598 f9b33               L42:
+1599 f9b33 58            	lslb	
+1600 f9b34 0430fc        	dbne	a,L42
+1601 f9b37               L22:
+1602 f9b37 6be828        	stab	40,y
+1603                     ; 567                 ptcb->OSTCBBitX = (OS_PRIO)(1uL << ptcb->OSTCBX);
+1605 f9b3a c601          	ldab	#1
+1606 f9b3c a6e825        	ldaa	37,y
+1607 f9b3f 2704          	beq	L62
+1608 f9b41               L03:
+1609 f9b41 58            	lslb	
+1610 f9b42 0430fc        	dbne	a,L03
+1611 f9b45               L62:
+1612 f9b45 6be827        	stab	39,y
+1613                     ; 569                 if (rdy == OS_TRUE) {                      /* If task was ready at owner's priority ...*/
+1615 f9b48 e682          	ldab	OFST-5,s
+1616 f9b4a 04211d        	dbne	b,L716
+1617                     ; 570                     OSRdyGrp               |= ptcb->OSTCBBitY; /* ... make it ready at new priority.   */
+1619 f9b4d e6e828        	ldab	40,y
+1620 f9b50 fa162d        	orab	_OSRdyGrp
+1621 f9b53 7b162d        	stab	_OSRdyGrp
+1622                     ; 571                     OSRdyTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
+1624 f9b56 e6e826        	ldab	38,y
+1625 f9b59 b796          	exg	b,y
+1626 f9b5b ee80          	ldx	OFST-7,s
+1627 f9b5d e6e027        	ldab	39,x
+1628 f9b60 eaea1625      	orab	_OSRdyTbl,y
+1629 f9b64 6bea1625      	stab	_OSRdyTbl,y
+1631 f9b68 201c          	bra	L126
+1632 f9b6a               L716:
+1633                     ; 573                     pevent2 = ptcb->OSTCBEventPtr;
+1635 f9b6a ede812        	ldy	18,y
+1636 f9b6d 6d83          	sty	OFST-4,s
+1637                     ; 574                     if (pevent2 != (OS_EVENT *)0) {        /* Add to event wait list                   */
+1639 f9b6f 2715          	beq	L126
+1640                     ; 575                         pevent2->OSEventGrp               |= ptcb->OSTCBBitY;
+1642 f9b71 ee80          	ldx	OFST-7,s
+1643 f9b73 e6e028        	ldab	40,x
+1644 f9b76 ea45          	orab	5,y
+1645 f9b78 6b45          	stab	5,y
+1646                     ; 576                         pevent2->OSEventTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
+1648 f9b7a e6e026        	ldab	38,x
+1649 f9b7d 19ed          	leay	b,y
+1650 f9b7f e6e027        	ldab	39,x
+1651 f9b82 ea46          	orab	6,y
+1652 f9b84 6b46          	stab	6,y
+1653 f9b86               L126:
+1654                     ; 579                 OSTCBPrioTbl[pcp] = ptcb;
+1656 f9b86 e685          	ldab	OFST-2,s
+1657 f9b88 87            	clra	
+1658 f9b89 59            	lsld	
+1659 f9b8a b746          	tfr	d,y
+1660 f9b8c ec80          	ldd	OFST-7,s
+1661 f9b8e 6cea14f7      	std	_OSTCBPrioTbl,y
+1662 f9b92               L775:
+1663                     ; 583     OSTCBCur->OSTCBStat     |= OS_STAT_MUTEX;         /* Mutex not available, pend current task        */
+1665 f9b92 fd157d        	ldy	_OSTCBCur
+1666 f9b95 0ce82210      	bset	34,y,16
+1667                     ; 584     OSTCBCur->OSTCBStatPend  = OS_STAT_PEND_OK;
+1669 f9b99 69e823        	clr	35,y
+1670                     ; 585     OSTCBCur->OSTCBDly       = timeout;               /* Store timeout in current task's TCB           */
+1672 f9b9c ec8d          	ldd	OFST+6,s
+1673 f9b9e 6ce820        	std	32,y
+1674 f9ba1 ec8b          	ldd	OFST+4,s
+1675 f9ba3 6ce81e        	std	30,y
+1676                     ; 586     OS_EventTaskWait(pevent);                         /* Suspend task until event or timeout occurs    */
+1678 f9ba6 ec87          	ldd	OFST+0,s
+1679 f9ba8 1645e8        	jsr	_OS_EventTaskWait
+1681                     ; 587     OS_EXIT_CRITICAL();
+1683 f9bab e686          	ldab	OFST-1,s
+1684 f9bad 87            	clra	
+1685 f9bae 167527        	jsr	_OS_CPU_SR_Restore
+1687                     ; 588     OS_Sched();                                       /* Find next highest priority task ready         */
+1689 f9bb1 16488b        	jsr	_OS_Sched
+1691                     ; 589     OS_ENTER_CRITICAL();
+1693 f9bb4 167522        	jsr	_OS_CPU_SR_Save
+1695 f9bb7 6b86          	stab	OFST-1,s
+1696                     ; 590     switch (OSTCBCur->OSTCBStatPend) {                /* See if we timed-out or aborted                */
+1698 f9bb9 fd157d        	ldy	_OSTCBCur
+1699 f9bbc e6e823        	ldab	35,y
+1701 f9bbf 2708          	beq	L774
+1702 f9bc1 04010f        	dbeq	b,L305
+1703 f9bc4 040108        	dbeq	b,L105
+1704 f9bc7 200a          	bra	L305
+1705 f9bc9               L774:
+1706                     ; 591         case OS_STAT_PEND_OK:
+1706                     ; 592              *perr = OS_ERR_NONE;
+1708 f9bc9 69f3000f      	clr	[OFST+8,s]
+1709                     ; 593              break;
+1711 f9bcd 2017          	bra	L726
+1712 f9bcf               L105:
+1713                     ; 595         case OS_STAT_PEND_ABORT:
+1713                     ; 596              *perr = OS_ERR_PEND_ABORT;               /* Indicate that we aborted getting mutex        */
+1715 f9bcf c60e          	ldab	#14
+1716                     ; 597              break;
+1718 f9bd1 200c          	bra	LC006
+1719 f9bd3               L305:
+1720                     ; 599         case OS_STAT_PEND_TO:
+1720                     ; 600         default:
+1720                     ; 601              OS_EventTaskRemove(OSTCBCur, pevent);
+1722 f9bd3 ec87          	ldd	OFST+0,s
+1723 f9bd5 3b            	pshd	
+1724 f9bd6 b764          	tfr	y,d
+1725 f9bd8 16468f        	jsr	_OS_EventTaskRemove
+1727 f9bdb 1b82          	leas	2,s
+1728                     ; 602              *perr = OS_ERR_TIMEOUT;                  /* Indicate that we didn't get mutex within TO   */
+1730 f9bdd c60a          	ldab	#10
+1731 f9bdf               LC006:
+1732 f9bdf 6bf3000f      	stab	[OFST+8,s]
+1733                     ; 603              break;
+1735 f9be3 fd157d        	ldy	_OSTCBCur
+1736 f9be6               L726:
+1737                     ; 605     OSTCBCur->OSTCBStat          =  OS_STAT_RDY;      /* Set   task  status to ready                   */
+1739 f9be6 c7            	clrb	
+1740 f9be7 6be822        	stab	34,y
+1741                     ; 606     OSTCBCur->OSTCBStatPend      =  OS_STAT_PEND_OK;  /* Clear pend  status                            */
+1743 f9bea 87            	clra	
+1744 f9beb 6ae823        	staa	35,y
+1745                     ; 607     OSTCBCur->OSTCBEventPtr      = (OS_EVENT  *)0;    /* Clear event pointers                          */
+1747 f9bee 6ce812        	std	18,y
+1748                     ; 609     OSTCBCur->OSTCBEventMultiPtr = (OS_EVENT **)0;
+1750 f9bf1 6ce814        	std	20,y
+1751                     ; 610     OSTCBCur->OSTCBEventMultiRdy = (OS_EVENT  *)0;
+1753 f9bf4 6ce816        	std	22,y
+1754                     ; 612     OS_EXIT_CRITICAL();
+1756 f9bf7 e686          	ldab	OFST-1,s
+1757 f9bf9 167527        	jsr	_OS_CPU_SR_Restore
+1759                     ; 615 }
+1763 f9bfc 1b89          	leas	9,s
+1764 f9bfe 3d            	rts	
+1829                     ; 642 _NEAR INT8U  OSMutexPost (OS_EVENT *pevent)
+1829                     ; 643 {
+1830                     	switch	.text
+1831 f9bff               _OSMutexPost:
+1833 f9bff 3b            	pshd	
+1834 f9c00 1b9d          	leas	-3,s
+1835       00000003      OFST:	set	3
+1838                     ; 647     OS_CPU_SR  cpu_sr = 0u;
+1840                     ; 651     if (OSIntNesting > 0u) {                          /* See if called from ISR ...                    */
+1842 f9c02 f61631        	ldab	_OSIntNesting
+1843 f9c05 2704          	beq	L756
+1844                     ; 652         return (OS_ERR_POST_ISR);                     /* ... can't POST mutex from an ISR              */
+1846 f9c07 c605          	ldab	#5
+1848 f9c09 2006          	bra	L63
+1849 f9c0b               L756:
+1850                     ; 655     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+1852 f9c0b ec83          	ldd	OFST+0,s
+1853 f9c0d 2605          	bne	L166
+1854                     ; 656         return (OS_ERR_PEVENT_NULL);
+1856 f9c0f c604          	ldab	#4
+1858 f9c11               L63:
+1860 f9c11 1b85          	leas	5,s
+1861 f9c13 3d            	rts	
+1862 f9c14               L166:
+1863                     ; 662     if (pevent->OSEventType != OS_EVENT_TYPE_MUTEX) { /* Validate event block type                     */
+1866 f9c14 e6f30003      	ldab	[OFST+0,s]
+1867 f9c18 c104          	cmpb	#4
+1868 f9c1a 2704          	beq	L366
+1869                     ; 664         return (OS_ERR_EVENT_TYPE);
+1872 f9c1c c601          	ldab	#1
+1874 f9c1e 20f1          	bra	L63
+1875 f9c20               L366:
+1876                     ; 666     OS_ENTER_CRITICAL();
+1878 f9c20 167522        	jsr	_OS_CPU_SR_Save
+1880 f9c23 6b82          	stab	OFST-1,s
+1881                     ; 667     pcp  = (INT8U)(pevent->OSEventCnt >> 8u);         /* Get priority ceiling priority of mutex        */
+1883 f9c25 ed83          	ldy	OFST+0,s
+1884 f9c27 180a4380      	movb	3,y,OFST-3,s
+1885                     ; 668     prio = (INT8U)(pevent->OSEventCnt & OS_MUTEX_KEEP_LOWER_8);  /* Get owner's original priority      */
+1887 f9c2b 180a4481      	movb	4,y,OFST-2,s
+1888                     ; 669     if (OSTCBCur != (OS_TCB *)pevent->OSEventPtr) {   /* See if posting task owns the MUTEX            */
+1890 f9c2f fc157d        	ldd	_OSTCBCur
+1891 f9c32 ac41          	cpd	1,y
+1892 f9c34 270a          	beq	L566
+1893                     ; 670         OS_EXIT_CRITICAL();
+1895 f9c36 e682          	ldab	OFST-1,s
+1896 f9c38 87            	clra	
+1897 f9c39 167527        	jsr	_OS_CPU_SR_Restore
+1899                     ; 672         return (OS_ERR_NOT_MUTEX_OWNER);
+1902 f9c3c c664          	ldab	#100
+1904 f9c3e 20d1          	bra	L63
+1905 f9c40               L566:
+1906                     ; 674     if (pcp != OS_PRIO_MUTEX_CEIL_DIS) {
+1908 f9c40 e680          	ldab	OFST-3,s
+1909 f9c42 048124        	ibeq	b,L766
+1910                     ; 675         if (OSTCBCur->OSTCBPrio == pcp) {             /* Did we have to raise current task's priority? */
+1912 f9c45 fd157d        	ldy	_OSTCBCur
+1913 f9c48 e6e824        	ldab	36,y
+1914 f9c4b e180          	cmpb	OFST-3,s
+1915 f9c4d 260b          	bne	L176
+1916                     ; 677             OSMutex_RdyAtPrio(OSTCBCur, prio);        /* Restore the task's original priority          */
+1919 f9c4f e681          	ldab	OFST-2,s
+1920 f9c51 87            	clra	
+1921 f9c52 3b            	pshd	
+1922 f9c53 b764          	tfr	y,d
+1923 f9c55 165d3b        	jsr	L3_OSMutex_RdyAtPrio
+1925 f9c58 1b82          	leas	2,s
+1926 f9c5a               L176:
+1927                     ; 679         OSTCBPrioTbl[pcp] = OS_TCB_RESERVED;          /* Reserve table entry                           */
+1929 f9c5a e680          	ldab	OFST-3,s
+1930 f9c5c 87            	clra	
+1931 f9c5d 59            	lsld	
+1932 f9c5e b746          	tfr	d,y
+1933 f9c60 cc0001        	ldd	#1
+1934 f9c63 6cea14f7      	std	_OSTCBPrioTbl,y
+1935 f9c67 ed83          	ldy	OFST+0,s
+1936 f9c69               L766:
+1937                     ; 681     if (pevent->OSEventGrp != 0u) {                   /* Any task waiting for the mutex?               */
+1939 f9c69 e645          	ldab	5,y
+1940 f9c6b 274f          	beq	L376
+1941                     ; 683         prio                = OS_EventTaskRdy(pevent, (void *)0, OS_STAT_MUTEX, OS_STAT_PEND_OK);
+1943 f9c6d 87            	clra	
+1944 f9c6e c7            	clrb	
+1945 f9c6f 3b            	pshd	
+1946 f9c70 c610          	ldab	#16
+1947 f9c72 3b            	pshd	
+1948 f9c73 c7            	clrb	
+1949 f9c74 3b            	pshd	
+1950 f9c75 ec89          	ldd	OFST+6,s
+1951 f9c77 164554        	jsr	_OS_EventTaskRdy
+1953 f9c7a 1b86          	leas	6,s
+1954 f9c7c 6b81          	stab	OFST-2,s
+1955                     ; 684         pevent->OSEventCnt &= OS_MUTEX_KEEP_UPPER_8;  /*      Save priority of mutex's new owner       */
+1957 f9c7e ed83          	ldy	OFST+0,s
+1958 f9c80 87            	clra	
+1959 f9c81 6a44          	staa	4,y
+1960                     ; 685         pevent->OSEventCnt |= (INT16U)prio;
+1962 f9c83 ea44          	orab	4,y
+1963 f9c85 aa43          	oraa	3,y
+1964 f9c87 6c43          	std	3,y
+1965                     ; 686         pevent->OSEventPtr  = OSTCBPrioTbl[prio];     /*      Link to new mutex owner's OS_TCB         */
+1967 f9c89 e681          	ldab	OFST-2,s
+1968 f9c8b 87            	clra	
+1969 f9c8c 59            	lsld	
+1970 f9c8d b746          	tfr	d,y
+1971 f9c8f ecea14f7      	ldd	_OSTCBPrioTbl,y
+1972 f9c93 ee83          	ldx	OFST+0,s
+1973 f9c95 6c01          	std	1,x
+1974                     ; 687         if ((pcp  != OS_PRIO_MUTEX_CEIL_DIS) &&
+1974                     ; 688             (prio <= pcp)) {                          /*      PCP 'must' have a SMALLER prio ...       */
+1976 f9c97 e680          	ldab	OFST-3,s
+1977 f9c99 048113        	ibeq	b,L576
+1979 f9c9c e681          	ldab	OFST-2,s
+1980 f9c9e e180          	cmpb	OFST-3,s
+1981 f9ca0 220d          	bhi	L576
+1982                     ; 689             OS_EXIT_CRITICAL();                       /*      ... than current task!                   */
+1984 f9ca2 e682          	ldab	OFST-1,s
+1985 f9ca4 87            	clra	
+1986 f9ca5 167527        	jsr	_OS_CPU_SR_Restore
+1988                     ; 690             OS_Sched();                               /*      Find highest priority task ready to run  */
+1990 f9ca8 16488b        	jsr	_OS_Sched
+1992                     ; 692             return (OS_ERR_PCP_LOWER);
+1995 f9cab c678          	ldab	#120
+1997 f9cad 200a          	bra	L04
+1998 f9caf               L576:
+1999                     ; 694             OS_EXIT_CRITICAL();
+2001 f9caf e682          	ldab	OFST-1,s
+2002 f9cb1 87            	clra	
+2003 f9cb2 167527        	jsr	_OS_CPU_SR_Restore
+2005                     ; 695             OS_Sched();                               /*      Find highest priority task ready to run  */
+2007 f9cb5 16488b        	jsr	_OS_Sched
+2009                     ; 697             return (OS_ERR_NONE);
+2012 f9cb8               LC007:
+2013 f9cb8 c7            	clrb	
+2015 f9cb9               L04:
+2017 f9cb9 1b85          	leas	5,s
+2018 f9cbb 3d            	rts	
+2019 f9cbc               L376:
+2020                     ; 700     pevent->OSEventCnt |= OS_MUTEX_AVAILABLE;         /* No,  Mutex is now available                   */
+2022 f9cbc 0c44ff        	bset	4,y,255
+2023                     ; 701     pevent->OSEventPtr  = (void *)0;
+2025 f9cbf 87            	clra	
+2026 f9cc0 6c41          	std	1,y
+2027                     ; 702     OS_EXIT_CRITICAL();
+2029 f9cc2 e682          	ldab	OFST-1,s
+2030 f9cc4 167527        	jsr	_OS_CPU_SR_Restore
+2032                     ; 704     return (OS_ERR_NONE);
+2036 f9cc7 20ef          	bra	LC007
+2166                     ; 727 _NEAR INT8U  OSMutexQuery (OS_EVENT       *pevent,
+2166                     ; 728                           OS_MUTEX_DATA  *p_mutex_data)
+2166                     ; 729 {
+2167                     	switch	.text
+2168 f9cc9               _OSMutexQuery:
+2170 f9cc9 3b            	pshd	
+2171 f9cca 1b9a          	leas	-6,s
+2172       00000006      OFST:	set	6
+2175                     ; 734     OS_CPU_SR   cpu_sr = 0u;
+2177                     ; 739     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+2179 f9ccc f61631        	ldab	_OSIntNesting
+2180 f9ccf 2704          	beq	L367
+2181                     ; 740         return (OS_ERR_QUERY_ISR);                         /* ... can't QUERY mutex from an ISR        */
+2183 f9cd1 c606          	ldab	#6
+2185 f9cd3 2006          	bra	L44
+2186 f9cd5               L367:
+2187                     ; 743     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+2189 f9cd5 ec86          	ldd	OFST+0,s
+2190 f9cd7 2605          	bne	L567
+2191                     ; 744         return (OS_ERR_PEVENT_NULL);
+2193 f9cd9 c604          	ldab	#4
+2195 f9cdb               L44:
+2197 f9cdb 1b88          	leas	8,s
+2198 f9cdd 3d            	rts	
+2199 f9cde               L567:
+2200                     ; 746     if (p_mutex_data == (OS_MUTEX_DATA *)0) {              /* Validate 'p_mutex_data'                  */
+2202 f9cde ec8a          	ldd	OFST+4,s
+2203 f9ce0 2604          	bne	L767
+2204                     ; 747         return (OS_ERR_PDATA_NULL);
+2206 f9ce2 c609          	ldab	#9
+2208 f9ce4 20f5          	bra	L44
+2209 f9ce6               L767:
+2210                     ; 750     if (pevent->OSEventType != OS_EVENT_TYPE_MUTEX) {      /* Validate event block type                */
+2212 f9ce6 e6f30006      	ldab	[OFST+0,s]
+2213 f9cea c104          	cmpb	#4
+2214 f9cec 2704          	beq	L177
+2215                     ; 751         return (OS_ERR_EVENT_TYPE);
+2217 f9cee c601          	ldab	#1
+2219 f9cf0 20e9          	bra	L44
+2220 f9cf2               L177:
+2221                     ; 753     OS_ENTER_CRITICAL();
+2223 f9cf2 167522        	jsr	_OS_CPU_SR_Save
+2225 f9cf5 6b85          	stab	OFST-1,s
+2226                     ; 754     p_mutex_data->OSMutexPCP  = (INT8U)(pevent->OSEventCnt >> 8u);
+2228 f9cf7 ee86          	ldx	OFST+0,s
+2229 f9cf9 ed8a          	ldy	OFST+4,s
+2230 f9cfb 180a034b      	movb	3,x,11,y
+2231                     ; 755     p_mutex_data->OSOwnerPrio = (INT8U)(pevent->OSEventCnt & OS_MUTEX_KEEP_LOWER_8);
+2233 f9cff e604          	ldab	4,x
+2234 f9d01 6b4a          	stab	10,y
+2235                     ; 756     if (p_mutex_data->OSOwnerPrio == 0xFFu) {
+2237 f9d03 04a106        	ibne	b,L377
+2238                     ; 757         p_mutex_data->OSValue = OS_TRUE;
+2240 f9d06 c601          	ldab	#1
+2241 f9d08 6b49          	stab	9,y
+2243 f9d0a 2002          	bra	L577
+2244 f9d0c               L377:
+2245                     ; 759         p_mutex_data->OSValue = OS_FALSE;
+2247 f9d0c 6949          	clr	9,y
+2248 f9d0e               L577:
+2249                     ; 761     p_mutex_data->OSEventGrp  = pevent->OSEventGrp;        /* Copy wait list                           */
+2251 f9d0e 180a0548      	movb	5,x,8,y
+2252                     ; 762     psrc                      = &pevent->OSEventTbl[0];
+2254 f9d12 ed86          	ldy	OFST+0,s
+2255 f9d14 1946          	leay	6,y
+2256 f9d16 6d81          	sty	OFST-5,s
+2257                     ; 763     pdest                     = &p_mutex_data->OSEventTbl[0];
+2259 f9d18 18028a83      	movw	OFST+4,s,OFST-3,s
+2260                     ; 764     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
+2262 f9d1c 6980          	clr	OFST-6,s
+2263 f9d1e ee81          	ldx	OFST-5,s
+2264 f9d20 ed83          	ldy	OFST-3,s
+2265 f9d22               L777:
+2266                     ; 765         *pdest++ = *psrc++;
+2268 f9d22 180a3070      	movb	1,x+,1,y+
+2269                     ; 764     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
+2271 f9d26 6280          	inc	OFST-6,s
+2274 f9d28 e680          	ldab	OFST-6,s
+2275 f9d2a c108          	cmpb	#8
+2276 f9d2c 25f4          	blo	L777
+2277 f9d2e 6e81          	stx	OFST-5,s
+2278 f9d30 6d83          	sty	OFST-3,s
+2279                     ; 767     OS_EXIT_CRITICAL();
+2281 f9d32 e685          	ldab	OFST-1,s
+2282 f9d34 87            	clra	
+2283 f9d35 167527        	jsr	_OS_CPU_SR_Restore
+2285                     ; 768     return (OS_ERR_NONE);
+2287 f9d38 c7            	clrb	
+2289 f9d39 20a0          	bra	L44
+2343                     ; 787 static  void  OSMutex_RdyAtPrio (OS_TCB  *ptcb,
+2343                     ; 788                                  INT8U    prio)
+2343                     ; 789 {
+2344                     	switch	.text
+2345 f9d3b               L3_OSMutex_RdyAtPrio:
+2347 f9d3b 3b            	pshd	
+2348 f9d3c 37            	pshb	
+2349       00000001      OFST:	set	1
+2352                     ; 793     y            =  ptcb->OSTCBY;                          /* Remove owner from ready list at 'pcp'    */
+2354 f9d3d b746          	tfr	d,y
+2355 f9d3f e6e826        	ldab	38,y
+2356 f9d42 6b80          	stab	OFST-1,s
+2357                     ; 794     OSRdyTbl[y] &= (OS_PRIO)~ptcb->OSTCBBitX;
+2359 f9d44 b796          	exg	b,y
+2360 f9d46 ee81          	ldx	OFST+0,s
+2361 f9d48 e6e027        	ldab	39,x
+2362 f9d4b 51            	comb	
+2363 f9d4c e4ea1625      	andb	_OSRdyTbl,y
+2364 f9d50 6bea1625      	stab	_OSRdyTbl,y
+2365                     ; 796     if (OSRdyTbl[y] == 0u) {
+2368 f9d54 260c          	bne	L1301
+2369                     ; 797         OSRdyGrp &= (OS_PRIO)~ptcb->OSTCBBitY;
+2371 f9d56 b756          	tfr	x,y
+2372 f9d58 e6e828        	ldab	40,y
+2373 f9d5b 51            	comb	
+2374 f9d5c f4162d        	andb	_OSRdyGrp
+2375 f9d5f 7b162d        	stab	_OSRdyGrp
+2376 f9d62               L1301:
+2377                     ; 799     ptcb->OSTCBPrio         = prio;
+2379 f9d62 e686          	ldab	OFST+5,s
+2380 f9d64 b756          	tfr	x,y
+2381 f9d66 6be824        	stab	36,y
+2382                     ; 800     OSPrioCur               = prio;                        /* The current task is now at this priority */
+2384 f9d69 7b162f        	stab	_OSPrioCur
+2385                     ; 802     ptcb->OSTCBY            = (INT8U)((INT8U)(prio >> 3u) & 0x07u);
+2387 f9d6c c438          	andb	#56
+2388 f9d6e 54            	lsrb	
+2389 f9d6f 54            	lsrb	
+2390 f9d70 54            	lsrb	
+2391 f9d71 6be826        	stab	38,y
+2392                     ; 803     ptcb->OSTCBX            = (INT8U)(prio & 0x07u);
+2394 f9d74 e686          	ldab	OFST+5,s
+2395 f9d76 c407          	andb	#7
+2396 f9d78 6be825        	stab	37,y
+2397                     ; 808     ptcb->OSTCBBitY         = (OS_PRIO)(1uL << ptcb->OSTCBY);
+2399 f9d7b c601          	ldab	#1
+2400 f9d7d a6e826        	ldaa	38,y
+2401 f9d80 2704          	beq	L05
+2402 f9d82               L25:
+2403 f9d82 58            	lslb	
+2404 f9d83 0430fc        	dbne	a,L25
+2405 f9d86               L05:
+2406 f9d86 6be828        	stab	40,y
+2407                     ; 809     ptcb->OSTCBBitX         = (OS_PRIO)(1uL << ptcb->OSTCBX);
+2409 f9d89 c601          	ldab	#1
+2410 f9d8b a6e825        	ldaa	37,y
+2411 f9d8e 2704          	beq	L45
+2412 f9d90               L65:
+2413 f9d90 58            	lslb	
+2414 f9d91 0430fc        	dbne	a,L65
+2415 f9d94               L45:
+2416 f9d94 6be827        	stab	39,y
+2417                     ; 810     OSRdyGrp               |= ptcb->OSTCBBitY;             /* Make task ready at original priority     */
+2419 f9d97 e6e828        	ldab	40,y
+2420 f9d9a fa162d        	orab	_OSRdyGrp
+2421 f9d9d 7b162d        	stab	_OSRdyGrp
+2422                     ; 811     OSRdyTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
+2424 f9da0 e6e826        	ldab	38,y
+2425 f9da3 87            	clra	
+2426 f9da4 b746          	tfr	d,y
+2427 f9da6 e6e027        	ldab	39,x
+2428 f9da9 eaea1625      	orab	_OSRdyTbl,y
+2429 f9dad 6bea1625      	stab	_OSRdyTbl,y
+2430                     ; 812     OSTCBPrioTbl[prio]      = ptcb;
+2432 f9db1 e686          	ldab	OFST+5,s
+2433 f9db3 59            	lsld	
+2434 f9db4 b746          	tfr	d,y
+2435 f9db6 6eea14f7      	stx	_OSTCBPrioTbl,y
+2436                     ; 814 }
+2440 f9dba 1b83          	leas	3,s
+2441 f9dbc 3d            	rts	
+2453                     	xref	_OS_Sched
+2454                     	xref	_OS_EventWaitListInit
+2455                     	xref	_OS_EventTaskRemove
+2456                     	xref	_OS_EventTaskWait
+2457                     	xref	_OS_EventTaskRdy
+2458                     	xdef	_OSMutexQuery
+2459                     	xdef	_OSMutexPost
+2460                     	xdef	_OSMutexPend
+2461                     	xdef	_OSMutexDel
+2462                     	xdef	_OSMutexCreate
+2463                     	xdef	_OSMutexAccept
+2464                     	xref	_OSTCBPrioTbl
+2465                     	xref	_OSTCBCur
+2466                     	xref	_OSRdyTbl
+2467                     	xref	_OSRdyGrp
+2468                     	xref	_OSPrioCur
+2469                     	xref	_OSLockNesting
+2470                     	xref	_OSIntNesting
+2471                     	xref	_OSEventFreeList
+2472                     	xref	_OS_CPU_SR_Restore
+2473                     	xref	_OS_CPU_SR_Save
+2474                     .const:	section	.data
+2475 fb717               L551:
+2476 fb717 3f00          	dc.b	"?",0
+2497                     	end

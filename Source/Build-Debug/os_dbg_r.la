@@ -1,0 +1,279 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+  14                     .const:	section	.data
+  15 fb699               _OSDebugEn:
+  16 fb699 0001          	dc.w	1
+  17 fb69b               _OSEndiannessTest:
+  18 fb69b 12345678      	dc.l	305419896
+  19 fb69f               _OSEventEn:
+  20 fb69f 0001          	dc.w	1
+  21 fb6a1               _OSEventMax:
+  22 fb6a1 000a          	dc.w	10
+  23 fb6a3               _OSEventNameEn:
+  24 fb6a3 0001          	dc.w	1
+  25 fb6a5               _OSEventSize:
+  26 fb6a5 0010          	dc.w	16
+  27 fb6a7               _OSEventTblSize:
+  28 fb6a7 00a0          	dc.w	160
+  29 fb6a9               _OSEventMultiEn:
+  30 fb6a9 0001          	dc.w	1
+  31 fb6ab               _OSFlagEn:
+  32 fb6ab 0001          	dc.w	1
+  33 fb6ad               _OSFlagGrpSize:
+  34 fb6ad 0007          	dc.w	7
+  35 fb6af               _OSFlagNodeSize:
+  36 fb6af 000b          	dc.w	11
+  37 fb6b1               _OSFlagWidth:
+  38 fb6b1 0002          	dc.w	2
+  39 fb6b3               _OSFlagMax:
+  40 fb6b3 0005          	dc.w	5
+  41 fb6b5               _OSFlagNameEn:
+  42 fb6b5 0001          	dc.w	1
+  43 fb6b7               _OSLowestPrio:
+  44 fb6b7 003f          	dc.w	63
+  45 fb6b9               _OSMboxEn:
+  46 fb6b9 0001          	dc.w	1
+  47 fb6bb               _OSMemEn:
+  48 fb6bb 0001          	dc.w	1
+  49 fb6bd               _OSMemMax:
+  50 fb6bd 0005          	dc.w	5
+  51 fb6bf               _OSMemNameEn:
+  52 fb6bf 0001          	dc.w	1
+  53 fb6c1               _OSMemSize:
+  54 fb6c1 0012          	dc.w	18
+  55 fb6c3               _OSMemTblSize:
+  56 fb6c3 005a          	dc.w	90
+  57 fb6c5               _OSMutexEn:
+  58 fb6c5 0001          	dc.w	1
+  59 fb6c7               _OSPtrSize:
+  60 fb6c7 0002          	dc.w	2
+  61 fb6c9               _OSQEn:
+  62 fb6c9 0001          	dc.w	1
+  63 fb6cb               _OSQMax:
+  64 fb6cb 0004          	dc.w	4
+  65 fb6cd               _OSQSize:
+  66 fb6cd 000e          	dc.w	14
+  67 fb6cf               _OSRdyTblSize:
+  68 fb6cf 0008          	dc.w	8
+  69 fb6d1               _OSSemEn:
+  70 fb6d1 0001          	dc.w	1
+  71 fb6d3               _OSStkWidth:
+  72 fb6d3 0001          	dc.w	1
+  73 fb6d5               _OSTaskCreateEn:
+  74 fb6d5 0001          	dc.w	1
+  75 fb6d7               _OSTaskCreateExtEn:
+  76 fb6d7 0001          	dc.w	1
+  77 fb6d9               _OSTaskDelEn:
+  78 fb6d9 0001          	dc.w	1
+  79 fb6db               _OSTaskIdleStkSize:
+  80 fb6db 00a0          	dc.w	160
+  81 fb6dd               _OSTaskProfileEn:
+  82 fb6dd 0001          	dc.w	1
+  83 fb6df               _OSTaskMax:
+  84 fb6df 0003          	dc.w	3
+  85 fb6e1               _OSTaskNameEn:
+  86 fb6e1 0001          	dc.w	1
+  87 fb6e3               _OSTaskStatEn:
+  88 fb6e3 0000          	dc.w	0
+  89 fb6e5               _OSTaskStatStkSize:
+  90 fb6e5 00a0          	dc.w	160
+  91 fb6e7               _OSTaskStatStkChkEn:
+  92 fb6e7 0001          	dc.w	1
+  93 fb6e9               _OSTaskSwHookEn:
+  94 fb6e9 0001          	dc.w	1
+  95 fb6eb               _OSTaskRegTblSize:
+  96 fb6eb 0000          	dc.w	0
+  97 fb6ed               _OSTCBPrioTblMax:
+  98 fb6ed 0040          	dc.w	64
+  99 fb6ef               _OSTCBSize:
+ 100 fb6ef 003e          	dc.w	62
+ 101 fb6f1               _OSTicksPerSec:
+ 102 fb6f1 6000          	dc.w	24576
+ 103 fb6f3               _OSTimeTickHookEn:
+ 104 fb6f3 0001          	dc.w	1
+ 105 fb6f5               _OSVersionNbr:
+ 106 fb6f5 7274          	dc.w	29300
+ 107 fb6f7               _OS_TLS_TblSize:
+ 108 fb6f7 0000          	dc.w	0
+ 109 fb6f9               _OSTmrEn:
+ 110 fb6f9 0001          	dc.w	1
+ 111 fb6fb               _OSTmrCfgMax:
+ 112 fb6fb 0010          	dc.w	16
+ 113 fb6fd               _OSTmrCfgNameEn:
+ 114 fb6fd 0000          	dc.w	0
+ 115 fb6ff               _OSTmrCfgWheelSize:
+ 116 fb6ff 0008          	dc.w	8
+ 117 fb701               _OSTmrCfgTicksPerSec:
+ 118 fb701 000a          	dc.w	10
+ 119 fb703               _OSTmrSize:
+ 120 fb703 0017          	dc.w	23
+ 121 fb705               _OSTmrTblSize:
+ 122 fb705 0170          	dc.w	368
+ 123 fb707               _OSTmrWheelSize:
+ 124 fb707 0004          	dc.w	4
+ 125 fb709               _OSTmrWheelTblSize:
+ 126 fb709 0020          	dc.w	32
+ 127 fb70b               _OSDataSize:
+ 128 fb70b 0599          	dc.w	1433
+ 226                     ; 255 _NEAR void  OSDebugInit (void)
+ 226                     ; 256 {
+ 227                     	switch	.text
+ 228 f8b1c               _OSDebugInit:
+ 230       00000002      OFST:	set	2
+ 233                     ; 260     ptemp = (void const *)&OSDebugEn;
+ 235                     ; 262     ptemp = (void const *)&OSEndiannessTest;
+ 237                     ; 264     ptemp = (void const *)&OSEventMax;
+ 239                     ; 265     ptemp = (void const *)&OSEventNameEn;
+ 241                     ; 266     ptemp = (void const *)&OSEventEn;
+ 243                     ; 267     ptemp = (void const *)&OSEventSize;
+ 245                     ; 268     ptemp = (void const *)&OSEventTblSize;
+ 247                     ; 269     ptemp = (void const *)&OSEventMultiEn;
+ 249                     ; 271     ptemp = (void const *)&OSFlagEn;
+ 251                     ; 272     ptemp = (void const *)&OSFlagGrpSize;
+ 253                     ; 273     ptemp = (void const *)&OSFlagNodeSize;
+ 255                     ; 274     ptemp = (void const *)&OSFlagWidth;
+ 257                     ; 275     ptemp = (void const *)&OSFlagMax;
+ 259                     ; 276     ptemp = (void const *)&OSFlagNameEn;
+ 261                     ; 278     ptemp = (void const *)&OSLowestPrio;
+ 263                     ; 280     ptemp = (void const *)&OSMboxEn;
+ 265                     ; 282     ptemp = (void const *)&OSMemEn;
+ 267                     ; 283     ptemp = (void const *)&OSMemMax;
+ 269                     ; 284     ptemp = (void const *)&OSMemNameEn;
+ 271                     ; 285     ptemp = (void const *)&OSMemSize;
+ 273                     ; 286     ptemp = (void const *)&OSMemTblSize;
+ 275                     ; 288     ptemp = (void const *)&OSMutexEn;
+ 277                     ; 290     ptemp = (void const *)&OSPtrSize;
+ 279                     ; 292     ptemp = (void const *)&OSQEn;
+ 281                     ; 293     ptemp = (void const *)&OSQMax;
+ 283                     ; 294     ptemp = (void const *)&OSQSize;
+ 285                     ; 296     ptemp = (void const *)&OSRdyTblSize;
+ 287                     ; 298     ptemp = (void const *)&OSSemEn;
+ 289                     ; 300     ptemp = (void const *)&OSStkWidth;
+ 291                     ; 302     ptemp = (void const *)&OSTaskCreateEn;
+ 293                     ; 303     ptemp = (void const *)&OSTaskCreateExtEn;
+ 295                     ; 304     ptemp = (void const *)&OSTaskDelEn;
+ 297                     ; 305     ptemp = (void const *)&OSTaskIdleStkSize;
+ 299                     ; 306     ptemp = (void const *)&OSTaskProfileEn;
+ 301                     ; 307     ptemp = (void const *)&OSTaskMax;
+ 303                     ; 308     ptemp = (void const *)&OSTaskNameEn;
+ 305                     ; 309     ptemp = (void const *)&OSTaskStatEn;
+ 307                     ; 310     ptemp = (void const *)&OSTaskStatStkSize;
+ 309                     ; 311     ptemp = (void const *)&OSTaskStatStkChkEn;
+ 311                     ; 312     ptemp = (void const *)&OSTaskSwHookEn;
+ 313                     ; 314     ptemp = (void const *)&OSTCBPrioTblMax;
+ 315                     ; 315     ptemp = (void const *)&OSTCBSize;
+ 317                     ; 317     ptemp = (void const *)&OSTicksPerSec;
+ 319                     ; 318     ptemp = (void const *)&OSTimeTickHookEn;
+ 321                     ; 321     ptemp = (void const *)&OSTmrTbl[0];
+ 323                     ; 322     ptemp = (void const *)&OSTmrWheelTbl[0];
+ 325                     ; 324     ptemp = (void const *)&OSTmrEn;
+ 327                     ; 325     ptemp = (void const *)&OSTmrCfgMax;
+ 329                     ; 326     ptemp = (void const *)&OSTmrCfgNameEn;
+ 331                     ; 327     ptemp = (void const *)&OSTmrCfgWheelSize;
+ 333                     ; 328     ptemp = (void const *)&OSTmrCfgTicksPerSec;
+ 335                     ; 329     ptemp = (void const *)&OSTmrSize;
+ 337                     ; 330     ptemp = (void const *)&OSTmrTblSize;
+ 339                     ; 332     ptemp = (void const *)&OSTmrWheelSize;
+ 341                     ; 333     ptemp = (void const *)&OSTmrWheelTblSize;
+ 343                     ; 336     ptemp = (void const *)&OSVersionNbr;
+ 345                     ; 338     ptemp = (void const *)&OSDataSize;
+ 347                     ; 340     ptemp = ptemp;                             /* Prevent compiler warning for 'ptemp' not being used! */
+ 349                     ; 341 }
+ 352 f8b1c 3d            	rts	
+ 880                     	xdef	_OSDataSize
+ 881                     	xdef	_OSTmrWheelTblSize
+ 882                     	xdef	_OSTmrWheelSize
+ 883                     	xdef	_OSTmrTblSize
+ 884                     	xdef	_OSTmrSize
+ 885                     	xdef	_OSTmrCfgTicksPerSec
+ 886                     	xdef	_OSTmrCfgWheelSize
+ 887                     	xdef	_OSTmrCfgNameEn
+ 888                     	xdef	_OSTmrCfgMax
+ 889                     	xdef	_OSTmrEn
+ 890                     	xdef	_OS_TLS_TblSize
+ 891                     	xdef	_OSVersionNbr
+ 892                     	xdef	_OSTimeTickHookEn
+ 893                     	xdef	_OSTicksPerSec
+ 894                     	xdef	_OSTCBSize
+ 895                     	xdef	_OSTCBPrioTblMax
+ 896                     	xdef	_OSTaskRegTblSize
+ 897                     	xdef	_OSTaskSwHookEn
+ 898                     	xdef	_OSTaskStatStkChkEn
+ 899                     	xdef	_OSTaskStatStkSize
+ 900                     	xdef	_OSTaskStatEn
+ 901                     	xdef	_OSTaskNameEn
+ 902                     	xdef	_OSTaskMax
+ 903                     	xdef	_OSTaskProfileEn
+ 904                     	xdef	_OSTaskIdleStkSize
+ 905                     	xdef	_OSTaskDelEn
+ 906                     	xdef	_OSTaskCreateExtEn
+ 907                     	xdef	_OSTaskCreateEn
+ 908                     	xdef	_OSStkWidth
+ 909                     	xdef	_OSSemEn
+ 910                     	xdef	_OSRdyTblSize
+ 911                     	xdef	_OSQSize
+ 912                     	xdef	_OSQMax
+ 913                     	xdef	_OSQEn
+ 914                     	xdef	_OSPtrSize
+ 915                     	xdef	_OSMutexEn
+ 916                     	xdef	_OSMemTblSize
+ 917                     	xdef	_OSMemSize
+ 918                     	xdef	_OSMemNameEn
+ 919                     	xdef	_OSMemMax
+ 920                     	xdef	_OSMemEn
+ 921                     	xdef	_OSMboxEn
+ 922                     	xdef	_OSLowestPrio
+ 923                     	xdef	_OSFlagNameEn
+ 924                     	xdef	_OSFlagMax
+ 925                     	xdef	_OSFlagWidth
+ 926                     	xdef	_OSFlagNodeSize
+ 927                     	xdef	_OSFlagGrpSize
+ 928                     	xdef	_OSFlagEn
+ 929                     	xdef	_OSEventMultiEn
+ 930                     	xdef	_OSEventTblSize
+ 931                     	xdef	_OSEventSize
+ 932                     	xdef	_OSEventNameEn
+ 933                     	xdef	_OSEventMax
+ 934                     	xdef	_OSEventEn
+ 935                     	xdef	_OSEndiannessTest
+ 936                     	xdef	_OSDebugEn
+ 937                     	xdef	_OSDebugInit
+ 938                     	xref	_OSTmrWheelTbl
+ 939                     	xref	_OSTmrTaskStk
+ 940                     	xref	_OSTmrFreeList
+ 941                     	xref	_OSTmrTbl
+ 942                     	xref	_OSTmrSemSignal
+ 943                     	xref	_OSTmrSem
+ 944                     	xref	_OSTmrTime
+ 945                     	xref	_OSTmrUsed
+ 946                     	xref	_OSTmrFree
+ 947                     	xref	_OSTime
+ 948                     	xref	_OSQTbl
+ 949                     	xref	_OSQFreeList
+ 950                     	xref	_OSMemTbl
+ 951                     	xref	_OSMemFreeList
+ 952                     	xref	_OSTickStepState
+ 953                     	xref	_OSTCBTbl
+ 954                     	xref	_OSTCBPrioTbl
+ 955                     	xref	_OSTCBList
+ 956                     	xref	_OSTCBHighRdy
+ 957                     	xref	_OSTCBFreeList
+ 958                     	xref	_OSTCBCur
+ 959                     	xref	_OSTaskIdleStk
+ 960                     	xref	_OSIdleCtr
+ 961                     	xref	_OSTaskCtr
+ 962                     	xref	_OSRunning
+ 963                     	xref	_OSRdyTbl
+ 964                     	xref	_OSRdyGrp
+ 965                     	xref	_OSPrioHighRdy
+ 966                     	xref	_OSPrioCur
+ 967                     	xref	_OSLockNesting
+ 968                     	xref	_OSIntNesting
+ 969                     	xref	_OSFlagFreeList
+ 970                     	xref	_OSFlagTbl
+ 971                     	xref	_OSEventTbl
+ 972                     	xref	_OSEventFreeList
+ 973                     	xref	_OSCtxSwCtr
+ 993                     	end

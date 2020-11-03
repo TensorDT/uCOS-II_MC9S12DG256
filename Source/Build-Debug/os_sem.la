@@ -1,0 +1,726 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+ 130                     ; 57 _NEAR INT16U  OSSemAccept (OS_EVENT *pevent)
+ 130                     ; 58 {
+ 131                     	switch	.text
+ 132 fa353               _OSSemAccept:
+ 134 fa353 3b            	pshd	
+ 135 fa354 1b9d          	leas	-3,s
+ 136       00000003      OFST:	set	3
+ 139                     ; 61     OS_CPU_SR  cpu_sr = 0u;
+ 141                     ; 67     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+ 143 fa356 046402        	tbne	d,L36
+ 144                     ; 68         return (0u);
+ 147 fa359 2008          	bra	LC001
+ 148 fa35b               L36:
+ 149                     ; 71     if (pevent->OSEventType != OS_EVENT_TYPE_SEM) {   /* Validate event block type                     */
+ 151 fa35b e6f30003      	ldab	[OFST+0,s]
+ 152 fa35f c103          	cmpb	#3
+ 153 fa361 2705          	beq	L56
+ 154                     ; 72         return (0u);
+ 156 fa363               LC001:
+ 157 fa363 87            	clra	
+ 158 fa364 c7            	clrb	
+ 160 fa365               L6:
+ 162 fa365 1b85          	leas	5,s
+ 163 fa367 3d            	rts	
+ 164 fa368               L56:
+ 165                     ; 74     OS_ENTER_CRITICAL();
+ 167 fa368 167522        	jsr	_OS_CPU_SR_Save
+ 169 fa36b 6b82          	stab	OFST-1,s
+ 170                     ; 75     cnt = pevent->OSEventCnt;
+ 172 fa36d ed83          	ldy	OFST+0,s
+ 173 fa36f ee43          	ldx	3,y
+ 174 fa371 6e80          	stx	OFST-3,s
+ 175                     ; 76     if (cnt > 0u) {                                   /* See if resource is available                  */
+ 177 fa373 2703          	beq	L76
+ 178                     ; 77         pevent->OSEventCnt--;                         /* Yes, decrement semaphore and notify caller    */
+ 180 fa375 09            	dex	
+ 181 fa376 6e43          	stx	3,y
+ 182 fa378               L76:
+ 183                     ; 79     OS_EXIT_CRITICAL();
+ 185 fa378 87            	clra	
+ 186 fa379 167527        	jsr	_OS_CPU_SR_Restore
+ 188                     ; 80     return (cnt);                                     /* Return semaphore count                        */
+ 190 fa37c ec80          	ldd	OFST-3,s
+ 192 fa37e 20e5          	bra	L6
+ 250                     ; 102 _NEAR OS_EVENT  *OSSemCreate (INT16U cnt)
+ 250                     ; 103 {
+ 251                     	switch	.text
+ 252 fa380               _OSSemCreate:
+ 254 fa380 3b            	pshd	
+ 255 fa381 1b9d          	leas	-3,s
+ 256       00000003      OFST:	set	3
+ 259                     ; 106     OS_CPU_SR  cpu_sr = 0u;
+ 261                     ; 117     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+ 263 fa383 f61631        	ldab	_OSIntNesting
+ 264 fa386 2704          	beq	L711
+ 265                     ; 118         return ((OS_EVENT *)0);                            /* ... can't CREATE from an ISR             */
+ 267 fa388 87            	clra	
+ 268 fa389 c7            	clrb	
+ 270 fa38a 2031          	bra	L21
+ 271 fa38c               L711:
+ 272                     ; 120     OS_ENTER_CRITICAL();
+ 274 fa38c 167522        	jsr	_OS_CPU_SR_Save
+ 276 fa38f 6b82          	stab	OFST-1,s
+ 277                     ; 121     pevent = OSEventFreeList;                              /* Get next free event control block        */
+ 279 fa391 fd16f7        	ldy	_OSEventFreeList
+ 280 fa394 6d80          	sty	OFST-3,s
+ 281                     ; 122     if (OSEventFreeList != (OS_EVENT *)0) {                /* See if pool of free ECB pool was empty   */
+ 283 fa396 2705          	beq	L121
+ 284                     ; 123         OSEventFreeList = (OS_EVENT *)OSEventFreeList->OSEventPtr;
+ 286 fa398 18054116f7    	movw	1,y,_OSEventFreeList
+ 287 fa39d               L121:
+ 288                     ; 125     OS_EXIT_CRITICAL();
+ 290 fa39d 87            	clra	
+ 291 fa39e 167527        	jsr	_OS_CPU_SR_Restore
+ 293                     ; 126     if (pevent != (OS_EVENT *)0) {                         /* Get an event control block               */
+ 295 fa3a1 ed80          	ldy	OFST-3,s
+ 296 fa3a3 2716          	beq	L321
+ 297                     ; 127         pevent->OSEventType    = OS_EVENT_TYPE_SEM;
+ 299 fa3a5 c603          	ldab	#3
+ 300 fa3a7 6b40          	stab	0,y
+ 301                     ; 128         pevent->OSEventCnt     = cnt;                      /* Set semaphore value                      */
+ 303 fa3a9 18028343      	movw	OFST+0,s,3,y
+ 304                     ; 129         pevent->OSEventPtr     = (void *)0;                /* Unlink from ECB free list                */
+ 306 fa3ad 87            	clra	
+ 307 fa3ae c7            	clrb	
+ 308 fa3af 6c41          	std	1,y
+ 309                     ; 131         pevent->OSEventName    = (INT8U *)(void *)"?";
+ 311 fa3b1 cc771b        	ldd	#L521
+ 312 fa3b4 6c4e          	std	14,y
+ 313                     ; 133         OS_EventWaitListInit(pevent);                      /* Initialize to 'nobody waiting' on sem.   */
+ 315 fa3b6 b764          	tfr	y,d
+ 316 fa3b8 164701        	jsr	_OS_EventWaitListInit
+ 319 fa3bb               L321:
+ 320                     ; 137     return (pevent);
+ 322 fa3bb ec80          	ldd	OFST-3,s
+ 324 fa3bd               L21:
+ 326 fa3bd 1b85          	leas	5,s
+ 327 fa3bf 3d            	rts	
+ 415                     ; 185 _NEAR OS_EVENT  *OSSemDel (OS_EVENT  *pevent,
+ 415                     ; 186                           INT8U      opt,
+ 415                     ; 187                           INT8U     *perr)
+ 415                     ; 188 {
+ 416                     	switch	.text
+ 417 fa3c0               _OSSemDel:
+ 419 fa3c0 3b            	pshd	
+ 420 fa3c1 1b9c          	leas	-4,s
+ 421       00000004      OFST:	set	4
+ 424                     ; 192     OS_CPU_SR  cpu_sr = 0u;
+ 426                     ; 212     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+ 428 fa3c3 046404        	tbne	d,L771
+ 429                     ; 213         *perr = OS_ERR_PEVENT_NULL;
+ 431 fa3c6 c604          	ldab	#4
+ 432                     ; 214         return (pevent);
+ 435 fa3c8 200a          	bra	L61
+ 436 fa3ca               L771:
+ 437                     ; 220     if (pevent->OSEventType != OS_EVENT_TYPE_SEM) {        /* Validate event block type                */
+ 440 fa3ca e6f30004      	ldab	[OFST+0,s]
+ 441 fa3ce c103          	cmpb	#3
+ 442 fa3d0 270b          	beq	L102
+ 443                     ; 221         *perr = OS_ERR_EVENT_TYPE;
+ 445 fa3d2 c601          	ldab	#1
+ 446                     ; 223         return (pevent);
+ 450 fa3d4               L61:
+ 451 fa3d4 6bf3000a      	stab	[OFST+6,s]
+ 452 fa3d8 ec84          	ldd	OFST+0,s
+ 454 fa3da 1b86          	leas	6,s
+ 455 fa3dc 3d            	rts	
+ 456 fa3dd               L102:
+ 457                     ; 225     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+ 459 fa3dd f61631        	ldab	_OSIntNesting
+ 460 fa3e0 2704          	beq	L302
+ 461                     ; 226         *perr = OS_ERR_DEL_ISR;                            /* ... can't DELETE from an ISR             */
+ 463 fa3e2 c60f          	ldab	#15
+ 464                     ; 228         return (pevent);
+ 468 fa3e4 20ee          	bra	L61
+ 469 fa3e6               L302:
+ 470                     ; 230     OS_ENTER_CRITICAL();
+ 472 fa3e6 167522        	jsr	_OS_CPU_SR_Save
+ 474 fa3e9 6b80          	stab	OFST-4,s
+ 475                     ; 231     if (pevent->OSEventGrp != 0u) {                        /* See if any tasks waiting on semaphore    */
+ 477 fa3eb ed84          	ldy	OFST+0,s
+ 478 fa3ed e645          	ldab	5,y
+ 479 fa3ef 2706          	beq	L502
+ 480                     ; 232         tasks_waiting = OS_TRUE;                           /* Yes                                      */
+ 482 fa3f1 c601          	ldab	#1
+ 483 fa3f3 6b83          	stab	OFST-1,s
+ 485 fa3f5 2002          	bra	L702
+ 486 fa3f7               L502:
+ 487                     ; 234         tasks_waiting = OS_FALSE;                          /* No                                       */
+ 489 fa3f7 6983          	clr	OFST-1,s
+ 490 fa3f9               L702:
+ 491                     ; 236     switch (opt) {
+ 493 fa3f9 e689          	ldab	OFST+5,s
+ 495 fa3fb 270d          	beq	L721
+ 496 fa3fd 040153        	dbeq	b,L322
+ 497                     ; 275         default:
+ 497                     ; 276              OS_EXIT_CRITICAL();
+ 499 fa400 e680          	ldab	OFST-4,s
+ 500 fa402 87            	clra	
+ 501 fa403 167527        	jsr	_OS_CPU_SR_Restore
+ 503                     ; 277              *perr                  = OS_ERR_INVALID_OPT;
+ 505 fa406 c607          	ldab	#7
+ 506                     ; 278              pevent_return          = pevent;
+ 508                     ; 279              break;
+ 510 fa408 202e          	bra	LC003
+ 511 fa40a               L721:
+ 512                     ; 237         case OS_DEL_NO_PEND:                               /* Delete semaphore only if no task waiting */
+ 512                     ; 238              if (tasks_waiting == OS_FALSE) {
+ 514 fa40a e683          	ldab	OFST-1,s
+ 515 fa40c 2622          	bne	L512
+ 516                     ; 240                  pevent->OSEventName    = (INT8U *)(void *)"?";
+ 518 fa40e cc771b        	ldd	#L521
+ 519 fa411 6c4e          	std	14,y
+ 520                     ; 242                  pevent->OSEventType    = OS_EVENT_TYPE_UNUSED;
+ 522 fa413 87            	clra	
+ 523 fa414 6a40          	staa	0,y
+ 524                     ; 243                  pevent->OSEventPtr     = OSEventFreeList; /* Return Event Control Block to free list  */
+ 526 fa416 18014116f7    	movw	_OSEventFreeList,1,y
+ 527                     ; 244                  pevent->OSEventCnt     = 0u;
+ 529 fa41b c7            	clrb	
+ 530 fa41c 6c43          	std	3,y
+ 531                     ; 245                  OSEventFreeList        = pevent;          /* Get next free event control block        */
+ 533 fa41e 18058416f7    	movw	OFST+0,s,_OSEventFreeList
+ 534                     ; 246                  OS_EXIT_CRITICAL();
+ 536 fa423 e680          	ldab	OFST-4,s
+ 537 fa425 167527        	jsr	_OS_CPU_SR_Restore
+ 539                     ; 247                  *perr                  = OS_ERR_NONE;
+ 541 fa428 87            	clra	
+ 542 fa429 6af3000a      	staa	[OFST+6,s]
+ 543                     ; 248                  pevent_return          = (OS_EVENT *)0;   /* Semaphore has been deleted               */
+ 545 fa42d c7            	clrb	
+ 547 fa42e 200e          	bra	LC002
+ 548 fa430               L512:
+ 549                     ; 250                  OS_EXIT_CRITICAL();
+ 551 fa430 e680          	ldab	OFST-4,s
+ 552 fa432 87            	clra	
+ 553 fa433 167527        	jsr	_OS_CPU_SR_Restore
+ 555                     ; 251                  *perr                  = OS_ERR_TASK_WAITING;
+ 557 fa436 c649          	ldab	#73
+ 558                     ; 252                  pevent_return          = pevent;
+ 560 fa438               LC003:
+ 561 fa438 6bf3000a      	stab	[OFST+6,s]
+ 562 fa43c ec84          	ldd	OFST+0,s
+ 563 fa43e               LC002:
+ 564 fa43e 6c81          	std	OFST-3,s
+ 565 fa440 203d          	bra	L312
+ 566 fa442               L122:
+ 567                     ; 258                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_SEM, OS_STAT_PEND_ABORT);
+ 569 fa442 cc0002        	ldd	#2
+ 570 fa445 3b            	pshd	
+ 571 fa446 53            	decb	
+ 572 fa447 3b            	pshd	
+ 573 fa448 c7            	clrb	
+ 574 fa449 3b            	pshd	
+ 575 fa44a ec8a          	ldd	OFST+6,s
+ 576 fa44c 164554        	jsr	_OS_EventTaskRdy
+ 578 fa44f 1b86          	leas	6,s
+ 579 fa451 ed84          	ldy	OFST+0,s
+ 580 fa453               L322:
+ 581                     ; 256         case OS_DEL_ALWAYS:                                /* Always delete the semaphore              */
+ 581                     ; 257              while (pevent->OSEventGrp != 0u) {            /* Ready ALL tasks waiting for semaphore    */
+ 583 fa453 e645          	ldab	5,y
+ 584 fa455 26eb          	bne	L122
+ 585                     ; 261              pevent->OSEventName    = (INT8U *)(void *)"?";
+ 587 fa457 cc771b        	ldd	#L521
+ 588 fa45a 6c4e          	std	14,y
+ 589                     ; 263              pevent->OSEventType    = OS_EVENT_TYPE_UNUSED;
+ 591 fa45c 87            	clra	
+ 592 fa45d 6a40          	staa	0,y
+ 593                     ; 264              pevent->OSEventPtr     = OSEventFreeList;     /* Return Event Control Block to free list  */
+ 595 fa45f 18014116f7    	movw	_OSEventFreeList,1,y
+ 596                     ; 265              pevent->OSEventCnt     = 0u;
+ 598 fa464 c7            	clrb	
+ 599 fa465 6c43          	std	3,y
+ 600                     ; 266              OSEventFreeList        = pevent;              /* Get next free event control block        */
+ 602 fa467 18058416f7    	movw	OFST+0,s,_OSEventFreeList
+ 603                     ; 267              OS_EXIT_CRITICAL();
+ 605 fa46c e680          	ldab	OFST-4,s
+ 606 fa46e 167527        	jsr	_OS_CPU_SR_Restore
+ 608                     ; 268              if (tasks_waiting == OS_TRUE) {               /* Reschedule only if task(s) were waiting  */
+ 610 fa471 e683          	ldab	OFST-1,s
+ 611 fa473 042103        	dbne	b,L722
+ 612                     ; 269                  OS_Sched();                               /* Find highest priority task ready to run  */
+ 614 fa476 16488b        	jsr	_OS_Sched
+ 616 fa479               L722:
+ 617                     ; 271              *perr                  = OS_ERR_NONE;
+ 619 fa479 87            	clra	
+ 620 fa47a 6af3000a      	staa	[OFST+6,s]
+ 621                     ; 272              pevent_return          = (OS_EVENT *)0;       /* Semaphore has been deleted               */
+ 623 fa47e c7            	clrb	
+ 624                     ; 273              break;
+ 626 fa47f               L312:
+ 627                     ; 284     return (pevent_return);
+ 632 fa47f 1b86          	leas	6,s
+ 633 fa481 3d            	rts	
+ 701                     ; 321 _NEAR void  OSSemPend (OS_EVENT  *pevent,
+ 701                     ; 322                       INT32U     timeout,
+ 701                     ; 323                       INT8U     *perr)
+ 701                     ; 324 {
+ 702                     	switch	.text
+ 703 fa482               _OSSemPend:
+ 705 fa482 3b            	pshd	
+ 706 fa483 37            	pshb	
+ 707       00000001      OFST:	set	1
+ 710                     ; 326     OS_CPU_SR  cpu_sr = 0u;
+ 712                     ; 338     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+ 714 fa484 046404        	tbne	d,L762
+ 715                     ; 339         *perr = OS_ERR_PEVENT_NULL;
+ 717 fa487 c604          	ldab	#4
+ 718                     ; 340         return;
+ 720 fa489 200a          	bra	LC004
+ 721 fa48b               L762:
+ 722                     ; 346     if (pevent->OSEventType != OS_EVENT_TYPE_SEM) {   /* Validate event block type                     */
+ 725 fa48b e6f30001      	ldab	[OFST+0,s]
+ 726 fa48f c103          	cmpb	#3
+ 727 fa491 2709          	beq	L172
+ 728                     ; 347         *perr = OS_ERR_EVENT_TYPE;
+ 730 fa493 c601          	ldab	#1
+ 731 fa495               LC004:
+ 732 fa495 6bf30009      	stab	[OFST+8,s]
+ 733                     ; 349         return;
+ 734 fa499               L22:
+ 738 fa499 1b83          	leas	3,s
+ 739 fa49b 3d            	rts	
+ 740 fa49c               L172:
+ 741                     ; 351     if (OSIntNesting > 0u) {                          /* See if called from ISR ...                    */
+ 743 fa49c f61631        	ldab	_OSIntNesting
+ 744 fa49f 2704          	beq	L372
+ 745                     ; 352         *perr = OS_ERR_PEND_ISR;                      /* ... can't PEND from an ISR                    */
+ 747 fa4a1 c602          	ldab	#2
+ 748                     ; 354         return;
+ 751 fa4a3 20f0          	bra	LC004
+ 752 fa4a5               L372:
+ 753                     ; 356     if (OSLockNesting > 0u) {                         /* See if called with scheduler locked ...       */
+ 755 fa4a5 f61630        	ldab	_OSLockNesting
+ 756 fa4a8 2704          	beq	L572
+ 757                     ; 357         *perr = OS_ERR_PEND_LOCKED;                   /* ... can't PEND when locked                    */
+ 759 fa4aa c60d          	ldab	#13
+ 760                     ; 359         return;
+ 763 fa4ac 20e7          	bra	LC004
+ 764 fa4ae               L572:
+ 765                     ; 361     OS_ENTER_CRITICAL();
+ 767 fa4ae 167522        	jsr	_OS_CPU_SR_Save
+ 769 fa4b1 6b80          	stab	OFST-1,s
+ 770                     ; 362     if (pevent->OSEventCnt > 0u) {                    /* If sem. is positive, resource available ...   */
+ 772 fa4b3 ed81          	ldy	OFST+0,s
+ 773 fa4b5 ee43          	ldx	3,y
+ 774 fa4b7 270d          	beq	L772
+ 775                     ; 363         pevent->OSEventCnt--;                         /* ... decrement semaphore only if positive.     */
+ 777 fa4b9 09            	dex	
+ 778 fa4ba 6e43          	stx	3,y
+ 779                     ; 364         OS_EXIT_CRITICAL();
+ 781 fa4bc 87            	clra	
+ 782 fa4bd 167527        	jsr	_OS_CPU_SR_Restore
+ 784                     ; 365         *perr = OS_ERR_NONE;
+ 786 fa4c0 69f30009      	clr	[OFST+8,s]
+ 787                     ; 367         return;
+ 790 fa4c4 20d3          	bra	L22
+ 791 fa4c6               L772:
+ 792                     ; 370     OSTCBCur->OSTCBStat     |= OS_STAT_SEM;           /* Resource not available, pend on semaphore     */
+ 794 fa4c6 fd157d        	ldy	_OSTCBCur
+ 795 fa4c9 0ce82201      	bset	34,y,1
+ 796                     ; 371     OSTCBCur->OSTCBStatPend  = OS_STAT_PEND_OK;
+ 798 fa4cd 69e823        	clr	35,y
+ 799                     ; 372     OSTCBCur->OSTCBDly       = timeout;               /* Store pend timeout in TCB                     */
+ 801 fa4d0 ec87          	ldd	OFST+6,s
+ 802 fa4d2 6ce820        	std	32,y
+ 803 fa4d5 ec85          	ldd	OFST+4,s
+ 804 fa4d7 6ce81e        	std	30,y
+ 805                     ; 373     OS_EventTaskWait(pevent);                         /* Suspend task until event or timeout occurs    */
+ 807 fa4da ec81          	ldd	OFST+0,s
+ 808 fa4dc 1645e8        	jsr	_OS_EventTaskWait
+ 810                     ; 374     OS_EXIT_CRITICAL();
+ 812 fa4df e680          	ldab	OFST-1,s
+ 813 fa4e1 87            	clra	
+ 814 fa4e2 167527        	jsr	_OS_CPU_SR_Restore
+ 816                     ; 375     OS_Sched();                                       /* Find next highest priority task ready         */
+ 818 fa4e5 16488b        	jsr	_OS_Sched
+ 820                     ; 376     OS_ENTER_CRITICAL();
+ 822 fa4e8 167522        	jsr	_OS_CPU_SR_Save
+ 824 fa4eb 6b80          	stab	OFST-1,s
+ 825                     ; 377     switch (OSTCBCur->OSTCBStatPend) {                /* See if we timed-out or aborted                */
+ 827 fa4ed fd157d        	ldy	_OSTCBCur
+ 828 fa4f0 e6e823        	ldab	35,y
+ 830 fa4f3 2708          	beq	L132
+ 831 fa4f5 04010f        	dbeq	b,L532
+ 832 fa4f8 040108        	dbeq	b,L332
+ 833 fa4fb 200a          	bra	L532
+ 834 fa4fd               L132:
+ 835                     ; 378         case OS_STAT_PEND_OK:
+ 835                     ; 379              *perr = OS_ERR_NONE;
+ 837 fa4fd 69f30009      	clr	[OFST+8,s]
+ 838                     ; 380              break;
+ 840 fa501 2017          	bra	L303
+ 841 fa503               L332:
+ 842                     ; 382         case OS_STAT_PEND_ABORT:
+ 842                     ; 383              *perr = OS_ERR_PEND_ABORT;               /* Indicate that we aborted                      */
+ 844 fa503 c60e          	ldab	#14
+ 845                     ; 384              break;
+ 847 fa505 200c          	bra	LC005
+ 848 fa507               L532:
+ 849                     ; 386         case OS_STAT_PEND_TO:
+ 849                     ; 387         default:
+ 849                     ; 388              OS_EventTaskRemove(OSTCBCur, pevent);
+ 851 fa507 ec81          	ldd	OFST+0,s
+ 852 fa509 3b            	pshd	
+ 853 fa50a b764          	tfr	y,d
+ 854 fa50c 16468f        	jsr	_OS_EventTaskRemove
+ 856 fa50f 1b82          	leas	2,s
+ 857                     ; 389              *perr = OS_ERR_TIMEOUT;                  /* Indicate that we didn't get event within TO   */
+ 859 fa511 c60a          	ldab	#10
+ 860 fa513               LC005:
+ 861 fa513 6bf30009      	stab	[OFST+8,s]
+ 862                     ; 390              break;
+ 864 fa517 fd157d        	ldy	_OSTCBCur
+ 865 fa51a               L303:
+ 866                     ; 392     OSTCBCur->OSTCBStat          =  OS_STAT_RDY;      /* Set   task  status to ready                   */
+ 868 fa51a c7            	clrb	
+ 869 fa51b 6be822        	stab	34,y
+ 870                     ; 393     OSTCBCur->OSTCBStatPend      =  OS_STAT_PEND_OK;  /* Clear pend  status                            */
+ 872 fa51e 87            	clra	
+ 873 fa51f 6ae823        	staa	35,y
+ 874                     ; 394     OSTCBCur->OSTCBEventPtr      = (OS_EVENT  *)0;    /* Clear event pointers                          */
+ 876 fa522 6ce812        	std	18,y
+ 877                     ; 396     OSTCBCur->OSTCBEventMultiPtr = (OS_EVENT **)0;
+ 879 fa525 6ce814        	std	20,y
+ 880                     ; 397     OSTCBCur->OSTCBEventMultiRdy = (OS_EVENT  *)0;
+ 882 fa528 6ce816        	std	22,y
+ 883                     ; 399     OS_EXIT_CRITICAL();
+ 885 fa52b e680          	ldab	OFST-1,s
+ 886 fa52d 167527        	jsr	_OS_CPU_SR_Restore
+ 888                     ; 402 }
+ 892 fa530 1b83          	leas	3,s
+ 893 fa532 3d            	rts	
+ 964                     ; 439 _NEAR INT8U  OSSemPendAbort (OS_EVENT  *pevent,
+ 964                     ; 440                             INT8U      opt,
+ 964                     ; 441                             INT8U     *perr)
+ 964                     ; 442 {
+ 965                     	switch	.text
+ 966 fa533               _OSSemPendAbort:
+ 968 fa533 3b            	pshd	
+ 969       00000002      OFST:	set	2
+ 972                     ; 445     OS_CPU_SR  cpu_sr = 0u;
+ 974                     ; 457     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+ 976 fa534 6cae          	std	2,-s
+ 977 fa536 2604          	bne	L343
+ 978                     ; 458         *perr = OS_ERR_PEVENT_NULL;
+ 980 fa538 c604          	ldab	#4
+ 981                     ; 459         return (0u);
+ 984 fa53a 200a          	bra	LC006
+ 985 fa53c               L343:
+ 986                     ; 462     if (pevent->OSEventType != OS_EVENT_TYPE_SEM) {   /* Validate event block type                     */
+ 988 fa53c e6f30002      	ldab	[OFST+0,s]
+ 989 fa540 c103          	cmpb	#3
+ 990 fa542 270a          	beq	L543
+ 991                     ; 463         *perr = OS_ERR_EVENT_TYPE;
+ 993 fa544 c601          	ldab	#1
+ 994                     ; 464         return (0u);
+ 996 fa546               LC006:
+ 997 fa546 6bf30008      	stab	[OFST+6,s]
+ 998 fa54a c7            	clrb	
+1000 fa54b               L62:
+1002 fa54b 1b84          	leas	4,s
+1003 fa54d 3d            	rts	
+1004 fa54e               L543:
+1005                     ; 466     OS_ENTER_CRITICAL();
+1007 fa54e 167522        	jsr	_OS_CPU_SR_Save
+1009 fa551 6b81          	stab	OFST-1,s
+1010                     ; 467     if (pevent->OSEventGrp != 0u) {                   /* See if any task waiting on semaphore?         */
+1012 fa553 ed82          	ldy	OFST+0,s
+1013 fa555 e745          	tst	5,y
+1014 fa557 2748          	beq	L743
+1015                     ; 468         nbr_tasks = 0u;
+1017 fa559 6980          	clr	OFST-2,s
+1018                     ; 469         switch (opt) {
+1020 fa55b e687          	ldab	OFST+5,s
+1022 fa55d 271e          	beq	L703
+1023 fa55f 040115        	dbeq	b,L753
+1024 fa562 2019          	bra	L703
+1025 fa564               L553:
+1026                     ; 472                      (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_SEM, OS_STAT_PEND_ABORT);
+1028 fa564 cc0002        	ldd	#2
+1029 fa567 3b            	pshd	
+1030 fa568 53            	decb	
+1031 fa569 3b            	pshd	
+1032 fa56a c7            	clrb	
+1033 fa56b 3b            	pshd	
+1034 fa56c ec88          	ldd	OFST+6,s
+1035 fa56e 164554        	jsr	_OS_EventTaskRdy
+1037 fa571 1b86          	leas	6,s
+1038                     ; 473                      nbr_tasks++;
+1040 fa573 6280          	inc	OFST-2,s
+1041 fa575 ed82          	ldy	OFST+0,s
+1042 fa577               L753:
+1043                     ; 470             case OS_PEND_OPT_BROADCAST:               /* Do we need to abort ALL waiting tasks?        */
+1043                     ; 471                  while (pevent->OSEventGrp != 0u) {   /* Yes, ready ALL tasks waiting on semaphore     */
+1045 fa577 e645          	ldab	5,y
+1046 fa579 26e9          	bne	L553
+1047                     ; 475                  break;
+1049 fa57b 2011          	bra	L353
+1050 fa57d               L703:
+1051                     ; 477             case OS_PEND_OPT_NONE:
+1051                     ; 478             default:                                  /* No,  ready HPT       waiting on semaphore     */
+1051                     ; 479                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_SEM, OS_STAT_PEND_ABORT);
+1053 fa57d cc0002        	ldd	#2
+1054 fa580 3b            	pshd	
+1055 fa581 53            	decb	
+1056 fa582 3b            	pshd	
+1057 fa583 c7            	clrb	
+1058 fa584 3b            	pshd	
+1059 fa585 b764          	tfr	y,d
+1060 fa587 164554        	jsr	_OS_EventTaskRdy
+1062 fa58a 1b86          	leas	6,s
+1063                     ; 480                  nbr_tasks++;
+1065 fa58c 6280          	inc	OFST-2,s
+1066                     ; 481                  break;
+1068 fa58e               L353:
+1069                     ; 483         OS_EXIT_CRITICAL();
+1071 fa58e e681          	ldab	OFST-1,s
+1072 fa590 87            	clra	
+1073 fa591 167527        	jsr	_OS_CPU_SR_Restore
+1075                     ; 484         OS_Sched();                                   /* Find HPT ready to run                         */
+1077 fa594 16488b        	jsr	_OS_Sched
+1079                     ; 485         *perr = OS_ERR_PEND_ABORT;
+1081 fa597 c60e          	ldab	#14
+1082 fa599 6bf30008      	stab	[OFST+6,s]
+1083                     ; 486         return (nbr_tasks);
+1085 fa59d e680          	ldab	OFST-2,s
+1087 fa59f 20aa          	bra	L62
+1088 fa5a1               L743:
+1089                     ; 488     OS_EXIT_CRITICAL();
+1091 fa5a1 87            	clra	
+1092 fa5a2 167527        	jsr	_OS_CPU_SR_Restore
+1094                     ; 489     *perr = OS_ERR_NONE;
+1096 fa5a5 c7            	clrb	
+1097 fa5a6 6bf30008      	stab	[OFST+6,s]
+1098                     ; 490     return (0u);                                      /* No tasks waiting on semaphore                 */
+1101 fa5aa 209f          	bra	L62
+1148                     ; 513 _NEAR INT8U  OSSemPost (OS_EVENT *pevent)
+1148                     ; 514 {
+1149                     	switch	.text
+1150 fa5ac               _OSSemPost:
+1152 fa5ac 3b            	pshd	
+1153 fa5ad 37            	pshb	
+1154       00000001      OFST:	set	1
+1157                     ; 516     OS_CPU_SR  cpu_sr = 0u;
+1159                     ; 521     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+1161 fa5ae 046404        	tbne	d,L504
+1162                     ; 522         return (OS_ERR_PEVENT_NULL);
+1164 fa5b1 c604          	ldab	#4
+1166 fa5b3 200a          	bra	L23
+1167 fa5b5               L504:
+1168                     ; 528     if (pevent->OSEventType != OS_EVENT_TYPE_SEM) {   /* Validate event block type                     */
+1171 fa5b5 e6f30001      	ldab	[OFST+0,s]
+1172 fa5b9 c103          	cmpb	#3
+1173 fa5bb 2705          	beq	L704
+1174                     ; 530         return (OS_ERR_EVENT_TYPE);
+1177 fa5bd c601          	ldab	#1
+1179 fa5bf               L23:
+1181 fa5bf 1b83          	leas	3,s
+1182 fa5c1 3d            	rts	
+1183 fa5c2               L704:
+1184                     ; 532     OS_ENTER_CRITICAL();
+1186 fa5c2 167522        	jsr	_OS_CPU_SR_Save
+1188 fa5c5 6b80          	stab	OFST-1,s
+1189                     ; 533     if (pevent->OSEventGrp != 0u) {                   /* See if any task waiting for semaphore         */
+1191 fa5c7 ed81          	ldy	OFST+0,s
+1192 fa5c9 e745          	tst	5,y
+1193 fa5cb 271a          	beq	L114
+1194                     ; 535         (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_SEM, OS_STAT_PEND_OK);
+1196 fa5cd 87            	clra	
+1197 fa5ce c7            	clrb	
+1198 fa5cf 3b            	pshd	
+1199 fa5d0 52            	incb	
+1200 fa5d1 3b            	pshd	
+1201 fa5d2 c7            	clrb	
+1202 fa5d3 3b            	pshd	
+1203 fa5d4 b764          	tfr	y,d
+1204 fa5d6 164554        	jsr	_OS_EventTaskRdy
+1206 fa5d9 1b86          	leas	6,s
+1207                     ; 536         OS_EXIT_CRITICAL();
+1209 fa5db e680          	ldab	OFST-1,s
+1210 fa5dd 87            	clra	
+1211 fa5de 167527        	jsr	_OS_CPU_SR_Restore
+1213                     ; 537         OS_Sched();                                   /* Find HPT ready to run                         */
+1215 fa5e1 16488b        	jsr	_OS_Sched
+1217                     ; 539         return (OS_ERR_NONE);
+1220 fa5e4 c7            	clrb	
+1222 fa5e5 20d8          	bra	L23
+1223 fa5e7               L114:
+1224                     ; 541     if (pevent->OSEventCnt < 65535u) {                /* Make sure semaphore will not overflow         */
+1226 fa5e7 ee43          	ldx	3,y
+1227 fa5e9 8effff        	cpx	#-1
+1228 fa5ec 240a          	bhs	L314
+1229                     ; 542         pevent->OSEventCnt++;                         /* Increment semaphore count to register event   */
+1231 fa5ee 08            	inx	
+1232 fa5ef 6e43          	stx	3,y
+1233                     ; 543         OS_EXIT_CRITICAL();
+1235 fa5f1 87            	clra	
+1236 fa5f2 167527        	jsr	_OS_CPU_SR_Restore
+1238                     ; 545         return (OS_ERR_NONE);
+1241 fa5f5 c7            	clrb	
+1243 fa5f6 20c7          	bra	L23
+1244 fa5f8               L314:
+1245                     ; 547     OS_EXIT_CRITICAL();                               /* Semaphore value has reached its maximum       */
+1247 fa5f8 87            	clra	
+1248 fa5f9 167527        	jsr	_OS_CPU_SR_Restore
+1250                     ; 550     return (OS_ERR_SEM_OVF);
+1253 fa5fc c633          	ldab	#51
+1255 fa5fe 20bf          	bra	L23
+1370                     ; 574 _NEAR INT8U  OSSemQuery (OS_EVENT     *pevent,
+1370                     ; 575                         OS_SEM_DATA  *p_sem_data)
+1370                     ; 576 {
+1371                     	switch	.text
+1372 fa600               _OSSemQuery:
+1374 fa600 3b            	pshd	
+1375 fa601 1b9a          	leas	-6,s
+1376       00000006      OFST:	set	6
+1379                     ; 581     OS_CPU_SR   cpu_sr = 0u;
+1381                     ; 587     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+1383 fa603 046404        	tbne	d,L374
+1384                     ; 588         return (OS_ERR_PEVENT_NULL);
+1386 fa606 c604          	ldab	#4
+1388 fa608 2006          	bra	L63
+1389 fa60a               L374:
+1390                     ; 590     if (p_sem_data == (OS_SEM_DATA *)0) {                  /* Validate 'p_sem_data'                    */
+1392 fa60a ec8a          	ldd	OFST+4,s
+1393 fa60c 2605          	bne	L574
+1394                     ; 591         return (OS_ERR_PDATA_NULL);
+1396 fa60e c609          	ldab	#9
+1398 fa610               L63:
+1400 fa610 1b88          	leas	8,s
+1401 fa612 3d            	rts	
+1402 fa613               L574:
+1403                     ; 594     if (pevent->OSEventType != OS_EVENT_TYPE_SEM) {        /* Validate event block type                */
+1405 fa613 e6f30006      	ldab	[OFST+0,s]
+1406 fa617 c103          	cmpb	#3
+1407 fa619 2704          	beq	L774
+1408                     ; 595         return (OS_ERR_EVENT_TYPE);
+1410 fa61b c601          	ldab	#1
+1412 fa61d 20f1          	bra	L63
+1413 fa61f               L774:
+1414                     ; 597     OS_ENTER_CRITICAL();
+1416 fa61f 167522        	jsr	_OS_CPU_SR_Save
+1418 fa622 6b85          	stab	OFST-1,s
+1419                     ; 598     p_sem_data->OSEventGrp = pevent->OSEventGrp;           /* Copy message mailbox wait list           */
+1421 fa624 ed8a          	ldy	OFST+4,s
+1422 fa626 ee86          	ldx	OFST+0,s
+1423 fa628 180a054a      	movb	5,x,10,y
+1424                     ; 599     psrc                   = &pevent->OSEventTbl[0];
+1426 fa62c ed86          	ldy	OFST+0,s
+1427 fa62e 1946          	leay	6,y
+1428 fa630 6d81          	sty	OFST-5,s
+1429                     ; 600     pdest                  = &p_sem_data->OSEventTbl[0];
+1431 fa632 ed8a          	ldy	OFST+4,s
+1432 fa634 1942          	leay	2,y
+1433 fa636 6d83          	sty	OFST-3,s
+1434                     ; 601     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
+1436 fa638 6980          	clr	OFST-6,s
+1437 fa63a ee81          	ldx	OFST-5,s
+1438 fa63c               L105:
+1439                     ; 602         *pdest++ = *psrc++;
+1441 fa63c 180a3070      	movb	1,x+,1,y+
+1442                     ; 601     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
+1444 fa640 6280          	inc	OFST-6,s
+1447 fa642 e680          	ldab	OFST-6,s
+1448 fa644 c108          	cmpb	#8
+1449 fa646 25f4          	blo	L105
+1450 fa648 6e81          	stx	OFST-5,s
+1451 fa64a 6d83          	sty	OFST-3,s
+1452                     ; 604     p_sem_data->OSCnt = pevent->OSEventCnt;                /* Get semaphore count                      */
+1454 fa64c ed86          	ldy	OFST+0,s
+1455 fa64e ec43          	ldd	3,y
+1456 fa650 6cf3000a      	std	[OFST+4,s]
+1457                     ; 605     OS_EXIT_CRITICAL();
+1459 fa654 e685          	ldab	OFST-1,s
+1460 fa656 87            	clra	
+1461 fa657 167527        	jsr	_OS_CPU_SR_Restore
+1463                     ; 606     return (OS_ERR_NONE);
+1465 fa65a c7            	clrb	
+1467 fa65b 20b3          	bra	L63
+1529                     ; 636 _NEAR void  OSSemSet (OS_EVENT  *pevent,
+1529                     ; 637                      INT16U     cnt,
+1529                     ; 638                      INT8U     *perr)
+1529                     ; 639 {
+1530                     	switch	.text
+1531 fa65d               _OSSemSet:
+1533 fa65d 3b            	pshd	
+1534 fa65e 37            	pshb	
+1535       00000001      OFST:	set	1
+1538                     ; 641     OS_CPU_SR  cpu_sr = 0u;
+1540                     ; 654     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+1542 fa65f 046404        	tbne	d,L735
+1543                     ; 655         *perr = OS_ERR_PEVENT_NULL;
+1545 fa662 c604          	ldab	#4
+1546                     ; 656         return;
+1548 fa664 200a          	bra	LC007
+1549 fa666               L735:
+1550                     ; 659     if (pevent->OSEventType != OS_EVENT_TYPE_SEM) {   /* Validate event block type                     */
+1552 fa666 e6f30001      	ldab	[OFST+0,s]
+1553 fa66a c103          	cmpb	#3
+1554 fa66c 2709          	beq	L145
+1555                     ; 660         *perr = OS_ERR_EVENT_TYPE;
+1557 fa66e c601          	ldab	#1
+1558 fa670               LC007:
+1559 fa670 6bf30007      	stab	[OFST+6,s]
+1560                     ; 661         return;
+1561 fa674               L24:
+1564 fa674 1b83          	leas	3,s
+1565 fa676 3d            	rts	
+1566 fa677               L145:
+1567                     ; 663     OS_ENTER_CRITICAL();
+1569 fa677 167522        	jsr	_OS_CPU_SR_Save
+1571 fa67a 6b80          	stab	OFST-1,s
+1572                     ; 664     *perr = OS_ERR_NONE;
+1574 fa67c 69f30007      	clr	[OFST+6,s]
+1575                     ; 665     if (pevent->OSEventCnt > 0u) {                    /* See if semaphore already has a count          */
+1577 fa680 ed81          	ldy	OFST+0,s
+1578 fa682 ec43          	ldd	3,y
+1579                     ; 666         pevent->OSEventCnt = cnt;                     /* Yes, set it to the new value specified.       */
+1582 fa684 2604          	bne	LC008
+1583                     ; 668         if (pevent->OSEventGrp == 0u) {               /*      See if task(s) waiting?                  */
+1585 fa686 e645          	ldab	5,y
+1586 fa688 2606          	bne	L745
+1587                     ; 669             pevent->OSEventCnt = cnt;                 /*      No, OK to set the value                  */
+1589 fa68a               LC008:
+1590 fa68a 18028543      	movw	OFST+4,s,3,y
+1592 fa68e 2006          	bra	L545
+1593 fa690               L745:
+1594                     ; 671             *perr              = OS_ERR_TASK_WAITING;
+1596 fa690 c649          	ldab	#73
+1597 fa692 6bf30007      	stab	[OFST+6,s]
+1598 fa696               L545:
+1599                     ; 674     OS_EXIT_CRITICAL();
+1601 fa696 e680          	ldab	OFST-1,s
+1602 fa698 87            	clra	
+1603 fa699 167527        	jsr	_OS_CPU_SR_Restore
+1605                     ; 675 }
+1607 fa69c 20d6          	bra	L24
+1619                     	xref	_OS_Sched
+1620                     	xref	_OS_EventWaitListInit
+1621                     	xref	_OS_EventTaskRemove
+1622                     	xref	_OS_EventTaskWait
+1623                     	xref	_OS_EventTaskRdy
+1624                     	xdef	_OSSemSet
+1625                     	xdef	_OSSemQuery
+1626                     	xdef	_OSSemPost
+1627                     	xdef	_OSSemPendAbort
+1628                     	xdef	_OSSemPend
+1629                     	xdef	_OSSemDel
+1630                     	xdef	_OSSemCreate
+1631                     	xdef	_OSSemAccept
+1632                     	xref	_OSTCBCur
+1633                     	xref	_OSLockNesting
+1634                     	xref	_OSIntNesting
+1635                     	xref	_OSEventFreeList
+1636                     	xref	_OS_CPU_SR_Restore
+1637                     	xref	_OS_CPU_SR_Save
+1638                     .const:	section	.data
+1639 fb71b               L521:
+1640 fb71b 3f00          	dc.b	"?",0
+1661                     	end
