@@ -1,372 +1,436 @@
 
-Map of .\Build-Debug\uCOS-II_MC9S12DG256.h12 from link file .\mc9s12dg256\ucos-ii_mc9s12dg256-debug.lkf - Fri Oct 30 15:24:55 2020
+Map of .\Build-Debug\uCOS-II_MC9S12DG256.h12 from link file .\application\ucos-ii_mc9s12dg256-debug.lkf - Thu Dec 10 09:51:19 2020
 
 
                                --------
                                Segments
                                --------
 
-start 000ff7e0 end 000ff7e0 length     0 segment .jmptbl
-start 000ff7e0 end 000ff7e0 length     0 segment .jmptbl_const
-start 000ff800 end 000ff800 length     0 segment .rsvd_pg_3F_bo
-start 000ff800 end 000ff800 length     0 segment .boot_const
-start 000ffa00 end 000ffa00 length     0 segment .rsvd_pg_3F_bt
-start 000ffa00 end 000ffa00 length     0 segment .btldr_const
-start 000fff80 end 00100000 length   128 segment .vectbl
-start 00000000 end 0000d9e6 length 55782 segment .debug
-start 00000000 end 00000813 length  2067 segment .info.
-start 00000400 end 00000400 length     0 segment .eeprom
-start 00001000 end 00001000 length     0 segment .bsct
-start 00001000 end 00001000 length     0 segment .ubsct
-start 00001100 end 00001100 length     0 segment .data
-start 00001100 end 000016ff length  1535 segment .bss
-start 000c0000 end 000c0000 length     0 segment .banked_pages
-start 000fb589 end 000fb750 length   455 segment .fxpg3E_const
-start 000f8000 end 000fb522 length 13602 segment .fxpg3E_code
-start 000fb522 end 000fb589 length   103 segment NON_BANKED
+start 00000400 end 00000406 length     6 segment .eeprom
+start 00001000 end 00001002 length     2 segment .bsct, initialized
+start 000fc00d end 000fc00f length     2 segment .bsct, from
+start 00001002 end 00001002 length     0 segment .ubsct
+start 00001100 end 00001102 length     2 segment .data, initialized
+start 000fc00f end 000fc011 length     2 segment .data, from
+start 00001102 end 0000170a length  1544 segment .bss
+start 000c0000 end 000c0250 length   592 segment .banked_pages
+start 000c0250 end 000c025d length    13 segment .const
+start 00000000 end 00034038 length 213048 segment .debug
+start 00000000 end 00000b53 length  2899 segment .info.
+start 000f8000 end 000fb5af length 13743 segment .fxpg3E_code
+start 000fb5af end 000fb776 length   455 segment .fxpg3E_const
 start 000fc000 end 000fc000 length     0 segment .fxpg3F_code
 start 000fc000 end 000fc000 length     0 segment .fxpg3F_const
-start 000fc003 end 000fc019 length    22 segment .fxpg3F_libs
-start 000fc019 end 000fc019 length     0 segment .cksum
-start 000fc000 end 000fc003 length     3 segment .init
+start 000fc011 end 000fc109 length   248 segment .fxpg3F_libs
+start 000fc109 end 000fc109 length     0 segment .cksum
+start 000ff500 end 000ff5bd length   189 segment .jmptbl
+start 000ff600 end 000ff7e6 length   486 segment .rsvd_pg_3F_bo
+start 000ff7e6 end 000ff7e6 length     0 segment .boot_const
+start 000ff800 end 000ffc92 length  1170 segment .rsvd_pg_3F_bt
+start 000ffc92 end 000ffc92 length     0 segment .btldr_const
+start 000fff80 end 00100000 length   128 segment .vectbl
+start 000fc000 end 000fc00d length    13 segment .init
 
 
                                -------
                                Modules
                                -------
 
-.\Build-Debug\vectors.o:
-start 00000000 end 000000b2 length   178 section .debug
-start 00000000 end 00000077 length   119 section .info.
-start 000fff80 end 00100000 length   128 section .vectbl (.const)
+.\Build-Debug\time.o:
+start 00001102 end 0000110b length     9 section .bss
+start 00000000 end 00002efc length 12028 section .debug
+start 00000000 end 0000007d length   125 section .info.
+start 000c0000 end 000c0250 length   592 section .banked_pages (.ftext)
+start 000c0250 end 000c025d length    13 section .const
 
 .\Build-Debug\crtsi_s256.o:
 start 000f8000 end 000f8037 length    55 section .fxpg3E_code (.text)
-start 00000077 end 000000b7 length    64 section .info.
+start 0000007d end 000000bd length    64 section .info.
 
 .\Build-Debug\test.o:
-start 000f8037 end 000f807f length    72 section .fxpg3E_code (.text)
-start 00001100 end 00001164 length   100 section .bss
-start 000000b2 end 00002a1a length 10600 section .debug
-start 000000b7 end 0000012b length   116 section .info.
+start 000f8037 end 000f80a7 length   112 section .fxpg3E_code (.text)
+start 0000110b end 0000116f length   100 section .bss
+start 00001000 end 00001002 length     2 section .bsct
+start 00002efc end 00005900 length 10756 section .debug
+start 000000bd end 0000013a length   125 section .info.
+start 00000400 end 00000406 length     6 section .eeprom
+
+.\Build-Debug\software_traps.o:
+start 000f80a7 end 000f8127 length   128 section .fxpg3E_code (.text)
+start 00005900 end 0000698e length  4238 section .debug
+start 0000013a end 000001c1 length   135 section .info.
 
 .\Build-Debug\os_core.o:
-start 000f807f end 000f8aa7 length  2600 section .fxpg3E_code (.text)
-start 00001164 end 000016fd length  1433 section .bss
-start 00002a1a end 000052ac length 10386 section .debug
-start 0000012b end 000001a2 length   119 section .info.
-start 000fb589 end 000fb699 length   272 section .fxpg3E_const (.const)
+start 000f8127 end 000f8b4f length  2600 section .fxpg3E_code (.text)
+start 0000116f end 00001708 length  1433 section .bss
+start 0000698e end 0000ba0a length 20604 section .debug
+start 000001c1 end 00000241 length   128 section .info.
+start 000fb5af end 000fb6bf length   272 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_cpu_a.o:
-start 000001a2 end 000001e0 length    62 section .info.
-start 000fb522 end 000fb589 length   103 section NON_BANKED
+start 000f8b4f end 000f8bb9 length   106 section .fxpg3E_code (.text)
+start 00000241 end 0000027f length    62 section .info.
 
 .\Build-Debug\os_cpu_c.o:
-start 000f8aa7 end 000f8b1c length   117 section .fxpg3E_code (.text)
-start 000016fd end 000016ff length     2 section .bss
-start 000052ac end 00005efa length  3150 section .debug
-start 000001e0 end 00000258 length   120 section .info.
+start 000f8bb9 end 000f8c29 length   112 section .fxpg3E_code (.text)
+start 00001100 end 00001102 length     2 section .data
+start 00001708 end 0000170a length     2 section .bss
+start 0000ba0a end 0000ee5c length 13394 section .debug
+start 0000027f end 00000300 length   129 section .info.
 
 .\Build-Debug\os_dbg_r.o:
-start 000f8b1c end 000f8b1d length     1 section .fxpg3E_code (.text)
-start 00005efa end 0000676c length  2162 section .debug
-start 00000258 end 000002d0 length   120 section .info.
-start 000fb699 end 000fb70d length   116 section .fxpg3E_const (.const)
+start 000f8c29 end 000f8c2a length     1 section .fxpg3E_code (.text)
+start 0000ee5c end 00011eb6 length 12378 section .debug
+start 00000300 end 00000381 length   129 section .info.
+start 000fb6bf end 000fb733 length   116 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_flag.o:
-start 000f8b1d end 000f91b5 length  1688 section .fxpg3E_code (.text)
-start 0000676c end 00007a2c length  4800 section .debug
-start 000002d0 end 00000347 length   119 section .info.
-start 000fb70d end 000fb70f length     2 section .fxpg3E_const (.const)
+start 000f8c2a end 000f92c2 length  1688 section .fxpg3E_code (.text)
+start 00011eb6 end 00015960 length 15018 section .debug
+start 00000381 end 00000401 length   128 section .info.
+start 000fb733 end 000fb735 length     2 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_mbox.o:
-start 000f91b5 end 000f955b length   934 section .fxpg3E_code (.text)
-start 00007a2c end 0000822a length  2046 section .debug
-start 00000347 end 000003be length   119 section .info.
-start 000fb70f end 000fb711 length     2 section .fxpg3E_const (.const)
+start 000f92c2 end 000f9668 length   934 section .fxpg3E_code (.text)
+start 00015960 end 00018946 length 12262 section .debug
+start 00000401 end 00000481 length   128 section .info.
+start 000fb735 end 000fb737 length     2 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_mem.o:
-start 000f955b end 000f97fa length   671 section .fxpg3E_code (.text)
-start 0000822a end 00008990 length  1894 section .debug
-start 000003be end 00000434 length   118 section .info.
-start 000fb711 end 000fb717 length     6 section .fxpg3E_const (.const)
+start 000f9668 end 000f9907 length   671 section .fxpg3E_code (.text)
+start 00018946 end 0001b894 length 12110 section .debug
+start 00000481 end 00000500 length   127 section .info.
+start 000fb737 end 000fb73d length     6 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_mutex.o:
-start 000f97fa end 000f9dbd length  1475 section .fxpg3E_code (.text)
-start 00008990 end 000096b4 length  3364 section .debug
-start 00000434 end 000004ac length   120 section .info.
-start 000fb717 end 000fb719 length     2 section .fxpg3E_const (.const)
+start 000f9907 end 000f9eca length  1475 section .fxpg3E_code (.text)
+start 0001b894 end 0001eda0 length 13580 section .debug
+start 00000500 end 00000581 length   129 section .info.
+start 000fb73d end 000fb73f length     2 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_q.o:
-start 000f9dbd end 000fa353 length  1430 section .fxpg3E_code (.text)
-start 000096b4 end 0000a2da length  3110 section .debug
-start 000004ac end 00000520 length   116 section .info.
-start 000fb719 end 000fb71b length     2 section .fxpg3E_const (.const)
+start 000f9eca end 000fa460 length  1430 section .fxpg3E_code (.text)
+start 0001eda0 end 000221b0 length 13328 section .debug
+start 00000581 end 000005fe length   125 section .info.
+start 000fb73f end 000fb741 length     2 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_sem.o:
-start 000fa353 end 000fa69e length   843 section .fxpg3E_code (.text)
-start 0000a2da end 0000aa6a length  1936 section .debug
-start 00000520 end 00000596 length   118 section .info.
-start 000fb71b end 000fb71d length     2 section .fxpg3E_const (.const)
+start 000fa460 end 000fa7ab length   843 section .fxpg3E_code (.text)
+start 000221b0 end 0002512a length 12154 section .debug
+start 000005fe end 0000067d length   127 section .info.
+start 000fb741 end 000fb743 length     2 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_task.o:
-start 000fa69e end 000fae6d length  1999 section .fxpg3E_code (.text)
-start 0000aa6a end 0000bc08 length  4510 section .debug
-start 00000596 end 0000060d length   119 section .info.
-start 000fb71d end 000fb71f length     2 section .fxpg3E_const (.const)
+start 000fa7ab end 000faf7a length  1999 section .fxpg3E_code (.text)
+start 0002512a end 00028ab0 length 14726 section .debug
+start 0000067d end 000006fd length   128 section .info.
+start 000fb743 end 000fb745 length     2 section .fxpg3E_const (.const)
 
 .\Build-Debug\os_time.o:
-start 000fae6d end 000faeff length   146 section .fxpg3E_code (.text)
-start 0000bc08 end 0000bde8 length   480 section .debug
-start 0000060d end 00000684 length   119 section .info.
+start 000faf7a end 000fb00c length   146 section .fxpg3E_code (.text)
+start 00028ab0 end 0002b478 length 10696 section .debug
+start 000006fd end 0000077d length   128 section .info.
 
 .\Build-Debug\os_tmr.o:
-start 000faeff end 000fb4a2 length  1443 section .fxpg3E_code (.text)
-start 0000bde8 end 0000c95e length  2934 section .debug
-start 00000684 end 000006fa length   118 section .info.
-start 000fb71f end 000fb750 length    49 section .fxpg3E_const (.const)
+start 000fb00c end 000fb5af length  1443 section .fxpg3E_code (.text)
+start 0002b478 end 0002e7d8 length 13152 section .debug
+start 0000077d end 000007fc length   127 section .info.
+start 000fb745 end 000fb776 length    49 section .fxpg3E_const (.const)
 
-.\Build-Debug\sw_traps.o:
-start 000fb4a2 end 000fb522 length   128 section .fxpg3E_code (.text)
-start 0000c95e end 0000d9e6 length  4232 section .debug
-start 000006fa end 00000772 length   120 section .info.
+(C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o:
+start 000fc011 end 000fc0f3 length   226 section .fxpg3F_libs (.text)
+start 000007fc end 0000082c length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CX12\LIB\libm.h12)ladd.o:
-start 000fc003 end 000fc00e length    11 section .fxpg3F_libs (.text)
-start 00000772 end 0000079e length    44 section .info.
+start 000fc0f3 end 000fc0fe length    11 section .fxpg3F_libs (.text)
+start 0000082c end 00000858 length    44 section .info.
 
 (C:\Program Files (x86)\COSMIC\CX12\LIB\libm.h12)lsub.o:
-start 000fc00e end 000fc019 length    11 section .fxpg3F_libs (.text)
-start 0000079e end 000007ca length    44 section .info.
+start 000fc0fe end 000fc109 length    11 section .fxpg3F_libs (.text)
+start 00000858 end 00000884 length    44 section .info.
+
+.\Build-Debug\mc9s12dg256_jump_table.o:
+start 000ff500 end 000ff5bd length   189 section .jmptbl (.text)
+start 0002e7d8 end 0002e8aa length   210 section .debug
+start 00000884 end 00000913 length   143 section .info.
+
+.\Build-Debug\mc9s12dg256_startup.o:
+start 000ff600 end 000ff606 length     6 section .rsvd_pg_3F_bo (.text)
+start 00000913 end 0000095c length    73 section .info.
+
+.\Build-Debug\mc9s12dg256_booting.o:
+start 000ff606 end 000ff7e6 length   480 section .rsvd_pg_3F_bo (.text)
+start 0002e8aa end 000313cc length 11042 section .debug
+start 0000095c end 000009e8 length   140 section .info.
+
+.\Build-Debug\mc9s12dg256_bootloader.o:
+start 000ff800 end 000ffc92 length  1170 section .rsvd_pg_3F_bt (.text)
+start 000313cc end 00033f7a length 11182 section .debug
+start 000009e8 end 00000a7e length   150 section .info.
+
+.\Build-Debug\mc9s12dg256_vectors.o:
+start 00033f7a end 00034038 length   190 section .debug
+start 00000a7e end 00000b0a length   140 section .info.
+start 000fff80 end 00100000 length   128 section .vectbl (.const)
 
 
                              -----------
                              Stack usage
                              -----------
 
+.\Build-Debug\mc9s12dg256_booting.o:
+L3272_copyBootloaderToRAM           6   (6)
+L3462_initHardware                  2   (2)
+L3662_delayMilliseconds             7   (7)
+_Booting                       >    9   (2)
+
+.\Build-Debug\mc9s12dg256_bootloader.o:
+L1203_eraseFlash               >    2   (2)
+L3462_delayMilliseconds        >    7   (7)
+L3613_programThenVerifyFlash   >    2   (2)
+L3623_programThenVerifyEEPROM  >    2   (2)
+L5462_processCommand           >   37   (2) *** Recursive *** *** pointer() ***
+L7213_eraseEEPROM              >    2   (2)
+_BootLoaderToRunFromRAM        >   39   (4) *** Recursive *** *** pointer() ***
+
+.\Build-Debug\mc9s12dg256_jump_table.o:
+_JUMP_TABLE                    >    2   (2)
+
 .\Build-Debug\os_core.o:
-L156_OS_InitEventList         14   (8)
-L166_OS_InitTCBList           14   (8)
-L356_OS_InitMisc               2   (2)
-L366_OS_SchedNew               3   (3)
-L556_OS_InitRdyList            3   (3)
-L756_OS_InitTaskIdle          52   (3)
-_OSEventNameGet           >   15   (10)
-_OSEventNameSet                9   (9)
-_OSEventPendMulti         >   38   (25)
-_OSInit                       63   (2)
-_OSIntEnter               >    2   (2)
-_OSIntExit                >    6   (3)
-_OSSchedLock                   3   (3)
-_OSSchedUnlock                 9   (3)
-_OSStart                       5   (2)
-_OSTimeTick               >   42   (5)
-_OSVersion                >    2   (2)
-_OS_Dummy                      2   (2)
-_OS_EventTaskRdy              27   (14)
-_OS_EventTaskRemove            7   (7)
-_OS_EventTaskRemoveMulti      13   (13)
-_OS_EventTaskWait              5   (5)
-_OS_EventTaskWaitMulti         9   (9)
-_OS_EventWaitListInit          5   (5)
-_OS_MemClr                     6   (6)
-_OS_MemCopy                    8   (8)
-_OS_Sched                      6   (3)
-_OS_StrLen                     5   (5)
-_OS_TCBInit                   23   (21)
-_OS_TaskIdle                   7   (5)
-_OS_TaskStatStkChk        >   33   (14)
+L1153_OS_InitEventList             14   (8)
+L1253_OS_InitTCBList               14   (8)
+L3153_OS_InitMisc                   2   (2)
+L3253_OS_SchedNew                   3   (3)
+L5153_OS_InitRdyList                3   (3)
+L7153_OS_InitTaskIdle              52   (3)
+_OSEventNameGet                >   15   (10)
+_OSEventNameSet                     9   (9)
+_OSEventPendMulti              >   38   (25)
+_OSInit                            63   (2)
+_OSIntEnter                    >    2   (2)
+_OSIntExit                     >    6   (3)
+_OSSchedLock                        3   (3)
+_OSSchedUnlock                      9   (3)
+_OSStart                            5   (2)
+_OSTimeTick                    >    7   (5)
+_OSVersion                     >    2   (2)
+_OS_Dummy                           2   (2)
+_OS_EventTaskRdy                   27   (14)
+_OS_EventTaskRemove                 7   (7)
+_OS_EventTaskRemoveMulti           13   (13)
+_OS_EventTaskWait                   5   (5)
+_OS_EventTaskWaitMulti              9   (9)
+_OS_EventWaitListInit               5   (5)
+_OS_MemClr                          6   (6)
+_OS_MemCopy                         8   (8)
+_OS_Sched                           6   (3)
+_OS_StrLen                          5   (5)
+_OS_TCBInit                        23   (21)
+_OS_TaskIdle                        7   (5)
+_OS_TaskStatStkChk             >   33   (14)
 
 .\Build-Debug\os_cpu_c.o:
-_OSInitHookBegin               2   (2)
-_OSInitHookEnd                 2   (2)
-_OSTCBInitHook                 2   (2)
-_OSTaskAbort                  24   (2)
-_OSTaskCreateHook              2   (2)
-_OSTaskDelHook                 2   (2)
-_OSTaskIdleHook                2   (2)
-_OSTaskReturnHook              2   (2)
-_OSTaskStatHook           >    2   (2)
-_OSTaskStkInit                18   (18)
-_OSTaskSwHook             >    2   (2)
-_OSTickISRHandler         >    2   (2)
-_OSTimeTickHook               37   (2)
+_OSInitHookBegin                    2   (2)
+_OSInitHookEnd                      2   (2)
+_OSTCBInitHook                      2   (2)
+_OSTaskAbort                       24   (2)
+_OSTaskCreateHook                   2   (2)
+_OSTaskDelHook                      2   (2)
+_OSTaskIdleHook                     2   (2)
+_OSTaskReturnHook                   2   (2)
+_OSTaskStatHook                >    2   (2)
+_OSTaskStkInit                     18   (18)
+_OSTaskSwHook                  >    2   (2)
+_OSTickISRHandler              >    2   (2)
+_OSTimeTickHook                     2   (2)
 
 .\Build-Debug\os_dbg_r.o:
-_OSDebugInit                   4   (4)
+_OSDebugInit                        4   (4)
 
 .\Build-Debug\os_flag.o:
-L3_OS_FlagBlock               17   (17)
-L5_OS_FlagTaskRdy             19   (11)
-_OSFlagAccept             >   14   (14)
-_OSFlagCreate             >    9   (9)
-_OSFlagDel                >   31   (12)
-_OSFlagNameGet            >   15   (10)
-_OSFlagNameSet            >    9   (9)
-_OSFlagPend               >   46   (29)
-_OSFlagPendGetFlagsRdy    >    5   (5)
-_OSFlagPost               >   36   (17)
-_OSFlagQuery              >    9   (9)
-_OS_FlagInit                  14   (8)
-_OS_FlagUnlink                 8   (8)
+L3462_OS_FlagBlock                 17   (17)
+L5462_OS_FlagTaskRdy               19   (11)
+_OSFlagAccept                  >   14   (14)
+_OSFlagCreate                  >    9   (9)
+_OSFlagDel                     >   31   (12)
+_OSFlagNameGet                 >   15   (10)
+_OSFlagNameSet                 >    9   (9)
+_OSFlagPend                    >   46   (29)
+_OSFlagPendGetFlagsRdy         >    5   (5)
+_OSFlagPost                    >   36   (17)
+_OSFlagQuery                   >    9   (9)
+_OS_FlagInit                       14   (8)
+_OS_FlagUnlink                      8   (8)
 
 .\Build-Debug\os_mbox.o:
-_OSMboxAccept             >    7   (7)
-_OSMboxCreate             >   12   (7)
-_OSMboxDel                >   39   (12)
-_OSMboxPend               >   20   (13)
-_OSMboxPendAbort          >   37   (10)
-_OSMboxPost               >   34   (7)
-_OSMboxPostOpt            >   36   (9)
-_OSMboxQuery              >   12   (12)
+_OSMboxAccept                  >    7   (7)
+_OSMboxCreate                  >   12   (7)
+_OSMboxDel                     >   39   (12)
+_OSMboxPend                    >   20   (13)
+_OSMboxPendAbort               >   37   (10)
+_OSMboxPost                    >   34   (7)
+_OSMboxPostOpt                 >   36   (9)
+_OSMboxQuery                   >   12   (12)
 
 .\Build-Debug\os_mem.o:
-_OSMemCreate              >   31   (29)
-_OSMemGet                 >    9   (9)
-_OSMemNameGet             >   15   (10)
-_OSMemNameSet             >    9   (9)
-_OSMemPut                 >    7   (7)
-_OSMemQuery               >    9   (7)
-_OS_MemInit                   12   (6)
+_OSMemCreate                   >   31   (29)
+_OSMemGet                      >    9   (9)
+_OSMemNameGet                  >   15   (10)
+_OSMemNameSet                  >    9   (9)
+_OSMemPut                      >    7   (7)
+_OSMemQuery                    >    9   (7)
+_OS_MemInit                        12   (6)
 
 .\Build-Debug\os_mutex.o:
-L3_OSMutex_RdyAtPrio           7   (7)
-_OSMutexAccept            >    8   (8)
-_OSMutexCreate            >   14   (9)
-_OSMutexDel               >   41   (14)
-_OSMutexPend              >   24   (17)
-_OSMutexPost              >   34   (7)
-_OSMutexQuery             >   12   (12)
+L3462_OSMutex_RdyAtPrio             7   (7)
+_OSMutexAccept                 >    8   (8)
+_OSMutexCreate                 >   14   (9)
+_OSMutexDel                    >   41   (14)
+_OSMutexPend                   >   24   (17)
+_OSMutexPost                   >   34   (7)
+_OSMutexQuery                  >   12   (12)
 
 .\Build-Debug\os_q.o:
-_OSQAccept                >   11   (11)
-_OSQCreate                >   16   (11)
-_OSQDel                   >   39   (12)
-_OSQFlush                 >    7   (7)
-_OSQPend                  >   22   (15)
-_OSQPendAbort             >   37   (10)
-_OSQPost                  >   36   (9)
-_OSQPostFront             >   36   (9)
-_OSQPostOpt               >   38   (11)
-_OSQQuery                 >   12   (12)
-_OS_QInit                     14   (8)
+_OSQAccept                     >   11   (11)
+_OSQCreate                     >   16   (11)
+_OSQDel                        >   39   (12)
+_OSQFlush                      >    7   (7)
+_OSQPend                       >   22   (15)
+_OSQPendAbort                  >   37   (10)
+_OSQPost                       >   36   (9)
+_OSQPostFront                  >   36   (9)
+_OSQPostOpt                    >   38   (11)
+_OSQQuery                      >   12   (12)
+_OS_QInit                          14   (8)
 
 .\Build-Debug\os_sem.o:
-_OSSemAccept              >    7   (7)
-_OSSemCreate                  12   (7)
-_OSSemDel                 >   39   (12)
-_OSSemPend                    18   (11)
-_OSSemPendAbort           >   37   (10)
-_OSSemPost                    32   (5)
-_OSSemQuery               >   12   (12)
-_OSSemSet                 >    9   (9)
+_OSSemAccept                   >    7   (7)
+_OSSemCreate                       12   (7)
+_OSSemDel                      >   39   (12)
+_OSSemPend                         18   (11)
+_OSSemPendAbort                >   37   (10)
+_OSSemPost                         32   (5)
+_OSSemQuery                    >   12   (12)
+_OSSemSet                      >    9   (9)
 
 .\Build-Debug\os_task.o:
-_OSTaskChangePrio         >   26   (20)
-_OSTaskCreate                 37   (14)
-_OSTaskCreateExt              49   (26)
-_OSTaskDel                    22   (9)
-_OSTaskDelReq             >    8   (8)
-_OSTaskNameGet            >   17   (12)
-_OSTaskNameSet                11   (11)
-_OSTaskQuery              >   17   (9)
-_OSTaskResume             >   13   (7)
-_OSTaskStkChk                 19   (17)
-_OSTaskSuspend            >   15   (9)
-_OS_TaskReturn            >   24   (2)
-_OS_TaskStkClr                10   (10)
+_OSTaskChangePrio              >   26   (20)
+_OSTaskCreate                      37   (14)
+_OSTaskCreateExt                   49   (26)
+_OSTaskDel                         22   (9)
+_OSTaskDelReq                  >    8   (8)
+_OSTaskNameGet                 >   17   (12)
+_OSTaskNameSet                     11   (11)
+_OSTaskQuery                   >   17   (9)
+_OSTaskResume                  >   13   (7)
+_OSTaskStkChk                      19   (17)
+_OSTaskSuspend                 >   15   (9)
+_OS_TaskReturn                 >   24   (2)
+_OS_TaskStkClr                     10   (10)
 
 .\Build-Debug\os_time.o:
-_OSTimeDly                    14   (8)
-_OSTimeGet                >    7   (7)
-_OSTimeSet                >    7   (7)
+_OSTimeDly                         14   (8)
+_OSTimeGet                     >    7   (7)
+_OSTimeSet                     >    7   (7)
 
 .\Build-Debug\os_tmr.o:
-L11_OSTmr_Link                12   (10)
-L31_OSTmr_Unlink              10   (10)
-L3_OSTmr_Alloc                 4   (4)
-L51_OSTmr_Task                35   (11) *** Recursive *** *** pointer() ***
-L5_OSTmr_Free                  4   (4)
-L7_OSTmr_InitTask             52   (3)
-_OSTmrCreate              >   31   (22)
-_OSTmrDel                 >   16   (6)
-_OSTmrRemainGet           >   19   (10)
-_OSTmrSignal                  35   (3)
-_OSTmrStart               >   18   (6)
-_OSTmrStateGet            >   16   (7)
-_OSTmrStop                >   47   (12) *** Recursive *** *** pointer() ***
-_OSTmr_Init                   61   (9)
+L1562_OSTmr_Link                   12   (10)
+L3462_OSTmr_Alloc                   4   (4)
+L3562_OSTmr_Unlink                 10   (10)
+L5462_OSTmr_Free                    4   (4)
+L5562_OSTmr_Task                   35   (11) *** Recursive *** *** pointer() ***
+L7462_OSTmr_InitTask               52   (3)
+_OSTmrCreate                   >   31   (22)
+_OSTmrDel                      >   16   (6)
+_OSTmrRemainGet                >   19   (10)
+_OSTmrSignal                   >   35   (3)
+_OSTmrStart                    >   18   (6)
+_OSTmrStateGet                 >   16   (7)
+_OSTmrStop                     >   47   (12) *** Recursive *** *** pointer() ***
+_OSTmr_Init                        61   (9)
 
-.\Build-Debug\sw_traps.o:
-_SoftwareTrap01           >    2   (2)
-_SoftwareTrap02           >    2   (2)
-_SoftwareTrap03           >    2   (2)
-_SoftwareTrap04           >    2   (2)
-_SoftwareTrap05           >    2   (2)
-_SoftwareTrap06           >    2   (2)
-_SoftwareTrap07           >    2   (2)
-_SoftwareTrap08           >    2   (2)
-_SoftwareTrap09           >    2   (2)
-_SoftwareTrap10           >    2   (2)
-_SoftwareTrap11           >    2   (2)
-_SoftwareTrap12           >    2   (2)
-_SoftwareTrap13           >    2   (2)
-_SoftwareTrap14           >    2   (2)
-_SoftwareTrap15           >    2   (2)
-_SoftwareTrap16           >    2   (2)
-_SoftwareTrap17           >    2   (2)
-_SoftwareTrap18           >    2   (2)
-_SoftwareTrap19           >    2   (2)
-_SoftwareTrap20           >    2   (2)
-_SoftwareTrap21           >    2   (2)
-_SoftwareTrap22           >    2   (2)
-_SoftwareTrap23           >    2   (2)
-_SoftwareTrap24           >    2   (2)
-_SoftwareTrap25           >    2   (2)
-_SoftwareTrap26           >    2   (2)
-_SoftwareTrap27           >    2   (2)
-_SoftwareTrap28           >    2   (2)
-_SoftwareTrap29           >    2   (2)
-_SoftwareTrap30           >    2   (2)
-_SoftwareTrap31           >    2   (2)
-_SoftwareTrap32           >    2   (2)
-_SoftwareTrap33           >    2   (2)
-_SoftwareTrap34           >    2   (2)
-_SoftwareTrap35           >    2   (2)
-_SoftwareTrap36           >    2   (2)
-_SoftwareTrap37           >    2   (2)
-_SoftwareTrap38           >    2   (2)
-_SoftwareTrap39           >    2   (2)
-_SoftwareTrap40           >    2   (2)
-_SoftwareTrap41           >    2   (2)
-_SoftwareTrap42           >    2   (2)
-_SoftwareTrap43           >    2   (2)
-_SoftwareTrap44           >    2   (2)
-_SoftwareTrap45           >    2   (2)
-_SoftwareTrap46           >    2   (2)
-_SoftwareTrap47           >    2   (2)
-_SoftwareTrap48           >    2   (2)
-_SoftwareTrap49           >    2   (2)
-_SoftwareTrap50           >    2   (2)
-_SoftwareTrap51           >    2   (2)
-_SoftwareTrap52           >    2   (2)
-_SoftwareTrap53           >    2   (2)
-_SoftwareTrap54           >    2   (2)
-_SoftwareTrap55           >    2   (2)
-_SoftwareTrap56           >    2   (2)
-_SoftwareTrap57           >    2   (2)
-_SoftwareTrap58           >    2   (2)
-_SoftwareTrap59           >    2   (2)
-_SoftwareTrap60           >    2   (2)
-_SoftwareTrap61           >    2   (2)
-_SoftwareTrap62           >    2   (2)
-_SoftwareTrap63           >    2   (2)
-_SoftwareTrap64           >    2   (2)
+.\Build-Debug\software_traps.o:
+_SoftwareTrap01                >    2   (2)
+_SoftwareTrap02                >    2   (2)
+_SoftwareTrap03                >    2   (2)
+_SoftwareTrap04                >    2   (2)
+_SoftwareTrap05                >    2   (2)
+_SoftwareTrap06                >    2   (2)
+_SoftwareTrap07                >    2   (2)
+_SoftwareTrap08                >    2   (2)
+_SoftwareTrap09                >    2   (2)
+_SoftwareTrap10                >    2   (2)
+_SoftwareTrap11                >    2   (2)
+_SoftwareTrap12                >    2   (2)
+_SoftwareTrap13                >    2   (2)
+_SoftwareTrap14                >    2   (2)
+_SoftwareTrap15                >    2   (2)
+_SoftwareTrap16                >    2   (2)
+_SoftwareTrap17                >    2   (2)
+_SoftwareTrap18                >    2   (2)
+_SoftwareTrap19                >    2   (2)
+_SoftwareTrap20                >    2   (2)
+_SoftwareTrap21                >    2   (2)
+_SoftwareTrap22                >    2   (2)
+_SoftwareTrap23                >    2   (2)
+_SoftwareTrap24                >    2   (2)
+_SoftwareTrap25                >    2   (2)
+_SoftwareTrap26                >    2   (2)
+_SoftwareTrap27                >    2   (2)
+_SoftwareTrap28                >    2   (2)
+_SoftwareTrap29                >    2   (2)
+_SoftwareTrap30                >    2   (2)
+_SoftwareTrap31                >    2   (2)
+_SoftwareTrap32                >    2   (2)
+_SoftwareTrap33                >    2   (2)
+_SoftwareTrap34                >    2   (2)
+_SoftwareTrap35                >    2   (2)
+_SoftwareTrap36                >    2   (2)
+_SoftwareTrap37                >    2   (2)
+_SoftwareTrap38                >    2   (2)
+_SoftwareTrap39                >    2   (2)
+_SoftwareTrap40                >    2   (2)
+_SoftwareTrap41                >    2   (2)
+_SoftwareTrap42                >    2   (2)
+_SoftwareTrap43                >    2   (2)
+_SoftwareTrap44                >    2   (2)
+_SoftwareTrap45                >    2   (2)
+_SoftwareTrap46                >    2   (2)
+_SoftwareTrap47                >    2   (2)
+_SoftwareTrap48                >    2   (2)
+_SoftwareTrap49                >    2   (2)
+_SoftwareTrap50                >    2   (2)
+_SoftwareTrap51                >    2   (2)
+_SoftwareTrap52                >    2   (2)
+_SoftwareTrap53                >    2   (2)
+_SoftwareTrap54                >    2   (2)
+_SoftwareTrap55                >    2   (2)
+_SoftwareTrap56                >    2   (2)
+_SoftwareTrap57                >    2   (2)
+_SoftwareTrap58                >    2   (2)
+_SoftwareTrap59                >    2   (2)
+_SoftwareTrap60                >    2   (2)
+_SoftwareTrap61                >    2   (2)
+_SoftwareTrap62                >    2   (2)
+_SoftwareTrap63                >    2   (2)
+_SoftwareTrap64                >    2   (2)
 
 .\Build-Debug\test.o:
-L3462_initHardware             2   (2)
-_TestTask                     18   (4)
-_main                     >   65   (2)
+L1562_initHardware                  2   (2)
+L1762_initClockTimer                2   (2)
+_TestTask                          22   (4)
+_main                          >   65   (2)
+
+.\Build-Debug\time.o:
+L3003f_isTimeValid                 20   (6)
+L5762f_getDaysInMonth              14   (8)
+L7462f_isLeapYear                   6   (6)
+f_Time_DidPackTime             >   28   (8)
+f_Time_DidSetTime              >   28   (8)
+f_Time_DidUnpackTime           >   27   (7)
+f_Time_GetTime                 >    7   (7)
+f_Time_IncrementTime           >   21   (7)
+f_Time_Init                    >    3   (3)
 
 Stack size: 65
 
@@ -374,576 +438,639 @@ Stack size: 65
                               ---------
                               Call tree
                               ---------
-   1 > _OSEventNameGet: (10)
-   2      + _OS_StrLen: (5)
+   1 > L1203_eraseFlash: (2)
+
+   2 > L3462_delayMilliseconds: (7)
+
+   3 > L3613_programThenVerifyFlash: (2)
+
+   4 > L3623_programThenVerifyEEPROM: (2)
+
+   5 > L5462_processCommand: (2)
+   6      + (L5562_OSTmr_Task) ...
+   7      + (_OSTaskAbort) ...
+   8      + (_OS_TaskIdle) ...
+   9      + (_TestTask) ...
        
-   3 > _OSEventPendMulti: (25)
-   4      + _OS_EventTaskRemoveMulti: (13)
-   5      + _OS_EventTaskWaitMulti: (9)
-   6      + _OS_Sched: (3)
-   7      |    + L366_OS_SchedNew: (3)
+  10 > L7213_eraseEEPROM: (2)
+
+  11 > _BootLoaderToRunFromRAM: (4)
+  12      + (L5562_OSTmr_Task) ...
+  13      + (_OSTaskAbort) ...
+  14      + (_OS_TaskIdle) ...
+  15      + (_TestTask) ...
+       
+  16 > _Booting: (2)
+  17      + L3272_copyBootloaderToRAM: (6)
+  18      + L3462_initHardware: (2)
+  19      + L3662_delayMilliseconds: (7)
+       
+  20 > _JUMP_TABLE: (2)
+
+  21 > _OSEventNameGet: (10)
+  22      + _OS_StrLen: (5)
+       
+  23 > _OSEventPendMulti: (25)
+  24      + _OS_EventTaskRemoveMulti: (13)
+  25      + _OS_EventTaskWaitMulti: (9)
+  26      + _OS_Sched: (3)
+  27      |    + L3253_OS_SchedNew: (3)
           | 
        
-   8 > _OSFlagAccept: (14)
+  28 > _OSFlagAccept: (14)
 
-   9 > _OSFlagCreate: (9)
+  29 > _OSFlagCreate: (9)
 
-  10 > _OSFlagDel: (12)
-  11      + L5_OS_FlagTaskRdy: (11)
-  12      |    + _OS_FlagUnlink: (8)
+  30 > _OSFlagDel: (12)
+  31      + L5462_OS_FlagTaskRdy: (11)
+  32      |    + _OS_FlagUnlink: (8)
           | 
-  13      + _OS_Sched --> 6
+  33      + _OS_Sched --> 26
        
-  14 > _OSFlagNameGet: (10)
-  15      + _OS_StrLen --> 2
+  34 > _OSFlagNameGet: (10)
+  35      + _OS_StrLen --> 22
        
-  16 > _OSFlagNameSet: (9)
+  36 > _OSFlagNameSet: (9)
 
-  17 > _OSFlagPend: (29)
-  18      + L3_OS_FlagBlock: (17)
-  19      + _OS_FlagUnlink --> 12
-  20      + _OS_Sched --> 6
+  37 > _OSFlagPend: (29)
+  38      + L3462_OS_FlagBlock: (17)
+  39      + _OS_FlagUnlink --> 32
+  40      + _OS_Sched --> 26
        
-  21 > _OSFlagPendGetFlagsRdy: (5)
+  41 > _OSFlagPendGetFlagsRdy: (5)
 
-  22 > _OSFlagPost: (17)
-  23      + L5_OS_FlagTaskRdy --> 11
-  24      + _OS_Sched --> 6
+  42 > _OSFlagPost: (17)
+  43      + L5462_OS_FlagTaskRdy --> 31
+  44      + _OS_Sched --> 26
        
-  25 > _OSFlagQuery: (9)
+  45 > _OSFlagQuery: (9)
 
-  26 > _OSIntEnter: (2)
+  46 > _OSIntEnter: (2)
 
-  27 > _OSIntExit: (3)
-  28      + L366_OS_SchedNew --> 7
+  47 > _OSIntExit: (3)
+  48      + L3253_OS_SchedNew --> 27
        
-  29 > _OSMboxAccept: (7)
+  49 > _OSMboxAccept: (7)
 
-  30 > _OSMboxCreate: (7)
-  31      + _OS_EventWaitListInit: (5)
+  50 > _OSMboxCreate: (7)
+  51      + _OS_EventWaitListInit: (5)
        
-  32 > _OSMboxDel: (12)
-  33      + _OS_EventTaskRdy: (14)
-  34      |    + _OS_EventTaskRemove: (7)
-  35      |    + _OS_EventTaskRemoveMulti --> 4
+  52 > _OSMboxDel: (12)
+  53      + _OS_EventTaskRdy: (14)
+  54      |    + _OS_EventTaskRemove: (7)
+  55      |    + _OS_EventTaskRemoveMulti --> 24
           | 
-  36      + _OS_Sched --> 6
+  56      + _OS_Sched --> 26
        
-  37 > _OSMboxPend: (13)
-  38      + _OS_EventTaskRemove --> 34
-  39      + _OS_EventTaskWait: (5)
-  40      + _OS_Sched --> 6
+  57 > _OSMboxPend: (13)
+  58      + _OS_EventTaskRemove --> 54
+  59      + _OS_EventTaskWait: (5)
+  60      + _OS_Sched --> 26
        
-  41 > _OSMboxPendAbort: (10)
-  42      + _OS_EventTaskRdy --> 33
-  43      + _OS_Sched --> 6
+  61 > _OSMboxPendAbort: (10)
+  62      + _OS_EventTaskRdy --> 53
+  63      + _OS_Sched --> 26
        
-  44 > _OSMboxPost: (7)
-  45      + _OS_EventTaskRdy --> 33
-  46      + _OS_Sched --> 6
+  64 > _OSMboxPost: (7)
+  65      + _OS_EventTaskRdy --> 53
+  66      + _OS_Sched --> 26
        
-  47 > _OSMboxPostOpt: (9)
-  48      + _OS_EventTaskRdy --> 33
-  49      + _OS_Sched --> 6
+  67 > _OSMboxPostOpt: (9)
+  68      + _OS_EventTaskRdy --> 53
+  69      + _OS_Sched --> 26
        
-  50 > _OSMboxQuery: (12)
+  70 > _OSMboxQuery: (12)
 
-  51 > _OSMemCreate: (29)
+  71 > _OSMemCreate: (29)
 
-  52 > _OSMemGet: (9)
+  72 > _OSMemGet: (9)
 
-  53 > _OSMemNameGet: (10)
-  54      + _OS_StrLen --> 2
+  73 > _OSMemNameGet: (10)
+  74      + _OS_StrLen --> 22
        
-  55 > _OSMemNameSet: (9)
+  75 > _OSMemNameSet: (9)
 
-  56 > _OSMemPut: (7)
+  76 > _OSMemPut: (7)
 
-  57 > _OSMemQuery: (7)
+  77 > _OSMemQuery: (7)
 
-  58 > _OSMutexAccept: (8)
+  78 > _OSMutexAccept: (8)
 
-  59 > _OSMutexCreate: (9)
-  60      + _OS_EventWaitListInit --> 31
+  79 > _OSMutexCreate: (9)
+  80      + _OS_EventWaitListInit --> 51
        
-  61 > _OSMutexDel: (14)
-  62      + L3_OSMutex_RdyAtPrio: (7)
-  63      + _OS_EventTaskRdy --> 33
-  64      + _OS_Sched --> 6
+  81 > _OSMutexDel: (14)
+  82      + L3462_OSMutex_RdyAtPrio: (7)
+  83      + _OS_EventTaskRdy --> 53
+  84      + _OS_Sched --> 26
        
-  65 > _OSMutexPend: (17)
-  66      + _OS_EventTaskRemove --> 34
-  67      + _OS_EventTaskWait --> 39
-  68      + _OS_Sched --> 6
+  85 > _OSMutexPend: (17)
+  86      + _OS_EventTaskRemove --> 54
+  87      + _OS_EventTaskWait --> 59
+  88      + _OS_Sched --> 26
        
-  69 > _OSMutexPost: (7)
-  70      + L3_OSMutex_RdyAtPrio --> 62
-  71      + _OS_EventTaskRdy --> 33
-  72      + _OS_Sched --> 6
+  89 > _OSMutexPost: (7)
+  90      + L3462_OSMutex_RdyAtPrio --> 82
+  91      + _OS_EventTaskRdy --> 53
+  92      + _OS_Sched --> 26
        
-  73 > _OSMutexQuery: (12)
+  93 > _OSMutexQuery: (12)
 
-  74 > _OSQAccept: (11)
+  94 > _OSQAccept: (11)
 
-  75 > _OSQCreate: (11)
-  76      + _OS_EventWaitListInit --> 31
+  95 > _OSQCreate: (11)
+  96      + _OS_EventWaitListInit --> 51
        
-  77 > _OSQDel: (12)
-  78      + _OS_EventTaskRdy --> 33
-  79      + _OS_Sched --> 6
+  97 > _OSQDel: (12)
+  98      + _OS_EventTaskRdy --> 53
+  99      + _OS_Sched --> 26
        
-  80 > _OSQFlush: (7)
+ 100 > _OSQFlush: (7)
 
-  81 > _OSQPend: (15)
-  82      + _OS_EventTaskRemove --> 34
-  83      + _OS_EventTaskWait --> 39
-  84      + _OS_Sched --> 6
+ 101 > _OSQPend: (15)
+ 102      + _OS_EventTaskRemove --> 54
+ 103      + _OS_EventTaskWait --> 59
+ 104      + _OS_Sched --> 26
        
-  85 > _OSQPendAbort: (10)
-  86      + _OS_EventTaskRdy --> 33
-  87      + _OS_Sched --> 6
+ 105 > _OSQPendAbort: (10)
+ 106      + _OS_EventTaskRdy --> 53
+ 107      + _OS_Sched --> 26
        
-  88 > _OSQPost: (9)
-  89      + _OS_EventTaskRdy --> 33
-  90      + _OS_Sched --> 6
+ 108 > _OSQPost: (9)
+ 109      + _OS_EventTaskRdy --> 53
+ 110      + _OS_Sched --> 26
        
-  91 > _OSQPostFront: (9)
-  92      + _OS_EventTaskRdy --> 33
-  93      + _OS_Sched --> 6
+ 111 > _OSQPostFront: (9)
+ 112      + _OS_EventTaskRdy --> 53
+ 113      + _OS_Sched --> 26
        
-  94 > _OSQPostOpt: (11)
-  95      + _OS_EventTaskRdy --> 33
-  96      + _OS_Sched --> 6
+ 114 > _OSQPostOpt: (11)
+ 115      + _OS_EventTaskRdy --> 53
+ 116      + _OS_Sched --> 26
        
-  97 > _OSQQuery: (12)
+ 117 > _OSQQuery: (12)
 
-  98 > _OSSemAccept: (7)
+ 118 > _OSSemAccept: (7)
 
-  99 > _OSSemDel: (12)
- 100      + _OS_EventTaskRdy --> 33
- 101      + _OS_Sched --> 6
+ 119 > _OSSemDel: (12)
+ 120      + _OS_EventTaskRdy --> 53
+ 121      + _OS_Sched --> 26
        
- 102 > _OSSemPendAbort: (10)
- 103      + _OS_EventTaskRdy --> 33
- 104      + _OS_Sched --> 6
+ 122 > _OSSemPendAbort: (10)
+ 123      + _OS_EventTaskRdy --> 53
+ 124      + _OS_Sched --> 26
        
- 105 > _OSSemQuery: (12)
+ 125 > _OSSemQuery: (12)
 
- 106 > _OSSemSet: (9)
+ 126 > _OSSemSet: (9)
 
- 107 > _OSTaskChangePrio: (20)
- 108      + _OS_Sched --> 6
+ 127 > _OSTaskChangePrio: (20)
+ 128      + _OS_Sched --> 26
        
- 109 > _OSTaskDelReq: (8)
+ 129 > _OSTaskDelReq: (8)
 
- 110 > _OSTaskNameGet: (12)
- 111      + _OS_StrLen --> 2
+ 130 > _OSTaskNameGet: (12)
+ 131      + _OS_StrLen --> 22
        
- 112 > _OSTaskQuery: (9)
- 113      + _OS_MemCopy: (8)
+ 132 > _OSTaskQuery: (9)
+ 133      + _OS_MemCopy: (8)
        
- 114 > _OSTaskResume: (7)
- 115      + _OS_Sched --> 6
+ 134 > _OSTaskResume: (7)
+ 135      + _OS_Sched --> 26
        
- 116 > _OSTaskStatHook: (2)
+ 136 > _OSTaskStatHook: (2)
 
- 117 > _OSTaskSuspend: (9)
- 118      + _OS_Sched --> 6
+ 137 > _OSTaskSuspend: (9)
+ 138      + _OS_Sched --> 26
        
- 119 > _OSTaskSwHook: (2)
+ 139 > _OSTaskSwHook: (2)
 
- 120 > _OSTickISRHandler: (2)
+ 140 > _OSTickISRHandler: (2)
 
- 121 > _OSTimeGet: (7)
+ 141 > _OSTimeGet: (7)
 
- 122 > _OSTimeSet: (7)
+ 142 > _OSTimeSet: (7)
 
- 123 > _OSTimeTick: (5)
- 124      + _OSTimeTickHook: (2)
- 125      |    + _OSTmrSignal: (3)
- 126      |    |    + _OSSemPost: (5)
- 127      |    |    |    + _OS_EventTaskRdy --> 33
- 128      |    |    |    + _OS_Sched --> 6
-          |    |    | 
+ 143 > _OSTimeTick: (5)
+ 144      + _OSTimeTickHook: (2)
+       
+ 145 > _OSTmrCreate: (22)
+ 146      + L3462_OSTmr_Alloc: (4)
+ 147      + _OSSchedLock: (3)
+ 148      + _OSSchedUnlock: (3)
+ 149      |    + _OS_Sched --> 26
+          | 
+       
+ 150 > _OSTmrDel: (6)
+ 151      + L3562_OSTmr_Unlink: (10)
+ 152      + L5462_OSTmr_Free: (4)
+ 153      + _OSSchedLock --> 147
+ 154      + _OSSchedUnlock --> 148
+       
+ 155 > _OSTmrRemainGet: (10)
+ 156      + _OSSchedLock --> 147
+ 157      + _OSSchedUnlock --> 148
+       
+ 158 > _OSTmrSignal: (3)
+ 159      + _OSSemPost: (5)
+ 160      |    + _OS_EventTaskRdy --> 53
+ 161      |    + _OS_Sched --> 26
+          | 
+       
+ 162 > _OSTmrStart: (6)
+ 163      + L1562_OSTmr_Link: (10)
+ 164      + L3562_OSTmr_Unlink --> 151
+ 165      + _OSSchedLock --> 147
+ 166      + _OSSchedUnlock --> 148
+       
+ 167 > _OSTmrStateGet: (7)
+ 168      + _OSSchedLock --> 147
+ 169      + _OSSchedUnlock --> 148
+       
+ 170 > _OSTmrStop: (12)
+ 171      + L3562_OSTmr_Unlink --> 151
+ 172      + (L5562_OSTmr_Task) ...
+ 173      + _OSSchedLock --> 147
+ 174      + _OSSchedUnlock --> 148
+ 175      + (_OSTaskAbort) ...
+ 176      + (_OS_TaskIdle) ...
+ 177      + (_TestTask) ...
+       
+ 178 > _OSVersion: (2)
+
+ 179 > _OS_TaskReturn: (2)
+ 180      + _OSTaskDel: (9)
+ 181      |    + _OSTaskDelHook: (2)
+ 182      |    + _OS_Dummy: (2)
+ 183      |    + _OS_EventTaskRemove --> 54
+ 184      |    + _OS_EventTaskRemoveMulti --> 24
+ 185      |    + _OS_FlagUnlink --> 32
+ 186      |    + _OS_Sched --> 26
+          | 
+ 187      + _OSTaskReturnHook: (2)
+       
+ 188 > _OS_TaskStatStkChk: (14)
+ 189      + _OSTaskStkChk: (17)
+       
+ 190 > _SoftwareTrap01: (2)
+
+ 191 > _SoftwareTrap02: (2)
+
+ 192 > _SoftwareTrap03: (2)
+
+ 193 > _SoftwareTrap04: (2)
+
+ 194 > _SoftwareTrap05: (2)
+
+ 195 > _SoftwareTrap06: (2)
+
+ 196 > _SoftwareTrap07: (2)
+
+ 197 > _SoftwareTrap08: (2)
+
+ 198 > _SoftwareTrap09: (2)
+
+ 199 > _SoftwareTrap10: (2)
+
+ 200 > _SoftwareTrap11: (2)
+
+ 201 > _SoftwareTrap12: (2)
+
+ 202 > _SoftwareTrap13: (2)
+
+ 203 > _SoftwareTrap14: (2)
+
+ 204 > _SoftwareTrap15: (2)
+
+ 205 > _SoftwareTrap16: (2)
+
+ 206 > _SoftwareTrap17: (2)
+
+ 207 > _SoftwareTrap18: (2)
+
+ 208 > _SoftwareTrap19: (2)
+
+ 209 > _SoftwareTrap20: (2)
+
+ 210 > _SoftwareTrap21: (2)
+
+ 211 > _SoftwareTrap22: (2)
+
+ 212 > _SoftwareTrap23: (2)
+
+ 213 > _SoftwareTrap24: (2)
+
+ 214 > _SoftwareTrap25: (2)
+
+ 215 > _SoftwareTrap26: (2)
+
+ 216 > _SoftwareTrap27: (2)
+
+ 217 > _SoftwareTrap28: (2)
+
+ 218 > _SoftwareTrap29: (2)
+
+ 219 > _SoftwareTrap30: (2)
+
+ 220 > _SoftwareTrap31: (2)
+
+ 221 > _SoftwareTrap32: (2)
+
+ 222 > _SoftwareTrap33: (2)
+
+ 223 > _SoftwareTrap34: (2)
+
+ 224 > _SoftwareTrap35: (2)
+
+ 225 > _SoftwareTrap36: (2)
+
+ 226 > _SoftwareTrap37: (2)
+
+ 227 > _SoftwareTrap38: (2)
+
+ 228 > _SoftwareTrap39: (2)
+
+ 229 > _SoftwareTrap40: (2)
+
+ 230 > _SoftwareTrap41: (2)
+
+ 231 > _SoftwareTrap42: (2)
+
+ 232 > _SoftwareTrap43: (2)
+
+ 233 > _SoftwareTrap44: (2)
+
+ 234 > _SoftwareTrap45: (2)
+
+ 235 > _SoftwareTrap46: (2)
+
+ 236 > _SoftwareTrap47: (2)
+
+ 237 > _SoftwareTrap48: (2)
+
+ 238 > _SoftwareTrap49: (2)
+
+ 239 > _SoftwareTrap50: (2)
+
+ 240 > _SoftwareTrap51: (2)
+
+ 241 > _SoftwareTrap52: (2)
+
+ 242 > _SoftwareTrap53: (2)
+
+ 243 > _SoftwareTrap54: (2)
+
+ 244 > _SoftwareTrap55: (2)
+
+ 245 > _SoftwareTrap56: (2)
+
+ 246 > _SoftwareTrap57: (2)
+
+ 247 > _SoftwareTrap58: (2)
+
+ 248 > _SoftwareTrap59: (2)
+
+ 249 > _SoftwareTrap60: (2)
+
+ 250 > _SoftwareTrap61: (2)
+
+ 251 > _SoftwareTrap62: (2)
+
+ 252 > _SoftwareTrap63: (2)
+
+ 253 > _SoftwareTrap64: (2)
+
+ 254 > __reset: (0)
+
+ 255 > _main: (2)
+ 256      + L1562_initHardware: (2)
+ 257      + _OSInit: (2)
+ 258      |    + L1153_OS_InitEventList: (8)
+ 259      |    |    + _OS_MemClr: (6)
           |    | 
-          | 
-       
- 129 > _OSTmrCreate: (22)
- 130      + L3_OSTmr_Alloc: (4)
- 131      + _OSSchedLock: (3)
- 132      + _OSSchedUnlock: (3)
- 133      |    + _OS_Sched --> 6
-          | 
-       
- 134 > _OSTmrDel: (6)
- 135      + L31_OSTmr_Unlink: (10)
- 136      + L5_OSTmr_Free: (4)
- 137      + _OSSchedLock --> 131
- 138      + _OSSchedUnlock --> 132
-       
- 139 > _OSTmrRemainGet: (10)
- 140      + _OSSchedLock --> 131
- 141      + _OSSchedUnlock --> 132
-       
- 142 > _OSTmrStart: (6)
- 143      + L11_OSTmr_Link: (10)
- 144      + L31_OSTmr_Unlink --> 135
- 145      + _OSSchedLock --> 131
- 146      + _OSSchedUnlock --> 132
-       
- 147 > _OSTmrStateGet: (7)
- 148      + _OSSchedLock --> 131
- 149      + _OSSchedUnlock --> 132
-       
- 150 > _OSTmrStop: (12)
- 151      + L31_OSTmr_Unlink --> 135
- 152      + (L51_OSTmr_Task) ...
- 153      + _OSSchedLock --> 131
- 154      + _OSSchedUnlock --> 132
- 155      + (_OSTaskAbort) ...
- 156      + (_OS_TaskIdle) ...
- 157      + (_TestTask) ...
-       
- 158 > _OSVersion: (2)
-
- 159 > _OS_TaskReturn: (2)
- 160      + _OSTaskDel: (9)
- 161      |    + _OSTaskDelHook: (2)
- 162      |    + _OS_Dummy: (2)
- 163      |    + _OS_EventTaskRemove --> 34
- 164      |    + _OS_EventTaskRemoveMulti --> 4
- 165      |    + _OS_FlagUnlink --> 12
- 166      |    + _OS_Sched --> 6
-          | 
- 167      + _OSTaskReturnHook: (2)
-       
- 168 > _OS_TaskStatStkChk: (14)
- 169      + _OSTaskStkChk: (17)
-       
- 170 > _SoftwareTrap01: (2)
-
- 171 > _SoftwareTrap02: (2)
-
- 172 > _SoftwareTrap03: (2)
-
- 173 > _SoftwareTrap04: (2)
-
- 174 > _SoftwareTrap05: (2)
-
- 175 > _SoftwareTrap06: (2)
-
- 176 > _SoftwareTrap07: (2)
-
- 177 > _SoftwareTrap08: (2)
-
- 178 > _SoftwareTrap09: (2)
-
- 179 > _SoftwareTrap10: (2)
-
- 180 > _SoftwareTrap11: (2)
-
- 181 > _SoftwareTrap12: (2)
-
- 182 > _SoftwareTrap13: (2)
-
- 183 > _SoftwareTrap14: (2)
-
- 184 > _SoftwareTrap15: (2)
-
- 185 > _SoftwareTrap16: (2)
-
- 186 > _SoftwareTrap17: (2)
-
- 187 > _SoftwareTrap18: (2)
-
- 188 > _SoftwareTrap19: (2)
-
- 189 > _SoftwareTrap20: (2)
-
- 190 > _SoftwareTrap21: (2)
-
- 191 > _SoftwareTrap22: (2)
-
- 192 > _SoftwareTrap23: (2)
-
- 193 > _SoftwareTrap24: (2)
-
- 194 > _SoftwareTrap25: (2)
-
- 195 > _SoftwareTrap26: (2)
-
- 196 > _SoftwareTrap27: (2)
-
- 197 > _SoftwareTrap28: (2)
-
- 198 > _SoftwareTrap29: (2)
-
- 199 > _SoftwareTrap30: (2)
-
- 200 > _SoftwareTrap31: (2)
-
- 201 > _SoftwareTrap32: (2)
-
- 202 > _SoftwareTrap33: (2)
-
- 203 > _SoftwareTrap34: (2)
-
- 204 > _SoftwareTrap35: (2)
-
- 205 > _SoftwareTrap36: (2)
-
- 206 > _SoftwareTrap37: (2)
-
- 207 > _SoftwareTrap38: (2)
-
- 208 > _SoftwareTrap39: (2)
-
- 209 > _SoftwareTrap40: (2)
-
- 210 > _SoftwareTrap41: (2)
-
- 211 > _SoftwareTrap42: (2)
-
- 212 > _SoftwareTrap43: (2)
-
- 213 > _SoftwareTrap44: (2)
-
- 214 > _SoftwareTrap45: (2)
-
- 215 > _SoftwareTrap46: (2)
-
- 216 > _SoftwareTrap47: (2)
-
- 217 > _SoftwareTrap48: (2)
-
- 218 > _SoftwareTrap49: (2)
-
- 219 > _SoftwareTrap50: (2)
-
- 220 > _SoftwareTrap51: (2)
-
- 221 > _SoftwareTrap52: (2)
-
- 222 > _SoftwareTrap53: (2)
-
- 223 > _SoftwareTrap54: (2)
-
- 224 > _SoftwareTrap55: (2)
-
- 225 > _SoftwareTrap56: (2)
-
- 226 > _SoftwareTrap57: (2)
-
- 227 > _SoftwareTrap58: (2)
-
- 228 > _SoftwareTrap59: (2)
-
- 229 > _SoftwareTrap60: (2)
-
- 230 > _SoftwareTrap61: (2)
-
- 231 > _SoftwareTrap62: (2)
-
- 232 > _SoftwareTrap63: (2)
-
- 233 > _SoftwareTrap64: (2)
-
- 234 > _main: (2)
- 235      + L3462_initHardware: (2)
- 236      + _OSInit: (2)
- 237      |    + L156_OS_InitEventList: (8)
- 238      |    |    + _OS_MemClr: (6)
+ 260      |    + L1253_OS_InitTCBList: (8)
+ 261      |    |    + _OS_MemClr --> 259
           |    | 
- 239      |    + L166_OS_InitTCBList: (8)
- 240      |    |    + _OS_MemClr --> 238
-          |    | 
- 241      |    + L356_OS_InitMisc: (2)
- 242      |    + L556_OS_InitRdyList: (3)
- 243      |    + L756_OS_InitTaskIdle: (3)
- 244      |    |    + _OSTaskCreateExt: (26)
- 245      |    |    |    + _OSTaskStkInit: (18)
- 246      |    |    |    + _OS_Sched --> 6
- 247      |    |    |    + _OS_TCBInit: (21)
- 248      |    |    |    |    + _OSTCBInitHook: (2)
- 249      |    |    |    |    + _OSTaskCreateHook: (2)
+ 262      |    + L3153_OS_InitMisc: (2)
+ 263      |    + L5153_OS_InitRdyList: (3)
+ 264      |    + L7153_OS_InitTaskIdle: (3)
+ 265      |    |    + _OSTaskCreateExt: (26)
+ 266      |    |    |    + _OSTaskStkInit: (18)
+ 267      |    |    |    + _OS_Sched --> 26
+ 268      |    |    |    + _OS_TCBInit: (21)
+ 269      |    |    |    |    + _OSTCBInitHook: (2)
+ 270      |    |    |    |    + _OSTaskCreateHook: (2)
           |    |    |    | 
- 250      |    |    |    + _OS_TaskStkClr: (10)
+ 271      |    |    |    + _OS_TaskStkClr: (10)
           |    |    | 
- 251      |    |    + _OSTaskNameSet: (11)
+ 272      |    |    + _OSTaskNameSet: (11)
           |    | 
- 252      |    + _OSDebugInit: (4)
- 253      |    + _OSInitHookBegin: (2)
- 254      |    + _OSInitHookEnd: (2)
- 255      |    + _OSTmr_Init: (9)
- 256      |    |    + L7_OSTmr_InitTask: (3)
- 257      |    |    |    + _OSTaskCreateExt --> 244
- 258      |    |    |    + _OSTaskNameSet --> 251
+ 273      |    + _OSDebugInit: (4)
+ 274      |    + _OSInitHookBegin: (2)
+ 275      |    + _OSInitHookEnd: (2)
+ 276      |    + _OSTmr_Init: (9)
+ 277      |    |    + L7462_OSTmr_InitTask: (3)
+ 278      |    |    |    + _OSTaskCreateExt --> 265
+ 279      |    |    |    + _OSTaskNameSet --> 272
           |    |    | 
- 259      |    |    + _OSEventNameSet: (9)
- 260      |    |    + _OSSemCreate: (7)
- 261      |    |    |    + _OS_EventWaitListInit --> 31
+ 280      |    |    + _OSEventNameSet: (9)
+ 281      |    |    + _OSSemCreate: (7)
+ 282      |    |    |    + _OS_EventWaitListInit --> 51
           |    |    | 
- 262      |    |    + _OS_MemClr --> 238
+ 283      |    |    + _OS_MemClr --> 259
           |    | 
- 263      |    + _OS_FlagInit: (8)
- 264      |    |    + _OS_MemClr --> 238
+ 284      |    + _OS_FlagInit: (8)
+ 285      |    |    + _OS_MemClr --> 259
           |    | 
- 265      |    + _OS_MemInit: (6)
- 266      |    |    + _OS_MemClr --> 238
+ 286      |    + _OS_MemInit: (6)
+ 287      |    |    + _OS_MemClr --> 259
           |    | 
- 267      |    + _OS_QInit: (8)
- 268      |    |    + _OS_MemClr --> 238
+ 288      |    + _OS_QInit: (8)
+ 289      |    |    + _OS_MemClr --> 259
           |    | 
           | 
- 269      + _OSStart: (2)
- 270      |    + L366_OS_SchedNew --> 7
+ 290      + _OSStart: (2)
+ 291      |    + L3253_OS_SchedNew --> 27
           | 
- 271      + _OSTaskCreate: (14)
- 272      |    + _OSTaskStkInit --> 245
- 273      |    + _OS_Sched --> 6
- 274      |    + _OS_TCBInit --> 247
+ 292      + _OSTaskCreate: (14)
+ 293      |    + _OSTaskStkInit --> 266
+ 294      |    + _OS_Sched --> 26
+ 295      |    + _OS_TCBInit --> 268
           | 
        
- 275   L11_OSTmr_Link --> 143
-
- 276   L156_OS_InitEventList --> 237
-
- 277   L166_OS_InitTCBList --> 239
-
- 278   L31_OSTmr_Unlink --> 135
-
- 279   L3462_initHardware --> 235
-
- 280   L356_OS_InitMisc --> 241
-
- 281   L366_OS_SchedNew --> 7
-
- 282   L3_OSMutex_RdyAtPrio --> 62
-
- 283   L3_OSTmr_Alloc --> 130
-
- 284   L3_OS_FlagBlock --> 18
-
- 285   L51_OSTmr_Task: (11)
- 286      + L11_OSTmr_Link --> 143
- 287      + L31_OSTmr_Unlink --> 135
- 288      + (L51_OSTmr_Task) --> 285
- 289      + _OSSchedLock --> 131
- 290      + _OSSchedUnlock --> 132
- 291      + _OSSemPend: (11)
- 292      |    + _OS_EventTaskRemove --> 34
- 293      |    + _OS_EventTaskWait --> 39
- 294      |    + _OS_Sched --> 6
+ 296 > f_Time_DidPackTime: (8)
+ 297      + L3003f_isTimeValid: (6)
+ 298      |    + L5762f_getDaysInMonth: (8)
+ 299      |    |    + L7462f_isLeapYear: (6)
+          |    | 
           | 
- 295      + (_OSTaskAbort) ...
- 296      + (_OS_TaskIdle) ...
- 297      + (_TestTask) ...
        
- 298   L556_OS_InitRdyList --> 242
-
- 299   L5_OSTmr_Free --> 136
-
- 300   L5_OS_FlagTaskRdy --> 11
-
- 301   L756_OS_InitTaskIdle --> 243
-
- 302   L7_OSTmr_InitTask --> 256
-
- 303   _OSDebugInit --> 252
-
- 304   _OSEventNameSet --> 259
-
- 305   _OSInit --> 236
-
- 306   _OSInitHookBegin --> 253
-
- 307   _OSInitHookEnd --> 254
-
- 308   _OSSchedLock --> 131
-
- 309   _OSSchedUnlock --> 132
-
- 310   _OSSemCreate --> 260
-
- 311   _OSSemPend --> 291
-
- 312   _OSSemPost --> 126
-
- 313   _OSStart --> 269
-
- 314   _OSTCBInitHook --> 248
-
- 315   _OSTaskAbort: (2)
- 316      + _OSTaskDel --> 160
+ 300 > f_Time_DidSetTime: (8)
+ 301      + L3003f_isTimeValid --> 297
        
- 317   _OSTaskCreate --> 271
-
- 318   _OSTaskCreateExt --> 244
-
- 319   _OSTaskCreateHook --> 249
-
- 320   _OSTaskDel --> 160
-
- 321   _OSTaskDelHook --> 161
-
- 322   _OSTaskIdleHook: (2)
-
- 323   _OSTaskNameSet --> 251
-
- 324   _OSTaskReturnHook --> 167
-
- 325   _OSTaskStkChk --> 169
-
- 326   _OSTaskStkInit --> 245
-
- 327   _OSTimeDly: (8)
- 328      + _OS_Sched --> 6
+ 302 > f_Time_DidUnpackTime: (7)
+ 303      + L3003f_isTimeValid --> 297
        
- 329   _OSTimeTickHook --> 124
+ 304 > f_Time_GetTime: (7)
 
- 330   _OSTmrSignal --> 125
-
- 331   _OSTmr_Init --> 255
-
- 332   _OS_Dummy --> 162
-
- 333   _OS_EventTaskRdy --> 33
-
- 334   _OS_EventTaskRemove --> 34
-
- 335   _OS_EventTaskRemoveMulti --> 4
-
- 336   _OS_EventTaskWait --> 39
-
- 337   _OS_EventTaskWaitMulti --> 5
-
- 338   _OS_EventWaitListInit --> 31
-
- 339   _OS_FlagInit --> 263
-
- 340   _OS_FlagUnlink --> 12
-
- 341   _OS_MemClr --> 238
-
- 342   _OS_MemCopy --> 113
-
- 343   _OS_MemInit --> 265
-
- 344   _OS_QInit --> 267
-
- 345   _OS_Sched --> 6
-
- 346   _OS_StrLen --> 2
-
- 347   _OS_TCBInit --> 247
-
- 348   _OS_TaskIdle: (5)
- 349      + _OSTaskIdleHook --> 322
+ 305 > f_Time_IncrementTime: (7)
+ 306      + L5762f_getDaysInMonth --> 298
        
- 350   _OS_TaskStkClr --> 250
+ 307 > f_Time_Init: (3)
 
- 351   _TestTask: (4)
- 352      + _OSTimeDly --> 327
+ 308   L1153_OS_InitEventList --> 258
+
+ 309   L1253_OS_InitTCBList --> 260
+
+ 310   L1562_OSTmr_Link --> 163
+
+ 311   L1562_initHardware --> 256
+
+ 312   L1762_initClockTimer: (2)
+
+ 313   L3003f_isTimeValid --> 297
+
+ 314   L3153_OS_InitMisc --> 262
+
+ 315   L3253_OS_SchedNew --> 27
+
+ 316   L3272_copyBootloaderToRAM --> 17
+
+ 317   L3462_OSMutex_RdyAtPrio --> 82
+
+ 318   L3462_OSTmr_Alloc --> 146
+
+ 319   L3462_OS_FlagBlock --> 38
+
+ 320   L3462_initHardware --> 18
+
+ 321   L3562_OSTmr_Unlink --> 151
+
+ 322   L3662_delayMilliseconds --> 19
+
+ 323   L5153_OS_InitRdyList --> 263
+
+ 324   L5462_OSTmr_Free --> 152
+
+ 325   L5462_OS_FlagTaskRdy --> 31
+
+ 326   L5562_OSTmr_Task: (11)
+ 327      + L1562_OSTmr_Link --> 163
+ 328      + L3562_OSTmr_Unlink --> 151
+ 329      + (L5562_OSTmr_Task) --> 326
+ 330      + _OSSchedLock --> 147
+ 331      + _OSSchedUnlock --> 148
+ 332      + _OSSemPend: (11)
+ 333      |    + _OS_EventTaskRemove --> 54
+ 334      |    + _OS_EventTaskWait --> 59
+ 335      |    + _OS_Sched --> 26
+          | 
+ 336      + (_OSTaskAbort) ...
+ 337      + (_OS_TaskIdle) ...
+ 338      + (_TestTask) ...
+       
+ 339   L5762f_getDaysInMonth --> 298
+
+ 340   L7153_OS_InitTaskIdle --> 264
+
+ 341   L7462_OSTmr_InitTask --> 277
+
+ 342   L7462f_isLeapYear --> 299
+
+ 343   _OSDebugInit --> 273
+
+ 344   _OSEventNameSet --> 280
+
+ 345   _OSInit --> 257
+
+ 346   _OSInitHookBegin --> 274
+
+ 347   _OSInitHookEnd --> 275
+
+ 348   _OSSchedLock --> 147
+
+ 349   _OSSchedUnlock --> 148
+
+ 350   _OSSemCreate --> 281
+
+ 351   _OSSemPend --> 332
+
+ 352   _OSSemPost --> 159
+
+ 353   _OSStart --> 290
+
+ 354   _OSTCBInitHook --> 269
+
+ 355   _OSTaskAbort: (2)
+ 356      + _OSTaskDel --> 180
+       
+ 357   _OSTaskCreate --> 292
+
+ 358   _OSTaskCreateExt --> 265
+
+ 359   _OSTaskCreateHook --> 270
+
+ 360   _OSTaskDel --> 180
+
+ 361   _OSTaskDelHook --> 181
+
+ 362   _OSTaskIdleHook: (2)
+
+ 363   _OSTaskNameSet --> 272
+
+ 364   _OSTaskReturnHook --> 187
+
+ 365   _OSTaskStkChk --> 189
+
+ 366   _OSTaskStkInit --> 266
+
+ 367   _OSTimeDly: (8)
+ 368      + _OS_Sched --> 26
+       
+ 369   _OSTimeTickHook --> 144
+
+ 370   _OSTmr_Init --> 276
+
+ 371   _OS_Dummy --> 182
+
+ 372   _OS_EventTaskRdy --> 53
+
+ 373   _OS_EventTaskRemove --> 54
+
+ 374   _OS_EventTaskRemoveMulti --> 24
+
+ 375   _OS_EventTaskWait --> 59
+
+ 376   _OS_EventTaskWaitMulti --> 25
+
+ 377   _OS_EventWaitListInit --> 51
+
+ 378   _OS_FlagInit --> 284
+
+ 379   _OS_FlagUnlink --> 32
+
+ 380   _OS_MemClr --> 259
+
+ 381   _OS_MemCopy --> 133
+
+ 382   _OS_MemInit --> 286
+
+ 383   _OS_QInit --> 288
+
+ 384   _OS_Sched --> 26
+
+ 385   _OS_StrLen --> 22
+
+ 386   _OS_TCBInit --> 268
+
+ 387   _OS_TaskIdle: (5)
+ 388      + _OSTaskIdleHook --> 362
+       
+ 389   _OS_TaskStkClr --> 271
+
+ 390   _TestTask: (4)
+ 391      + L1762_initClockTimer --> 312
+ 392      + _OSTimeDly --> 367
        
 
 
@@ -951,255 +1078,276 @@ Stack size: 65
                                Symbols
                                -------
 
-_ARMCOP                    0000003f   defined in .\Build-Debug\test.o
-_ATD0CTL0                  00000080   defined in .\Build-Debug\test.o
-_ATD0CTL01                 00000080   defined in .\Build-Debug\test.o
-_ATD0CTL1                  00000081   defined in .\Build-Debug\test.o
-_ATD0CTL2                  00000082   defined in .\Build-Debug\test.o
-_ATD0CTL23                 00000082   defined in .\Build-Debug\test.o
-_ATD0CTL3                  00000083   defined in .\Build-Debug\test.o
-_ATD0CTL4                  00000084   defined in .\Build-Debug\test.o
-_ATD0CTL45                 00000084   defined in .\Build-Debug\test.o
-_ATD0CTL5                  00000085   defined in .\Build-Debug\test.o
-_ATD0DIEN                  0000008d   defined in .\Build-Debug\test.o
-_ATD0DR                    00000090   defined in .\Build-Debug\test.o
-_ATD0DR0                   00000090   defined in .\Build-Debug\test.o
-_ATD0DR1                   00000092   defined in .\Build-Debug\test.o
-_ATD0DR2                   00000094   defined in .\Build-Debug\test.o
-_ATD0DR3                   00000096   defined in .\Build-Debug\test.o
-_ATD0DR4                   00000098   defined in .\Build-Debug\test.o
-_ATD0DR5                   0000009a   defined in .\Build-Debug\test.o
-_ATD0DR6                   0000009c   defined in .\Build-Debug\test.o
-_ATD0DR7                   0000009e   defined in .\Build-Debug\test.o
-_ATD0STAT0                 00000086   defined in .\Build-Debug\test.o
-_ATD0STAT1                 0000008b   defined in .\Build-Debug\test.o
-_ATD0TEST0                 00000088   defined in .\Build-Debug\test.o
-_ATD0TEST1                 00000089   defined in .\Build-Debug\test.o
-_ATD1CTL0                  00000120   defined in .\Build-Debug\test.o
-_ATD1CTL01                 00000120   defined in .\Build-Debug\test.o
-_ATD1CTL1                  00000121   defined in .\Build-Debug\test.o
-_ATD1CTL2                  00000122   defined in .\Build-Debug\test.o
-_ATD1CTL23                 00000122   defined in .\Build-Debug\test.o
-_ATD1CTL3                  00000123   defined in .\Build-Debug\test.o
-_ATD1CTL4                  00000124   defined in .\Build-Debug\test.o
-_ATD1CTL45                 00000124   defined in .\Build-Debug\test.o
-_ATD1CTL5                  00000125   defined in .\Build-Debug\test.o
-_ATD1DIEN                  0000012d   defined in .\Build-Debug\test.o
-_ATD1DR                    00000130   defined in .\Build-Debug\test.o
-_ATD1DR0                   00000130   defined in .\Build-Debug\test.o
-_ATD1DR1                   00000132   defined in .\Build-Debug\test.o
-_ATD1DR2                   00000134   defined in .\Build-Debug\test.o
-_ATD1DR3                   00000136   defined in .\Build-Debug\test.o
-_ATD1DR4                   00000138   defined in .\Build-Debug\test.o
-_ATD1DR5                   0000013a   defined in .\Build-Debug\test.o
-_ATD1DR6                   0000013c   defined in .\Build-Debug\test.o
-_ATD1DR7                   0000013e   defined in .\Build-Debug\test.o
-_ATD1STAT0                 00000126   defined in .\Build-Debug\test.o
-_ATD1STAT1                 0000012b   defined in .\Build-Debug\test.o
-_ATD1TEST0                 00000128   defined in .\Build-Debug\test.o
-_ATD1TEST1                 00000129   defined in .\Build-Debug\test.o
-_BKP0                      0000002b   defined in .\Build-Debug\test.o
-_BKP0X                     0000002a   defined in .\Build-Debug\test.o
-_BKP1                      0000002e   defined in .\Build-Debug\test.o
-_BKP1X                     0000002d   defined in .\Build-Debug\test.o
-_BKPCT0                    00000028   defined in .\Build-Debug\test.o
-_BKPCT1                    00000029   defined in .\Build-Debug\test.o
-_CAN0BTR0                  00000142   defined in .\Build-Debug\test.o
-_CAN0BTR1                  00000143   defined in .\Build-Debug\test.o
-_CAN0CTL0                  00000140   defined in .\Build-Debug\test.o
-_CAN0CTL1                  00000141   defined in .\Build-Debug\test.o
-_CAN0IDAC                  0000014b   defined in .\Build-Debug\test.o
-_CAN0IDAR0                 00000150   defined in .\Build-Debug\test.o
-_CAN0IDAR1                 00000151   defined in .\Build-Debug\test.o
-_CAN0IDAR2                 00000152   defined in .\Build-Debug\test.o
-_CAN0IDAR3                 00000153   defined in .\Build-Debug\test.o
-_CAN0IDAR4                 00000158   defined in .\Build-Debug\test.o
-_CAN0IDAR5                 00000159   defined in .\Build-Debug\test.o
-_CAN0IDAR6                 0000015a   defined in .\Build-Debug\test.o
-_CAN0IDAR7                 0000015b   defined in .\Build-Debug\test.o
-_CAN0IDMR0                 00000154   defined in .\Build-Debug\test.o
-_CAN0IDMR1                 00000155   defined in .\Build-Debug\test.o
-_CAN0IDMR2                 00000156   defined in .\Build-Debug\test.o
-_CAN0IDMR3                 00000157   defined in .\Build-Debug\test.o
-_CAN0IDMR4                 0000015c   defined in .\Build-Debug\test.o
-_CAN0IDMR5                 0000015d   defined in .\Build-Debug\test.o
-_CAN0IDMR6                 0000015e   defined in .\Build-Debug\test.o
-_CAN0IDMR7                 0000015f   defined in .\Build-Debug\test.o
-_CAN0RFLG                  00000144   defined in .\Build-Debug\test.o
-_CAN0RIER                  00000145   defined in .\Build-Debug\test.o
-_CAN0RXERR                 0000014e   defined in .\Build-Debug\test.o
-_CAN0RXFG                  00000160   defined in .\Build-Debug\test.o
-_CAN0TAAK                  00000149   defined in .\Build-Debug\test.o
-_CAN0TARQ                  00000148   defined in .\Build-Debug\test.o
-_CAN0TBSEL                 0000014a   defined in .\Build-Debug\test.o
-_CAN0TFLG                  00000146   defined in .\Build-Debug\test.o
-_CAN0TIER                  00000147   defined in .\Build-Debug\test.o
-_CAN0TXERR                 0000014f   defined in .\Build-Debug\test.o
-_CAN0TXFG                  00000170   defined in .\Build-Debug\test.o
-_CAN4BTR0                  00000282   defined in .\Build-Debug\test.o
-_CAN4BTR1                  00000283   defined in .\Build-Debug\test.o
-_CAN4CTL0                  00000280   defined in .\Build-Debug\test.o
-_CAN4CTL1                  00000281   defined in .\Build-Debug\test.o
-_CAN4IDAC                  0000028b   defined in .\Build-Debug\test.o
-_CAN4IDAR0                 00000290   defined in .\Build-Debug\test.o
-_CAN4IDAR1                 00000291   defined in .\Build-Debug\test.o
-_CAN4IDAR2                 00000292   defined in .\Build-Debug\test.o
-_CAN4IDAR3                 00000293   defined in .\Build-Debug\test.o
-_CAN4IDAR4                 00000298   defined in .\Build-Debug\test.o
-_CAN4IDAR5                 00000299   defined in .\Build-Debug\test.o
-_CAN4IDAR6                 0000029a   defined in .\Build-Debug\test.o
-_CAN4IDAR7                 0000029b   defined in .\Build-Debug\test.o
-_CAN4IDMR0                 00000294   defined in .\Build-Debug\test.o
-_CAN4IDMR1                 00000295   defined in .\Build-Debug\test.o
-_CAN4IDMR2                 00000296   defined in .\Build-Debug\test.o
-_CAN4IDMR3                 00000297   defined in .\Build-Debug\test.o
-_CAN4IDMR4                 0000029c   defined in .\Build-Debug\test.o
-_CAN4IDMR5                 0000029d   defined in .\Build-Debug\test.o
-_CAN4IDMR6                 0000029e   defined in .\Build-Debug\test.o
-_CAN4IDMR7                 0000029f   defined in .\Build-Debug\test.o
-_CAN4RFLG                  00000284   defined in .\Build-Debug\test.o
-_CAN4RIER                  00000285   defined in .\Build-Debug\test.o
-_CAN4RXERR                 0000028e   defined in .\Build-Debug\test.o
-_CAN4RXFG                  000002a0   defined in .\Build-Debug\test.o
-_CAN4TAAK                  00000289   defined in .\Build-Debug\test.o
-_CAN4TARQ                  00000288   defined in .\Build-Debug\test.o
-_CAN4TBSEL                 0000028a   defined in .\Build-Debug\test.o
-_CAN4TFLG                  00000286   defined in .\Build-Debug\test.o
-_CAN4TIER                  00000287   defined in .\Build-Debug\test.o
-_CAN4TXERR                 0000028f   defined in .\Build-Debug\test.o
-_CAN4TXFG                  000002b0   defined in .\Build-Debug\test.o
-_CFORC                     00000041   defined in .\Build-Debug\test.o
-_CLKSEL                    00000039   defined in .\Build-Debug\test.o
-_COPCTL                    0000003c   defined in .\Build-Debug\test.o
-_CRGFLG                    00000037   defined in .\Build-Debug\test.o
-_CRGINT                    00000038   defined in .\Build-Debug\test.o
-_CTCTL                     0000003e   defined in .\Build-Debug\test.o
-_CTFLG                     00000036   defined in .\Build-Debug\test.o
-_DDRA                      00000002   defined in .\Build-Debug\test.o
-_DDRAB                     00000002   defined in .\Build-Debug\test.o
-_DDRB                      00000003   defined in .\Build-Debug\test.o
-_DDRE                      00000009   defined in .\Build-Debug\test.o
-_DDRH                      00000262   defined in .\Build-Debug\test.o
-_DDRJ                      0000026a   defined in .\Build-Debug\test.o
-_DDRK                      00000033   defined in .\Build-Debug\test.o
-_DDRM                      00000252   defined in .\Build-Debug\test.o
-_DDRP                      0000025a   defined in .\Build-Debug\test.o
-_DDRS                      0000024a   defined in .\Build-Debug\test.o
-_DDRT                      00000242   defined in .\Build-Debug\test.o
-_DLYCT                     00000069   defined in .\Build-Debug\test.o
-_EADDR                     00000118   defined in .\Build-Debug\test.o
-_EBICTL                    0000000e   defined in .\Build-Debug\test.o
-_ECLKDIV                   00000110   defined in .\Build-Debug\test.o
-_ECMD                      00000116   defined in .\Build-Debug\test.o
-_ECNFG                     00000113   defined in .\Build-Debug\test.o
-_EDATA                     0000011a   defined in .\Build-Debug\test.o
-_EPROT                     00000114   defined in .\Build-Debug\test.o
-_ESTAT                     00000115   defined in .\Build-Debug\test.o
-_FADDR                     00000108   defined in .\Build-Debug\test.o
-_FCLKDIV                   00000100   defined in .\Build-Debug\test.o
-_FCMD                      00000106   defined in .\Build-Debug\test.o
-_FCNFG                     00000103   defined in .\Build-Debug\test.o
-_FDATA                     0000010a   defined in .\Build-Debug\test.o
-_FORBYP                    0000003d   defined in .\Build-Debug\test.o
-_FPROT                     00000104   defined in .\Build-Debug\test.o
-_FSEC                      00000101   defined in .\Build-Debug\test.o
-_FSTAT                     00000105   defined in .\Build-Debug\test.o
-_FTSTMOD                   00000102   defined in .\Build-Debug\test.o
-_HPRIO                     0000001f   defined in .\Build-Debug\test.o
-_IBAD                      000000e0   defined in .\Build-Debug\test.o
-_IBCR                      000000e2   defined in .\Build-Debug\test.o
-_IBDR                      000000e4   defined in .\Build-Debug\test.o
-_IBFD                      000000e1   defined in .\Build-Debug\test.o
-_IBSR                      000000e3   defined in .\Build-Debug\test.o
-_ICOVW                     0000006a   defined in .\Build-Debug\test.o
-_ICPAR                     00000068   defined in .\Build-Debug\test.o
-_ICSYS                     0000006b   defined in .\Build-Debug\test.o
-_INITEE                    00000012   defined in .\Build-Debug\test.o
-_INITRG                    00000011   defined in .\Build-Debug\test.o
-_INITRM                    00000010   defined in .\Build-Debug\test.o
-_INTCR                     0000001e   defined in .\Build-Debug\test.o
-_ITCR                      00000015   defined in .\Build-Debug\test.o
-_ITEST                     00000016   defined in .\Build-Debug\test.o
-_MCCNT                     00000076   defined in .\Build-Debug\test.o
-_MCCTL                     00000066   defined in .\Build-Debug\test.o
-_MCFLG                     00000067   defined in .\Build-Debug\test.o
-_MEMSIZ0                   0000001c   defined in .\Build-Debug\test.o
-_MEMSIZ1                   0000001d   defined in .\Build-Debug\test.o
-_MISC                      00000013   defined in .\Build-Debug\test.o
-_MODE                      0000000b   defined in .\Build-Debug\test.o
-_MODRR                     00000257   defined in .\Build-Debug\test.o
-_MTST0                     00000014   defined in .\Build-Debug\test.o
-_MTST1                     00000017   defined in .\Build-Debug\test.o
-_OC7D                      00000043   defined in .\Build-Debug\test.o
-_OC7M                      00000042   defined in .\Build-Debug\test.o
-_OSCtxSw                   000fb53b   defined in .\Build-Debug\os_cpu_a.o section NON_BANKED
-                                      used in .\Build-Debug\vectors.o
-_OSCtxSwCtr                000016f9   defined in .\Build-Debug\os_core.o section .bss
-_OSDataSize                000fb70b   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSDebugEn                 000fb699   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSDebugInit               000f8b1c   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_code (.text)
+_ARMCOP                    0000003f   defined in .\Build-Debug\time.o
+_ATD0CTL0                  00000080   defined in .\Build-Debug\time.o
+_ATD0CTL01                 00000080   defined in .\Build-Debug\time.o
+_ATD0CTL1                  00000081   defined in .\Build-Debug\time.o
+_ATD0CTL2                  00000082   defined in .\Build-Debug\time.o
+_ATD0CTL23                 00000082   defined in .\Build-Debug\time.o
+_ATD0CTL3                  00000083   defined in .\Build-Debug\time.o
+_ATD0CTL4                  00000084   defined in .\Build-Debug\time.o
+_ATD0CTL45                 00000084   defined in .\Build-Debug\time.o
+_ATD0CTL5                  00000085   defined in .\Build-Debug\time.o
+_ATD0DIEN                  0000008d   defined in .\Build-Debug\time.o
+_ATD0DR                    00000090   defined in .\Build-Debug\time.o
+_ATD0DR0                   00000090   defined in .\Build-Debug\time.o
+_ATD0DR1                   00000092   defined in .\Build-Debug\time.o
+_ATD0DR2                   00000094   defined in .\Build-Debug\time.o
+_ATD0DR3                   00000096   defined in .\Build-Debug\time.o
+_ATD0DR4                   00000098   defined in .\Build-Debug\time.o
+_ATD0DR5                   0000009a   defined in .\Build-Debug\time.o
+_ATD0DR6                   0000009c   defined in .\Build-Debug\time.o
+_ATD0DR7                   0000009e   defined in .\Build-Debug\time.o
+_ATD0STAT0                 00000086   defined in .\Build-Debug\time.o
+_ATD0STAT1                 0000008b   defined in .\Build-Debug\time.o
+_ATD0TEST0                 00000088   defined in .\Build-Debug\time.o
+_ATD0TEST1                 00000089   defined in .\Build-Debug\time.o
+_ATD1CTL0                  00000120   defined in .\Build-Debug\time.o
+_ATD1CTL01                 00000120   defined in .\Build-Debug\time.o
+_ATD1CTL1                  00000121   defined in .\Build-Debug\time.o
+_ATD1CTL2                  00000122   defined in .\Build-Debug\time.o
+_ATD1CTL23                 00000122   defined in .\Build-Debug\time.o
+_ATD1CTL3                  00000123   defined in .\Build-Debug\time.o
+_ATD1CTL4                  00000124   defined in .\Build-Debug\time.o
+_ATD1CTL45                 00000124   defined in .\Build-Debug\time.o
+_ATD1CTL5                  00000125   defined in .\Build-Debug\time.o
+_ATD1DIEN                  0000012d   defined in .\Build-Debug\time.o
+_ATD1DR                    00000130   defined in .\Build-Debug\time.o
+_ATD1DR0                   00000130   defined in .\Build-Debug\time.o
+_ATD1DR1                   00000132   defined in .\Build-Debug\time.o
+_ATD1DR2                   00000134   defined in .\Build-Debug\time.o
+_ATD1DR3                   00000136   defined in .\Build-Debug\time.o
+_ATD1DR4                   00000138   defined in .\Build-Debug\time.o
+_ATD1DR5                   0000013a   defined in .\Build-Debug\time.o
+_ATD1DR6                   0000013c   defined in .\Build-Debug\time.o
+_ATD1DR7                   0000013e   defined in .\Build-Debug\time.o
+_ATD1STAT0                 00000126   defined in .\Build-Debug\time.o
+_ATD1STAT1                 0000012b   defined in .\Build-Debug\time.o
+_ATD1TEST0                 00000128   defined in .\Build-Debug\time.o
+_ATD1TEST1                 00000129   defined in .\Build-Debug\time.o
+_Addr1                     000039fa   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_Addr2                     000039fc   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_BKP0                      0000002b   defined in .\Build-Debug\time.o
+_BKP0X                     0000002a   defined in .\Build-Debug\time.o
+_BKP1                      0000002e   defined in .\Build-Debug\time.o
+_BKP1X                     0000002d   defined in .\Build-Debug\time.o
+_BKPCT0                    00000028   defined in .\Build-Debug\time.o
+_BKPCT1                    00000029   defined in .\Build-Debug\time.o
+_BootLoaderToRunFromRAM    000ff800   defined in .\Build-Debug\mc9s12dg256_bootloader.o section .rsvd_pg_3F_bt (.text)
+                                      *** not used ***
+_Booting                   000ff727   defined in .\Build-Debug\mc9s12dg256_booting.o section .rsvd_pg_3F_bo (.text)
+                                      used in .\Build-Debug\mc9s12dg256_startup.o
+_BuffRx                    00003900   defined in .\Build-Debug\mc9s12dg256_booting.o
+                                      used in .\Build-Debug\mc9s12dg256_bootloader.o
+_ByteUpperCase             000039e0   defined in .\Build-Debug\mc9s12dg256_booting.o
+_CAN0BTR0                  00000142   defined in .\Build-Debug\time.o
+_CAN0BTR1                  00000143   defined in .\Build-Debug\time.o
+_CAN0CTL0                  00000140   defined in .\Build-Debug\time.o
+_CAN0CTL1                  00000141   defined in .\Build-Debug\time.o
+_CAN0IDAC                  0000014b   defined in .\Build-Debug\time.o
+_CAN0IDAR0                 00000150   defined in .\Build-Debug\time.o
+_CAN0IDAR1                 00000151   defined in .\Build-Debug\time.o
+_CAN0IDAR2                 00000152   defined in .\Build-Debug\time.o
+_CAN0IDAR3                 00000153   defined in .\Build-Debug\time.o
+_CAN0IDAR4                 00000158   defined in .\Build-Debug\time.o
+_CAN0IDAR5                 00000159   defined in .\Build-Debug\time.o
+_CAN0IDAR6                 0000015a   defined in .\Build-Debug\time.o
+_CAN0IDAR7                 0000015b   defined in .\Build-Debug\time.o
+_CAN0IDMR0                 00000154   defined in .\Build-Debug\time.o
+_CAN0IDMR1                 00000155   defined in .\Build-Debug\time.o
+_CAN0IDMR2                 00000156   defined in .\Build-Debug\time.o
+_CAN0IDMR3                 00000157   defined in .\Build-Debug\time.o
+_CAN0IDMR4                 0000015c   defined in .\Build-Debug\time.o
+_CAN0IDMR5                 0000015d   defined in .\Build-Debug\time.o
+_CAN0IDMR6                 0000015e   defined in .\Build-Debug\time.o
+_CAN0IDMR7                 0000015f   defined in .\Build-Debug\time.o
+_CAN0RFLG                  00000144   defined in .\Build-Debug\time.o
+_CAN0RIER                  00000145   defined in .\Build-Debug\time.o
+_CAN0RXERR                 0000014e   defined in .\Build-Debug\time.o
+_CAN0RXFG                  00000160   defined in .\Build-Debug\time.o
+_CAN0TAAK                  00000149   defined in .\Build-Debug\time.o
+_CAN0TARQ                  00000148   defined in .\Build-Debug\time.o
+_CAN0TBSEL                 0000014a   defined in .\Build-Debug\time.o
+_CAN0TFLG                  00000146   defined in .\Build-Debug\time.o
+_CAN0TIER                  00000147   defined in .\Build-Debug\time.o
+_CAN0TXERR                 0000014f   defined in .\Build-Debug\time.o
+_CAN0TXFG                  00000170   defined in .\Build-Debug\time.o
+_CAN4BTR0                  00000282   defined in .\Build-Debug\time.o
+_CAN4BTR1                  00000283   defined in .\Build-Debug\time.o
+_CAN4CTL0                  00000280   defined in .\Build-Debug\time.o
+_CAN4CTL1                  00000281   defined in .\Build-Debug\time.o
+_CAN4IDAC                  0000028b   defined in .\Build-Debug\time.o
+_CAN4IDAR0                 00000290   defined in .\Build-Debug\time.o
+_CAN4IDAR1                 00000291   defined in .\Build-Debug\time.o
+_CAN4IDAR2                 00000292   defined in .\Build-Debug\time.o
+_CAN4IDAR3                 00000293   defined in .\Build-Debug\time.o
+_CAN4IDAR4                 00000298   defined in .\Build-Debug\time.o
+_CAN4IDAR5                 00000299   defined in .\Build-Debug\time.o
+_CAN4IDAR6                 0000029a   defined in .\Build-Debug\time.o
+_CAN4IDAR7                 0000029b   defined in .\Build-Debug\time.o
+_CAN4IDMR0                 00000294   defined in .\Build-Debug\time.o
+_CAN4IDMR1                 00000295   defined in .\Build-Debug\time.o
+_CAN4IDMR2                 00000296   defined in .\Build-Debug\time.o
+_CAN4IDMR3                 00000297   defined in .\Build-Debug\time.o
+_CAN4IDMR4                 0000029c   defined in .\Build-Debug\time.o
+_CAN4IDMR5                 0000029d   defined in .\Build-Debug\time.o
+_CAN4IDMR6                 0000029e   defined in .\Build-Debug\time.o
+_CAN4IDMR7                 0000029f   defined in .\Build-Debug\time.o
+_CAN4RFLG                  00000284   defined in .\Build-Debug\time.o
+_CAN4RIER                  00000285   defined in .\Build-Debug\time.o
+_CAN4RXERR                 0000028e   defined in .\Build-Debug\time.o
+_CAN4RXFG                  000002a0   defined in .\Build-Debug\time.o
+_CAN4TAAK                  00000289   defined in .\Build-Debug\time.o
+_CAN4TARQ                  00000288   defined in .\Build-Debug\time.o
+_CAN4TBSEL                 0000028a   defined in .\Build-Debug\time.o
+_CAN4TFLG                  00000286   defined in .\Build-Debug\time.o
+_CAN4TIER                  00000287   defined in .\Build-Debug\time.o
+_CAN4TXERR                 0000028f   defined in .\Build-Debug\time.o
+_CAN4TXFG                  000002b0   defined in .\Build-Debug\time.o
+_CFORC                     00000041   defined in .\Build-Debug\time.o
+_CLKSEL                    00000039   defined in .\Build-Debug\time.o
+_COPCTL                    0000003c   defined in .\Build-Debug\time.o
+_CRGFLG                    00000037   defined in .\Build-Debug\time.o
+_CRGINT                    00000038   defined in .\Build-Debug\time.o
+_CTCTL                     0000003e   defined in .\Build-Debug\time.o
+_CTFLG                     00000036   defined in .\Build-Debug\time.o
+_Checksum                  000039f4   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_CntrBytes                 000039f6   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_CntrTimeout               000039e1   defined in .\Build-Debug\mc9s12dg256_booting.o
+_DDRA                      00000002   defined in .\Build-Debug\time.o
+_DDRAB                     00000002   defined in .\Build-Debug\time.o
+_DDRB                      00000003   defined in .\Build-Debug\time.o
+_DDRE                      00000009   defined in .\Build-Debug\time.o
+_DDRH                      00000262   defined in .\Build-Debug\time.o
+_DDRJ                      0000026a   defined in .\Build-Debug\time.o
+_DDRK                      00000033   defined in .\Build-Debug\time.o
+_DDRM                      00000252   defined in .\Build-Debug\time.o
+_DDRP                      0000025a   defined in .\Build-Debug\time.o
+_DDRS                      0000024a   defined in .\Build-Debug\time.o
+_DDRT                      00000242   defined in .\Build-Debug\time.o
+_DLYCT                     00000069   defined in .\Build-Debug\time.o
+_DirComparison             000039e3   defined in .\Build-Debug\mc9s12dg256_booting.o
+_EADDR                     00000118   defined in .\Build-Debug\time.o
+_EBICTL                    0000000e   defined in .\Build-Debug\time.o
+_ECLKDIV                   00000110   defined in .\Build-Debug\time.o
+_ECMD                      00000116   defined in .\Build-Debug\time.o
+                                      used in (C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o
+_ECNFG                     00000113   defined in .\Build-Debug\time.o
+_EDATA                     0000011a   defined in .\Build-Debug\time.o
+_EPROT                     00000114   defined in .\Build-Debug\time.o
+_ESTAT                     00000115   defined in .\Build-Debug\time.o
+                                      used in (C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o
+_ErrorNum                  000039f3   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_FADDR                     00000108   defined in .\Build-Debug\time.o
+_FCLKDIV                   00000100   defined in .\Build-Debug\time.o
+_FCMD                      00000106   defined in .\Build-Debug\time.o
+_FCNFG                     00000103   defined in .\Build-Debug\time.o
+_FDATA                     0000010a   defined in .\Build-Debug\time.o
+_FORBYP                    0000003d   defined in .\Build-Debug\time.o
+_FPROT                     00000104   defined in .\Build-Debug\time.o
+_FSEC                      00000101   defined in .\Build-Debug\time.o
+_FSTAT                     00000105   defined in .\Build-Debug\time.o
+_FTSTMOD                   00000102   defined in .\Build-Debug\time.o
+_HPRIO                     0000001f   defined in .\Build-Debug\time.o
+_IBAD                      000000e0   defined in .\Build-Debug\time.o
+_IBCR                      000000e2   defined in .\Build-Debug\time.o
+_IBDR                      000000e4   defined in .\Build-Debug\time.o
+_IBFD                      000000e1   defined in .\Build-Debug\time.o
+_IBSR                      000000e3   defined in .\Build-Debug\time.o
+_ICOVW                     0000006a   defined in .\Build-Debug\time.o
+_ICPAR                     00000068   defined in .\Build-Debug\time.o
+_ICSYS                     0000006b   defined in .\Build-Debug\time.o
+_INITEE                    00000012   defined in .\Build-Debug\time.o
+                                      used in (C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o
+_INITRG                    00000011   defined in .\Build-Debug\time.o
+_INITRM                    00000010   defined in .\Build-Debug\time.o
+_INTCR                     0000001e   defined in .\Build-Debug\time.o
+_ITCR                      00000015   defined in .\Build-Debug\time.o
+_ITEST                     00000016   defined in .\Build-Debug\time.o
+_IdxByte                   000039e2   defined in .\Build-Debug\mc9s12dg256_booting.o
+_Index                     000039f1   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_JUMP_TABLE                000ff500   defined in .\Build-Debug\mc9s12dg256_jump_table.o section .jmptbl (.text)
+                                      *** not used ***
+_MCCNT                     00000076   defined in .\Build-Debug\time.o
+_MCCTL                     00000066   defined in .\Build-Debug\time.o
+_MCFLG                     00000067   defined in .\Build-Debug\time.o
+_MEMSIZ0                   0000001c   defined in .\Build-Debug\time.o
+_MEMSIZ1                   0000001d   defined in .\Build-Debug\time.o
+_MISC                      00000013   defined in .\Build-Debug\time.o
+_MODE                      0000000b   defined in .\Build-Debug\time.o
+_MODRR                     00000257   defined in .\Build-Debug\time.o
+_MTST0                     00000014   defined in .\Build-Debug\time.o
+_MTST1                     00000017   defined in .\Build-Debug\time.o
+_OC7D                      00000043   defined in .\Build-Debug\time.o
+_OC7M                      00000042   defined in .\Build-Debug\time.o
+_OSCtxSw                   000f8b68   defined in .\Build-Debug\os_cpu_a.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_OSCtxSwCtr                00001704   defined in .\Build-Debug\os_core.o section .bss
+_OSDataSize                000fb731   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSDebugEn                 000fb6bf   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSDebugInit               000f8c29   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSEndiannessTest          000fb69b   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSEventEn                 000fb69f   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSEventFreeList           000016f7   defined in .\Build-Debug\os_core.o section .bss
+_OSEndiannessTest          000fb6c1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSEventEn                 000fb6c5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSEventFreeList           00001702   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_mbox.o
                                               .\Build-Debug\os_mutex.o
                                               .\Build-Debug\os_q.o
                                               .\Build-Debug\os_sem.o
-_OSEventMax                000fb6a1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSEventMultiEn            000fb6a9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSEventNameEn             000fb6a3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSEventNameGet            000f807f   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSEventMax                000fb6c7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSEventMultiEn            000fb6cf   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSEventNameEn             000fb6c9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSEventNameGet            000f8127   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSEventNameSet            000f80d3   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSEventNameSet            000f817b   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_tmr.o
-_OSEventPendMulti          000f811b   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSEventPendMulti          000f81c3   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSEventSize               000fb6a5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSEventTbl                00001657   defined in .\Build-Debug\os_core.o section .bss
-_OSEventTblSize            000fb6a7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSFlagAccept              000f8b1d   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSEventSize               000fb6cb   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSEventTbl                00001662   defined in .\Build-Debug\os_core.o section .bss
+_OSEventTblSize            000fb6cd   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSFlagAccept              000f8c2a   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagCreate              000f8be5   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSFlagCreate              000f8cf2   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagDel                 000f8c36   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSFlagDel                 000f8d43   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagEn                  000fb6ab   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSFlagFreeList            00001632   defined in .\Build-Debug\os_core.o section .bss
+_OSFlagEn                  000fb6d1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSFlagFreeList            0000163d   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_flag.o
-_OSFlagGrpSize             000fb6ad   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSFlagMax                 000fb6b3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSFlagNameEn              000fb6b5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSFlagNameGet             000f8cfc   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSFlagGrpSize             000fb6d3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSFlagMax                 000fb6d9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSFlagNameEn              000fb6db   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSFlagNameGet             000f8e09   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagNameSet             000f8d4c   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSFlagNameSet             000f8e59   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagNodeSize            000fb6af   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSFlagPend                000f8d92   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSFlagNodeSize            000fb6d5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSFlagPend                000f8e9f   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagPendGetFlagsRdy     000f8f0a   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSFlagPendGetFlagsRdy     000f9017   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagPost                000f8f24   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSFlagPost                000f9031   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagQuery               000f9024   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OSFlagQuery               000f9131   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSFlagTbl                 00001634   defined in .\Build-Debug\os_core.o section .bss
+_OSFlagTbl                 0000163f   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_flag.o
-_OSFlagWidth               000fb6b1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSIdleCtr                 0000161f   defined in .\Build-Debug\os_core.o section .bss
-_OSInit                    000f836d   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSFlagWidth               000fb6d7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSIdleCtr                 0000162a   defined in .\Build-Debug\os_core.o section .bss
+_OSInit                    000f8415   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\test.o
-_OSInitHookBegin           000f8aa7   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSInitHookBegin           000f8bb9   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSInitHookEnd             000f8aad   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSInitHookEnd             000f8bbf   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSIntCtxSw                000fb558   defined in .\Build-Debug\os_cpu_a.o section NON_BANKED
+_OSIntCtxSw                000f8b85   defined in .\Build-Debug\os_cpu_a.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSIntEnter                000f8392   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSIntEnter                000f843a   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSIntExit                 000f83a3   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSIntExit                 000f844b   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_cpu_a.o
-_OSIntNesting              00001631   defined in .\Build-Debug\os_core.o section .bss
+_OSIntNesting              0000163c   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_cpu_a.o
                                               .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mbox.o
@@ -1210,7 +1358,7 @@ _OSIntNesting              00001631   defined in .\Build-Debug\os_core.o section
                                               .\Build-Debug\os_task.o
                                               .\Build-Debug\os_time.o
                                               .\Build-Debug\os_tmr.o
-_OSLockNesting             00001630   defined in .\Build-Debug\os_core.o section .bss
+_OSLockNesting             0000163b   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mbox.o
                                               .\Build-Debug\os_mutex.o
@@ -1218,132 +1366,132 @@ _OSLockNesting             00001630   defined in .\Build-Debug\os_core.o section
                                               .\Build-Debug\os_sem.o
                                               .\Build-Debug\os_task.o
                                               .\Build-Debug\os_time.o
-_OSLowestPrio              000fb6b7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSMboxAccept              000f91b5   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
+_OSLowestPrio              000fb6dd   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSMboxAccept              000f92c2   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMboxCreate              000f91e1   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
+_OSMboxCreate              000f92ee   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMboxDel                 000f9221   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
+_OSMboxDel                 000f932e   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMboxEn                  000fb6b9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSMboxPend                000f92e1   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
+_OSMboxEn                  000fb6df   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSMboxPend                000f93ee   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMboxPendAbort           000f93ab   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
+_OSMboxPendAbort           000f94b8   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMboxPost                000f9421   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
+_OSMboxPost                000f952e   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMboxPostOpt             000f947e   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
+_OSMboxPostOpt             000f958b   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMboxQuery               000f94ff   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
+_OSMboxQuery               000f960c   defined in .\Build-Debug\os_mbox.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMemCreate               000f955b   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
+_OSMemCreate               000f9668   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMemEn                   000fb6bb   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSMemFreeList             0000143a   defined in .\Build-Debug\os_core.o section .bss
+_OSMemEn                   000fb6e1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSMemFreeList             00001445   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_mem.o
-_OSMemGet                  000f9636   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
+_OSMemGet                  000f9743   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMemMax                  000fb6bd   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSMemNameEn               000fb6bf   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSMemNameGet              000f9684   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
+_OSMemMax                  000fb6e3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSMemNameEn               000fb6e5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSMemNameGet              000f9791   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMemNameSet              000f96c5   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
+_OSMemNameSet              000f97d2   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMemPut                  000f96fc   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
+_OSMemPut                  000f9809   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMemQuery                000f974d   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
+_OSMemQuery                000f985a   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMemSize                 000fb6c1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSMemTbl                  000013e0   defined in .\Build-Debug\os_core.o section .bss
+_OSMemSize                 000fb6e7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSMemTbl                  000013eb   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_mem.o
-_OSMemTblSize              000fb6c3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSMutexAccept             000f97fa   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
+_OSMemTblSize              000fb6e9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSMutexAccept             000f9907   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMutexCreate             000f9878   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
+_OSMutexCreate             000f9985   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMutexDel                000f9919   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
+_OSMutexDel                000f9a26   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMutexEn                 000fb6c5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSMutexPend               000f9a25   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
+_OSMutexEn                 000fb6eb   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSMutexPend               000f9b32   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMutexPost               000f9bff   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
+_OSMutexPost               000f9d0c   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSMutexQuery              000f9cc9   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
+_OSMutexQuery              000f9dd6   defined in .\Build-Debug\os_mutex.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSPrioCur                 0000162f   defined in .\Build-Debug\os_core.o section .bss
+_OSPrioCur                 0000163a   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_cpu_a.o
                                               .\Build-Debug\os_mutex.o
-_OSPrioHighRdy             0000162e   defined in .\Build-Debug\os_core.o section .bss
+_OSPrioHighRdy             00001639   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_cpu_a.o
-_OSPtrSize                 000fb6c7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSQAccept                 000f9dbd   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSPtrSize                 000fb6ed   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSQAccept                 000f9eca   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQCreate                 000f9e19   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQCreate                 000f9f26   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQDel                    000f9e9d   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQDel                    000f9faa   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQEn                     000fb6c9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSQFlush                  000f9f78   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQEn                     000fb6ef   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSQFlush                  000fa085   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQFreeList               000013de   defined in .\Build-Debug\os_core.o section .bss
+_OSQFreeList               000013e9   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_q.o
-_OSQMax                    000fb6cb   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSQPend                   000f9fac   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQMax                    000fb6f1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSQPend                   000fa0b9   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQPendAbort              000fa08d   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQPendAbort              000fa19a   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQPost                   000fa108   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQPost                   000fa215   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQPostFront              000fa179   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQPostFront              000fa286   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQPostOpt                000fa1e8   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQPostOpt                000fa2f5   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQQuery                  000fa291   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OSQQuery                  000fa39e   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSQSize                   000fb6cd   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSQTbl                    000013a6   defined in .\Build-Debug\os_core.o section .bss
+_OSQSize                   000fb6f3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSQTbl                    000013b1   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_q.o
-_OSRdyGrp                  0000162d   defined in .\Build-Debug\os_core.o section .bss
+_OSRdyGrp                  00001638   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mutex.o
                                               .\Build-Debug\os_task.o
                                               .\Build-Debug\os_time.o
-_OSRdyTbl                  00001625   defined in .\Build-Debug\os_core.o section .bss
+_OSRdyTbl                  00001630   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mutex.o
                                               .\Build-Debug\os_task.o
                                               .\Build-Debug\os_time.o
-_OSRdyTblSize              000fb6cf   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSRunning                 00001624   defined in .\Build-Debug\os_core.o section .bss
+_OSRdyTblSize              000fb6f5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSRunning                 0000162f   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_cpu_a.o
                                               .\Build-Debug\os_task.o
-_OSSchedLock               000f840c   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSSchedLock               000f84b4   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_tmr.o
-_OSSchedUnlock             000f8430   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSSchedUnlock             000f84d8   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_tmr.o
-_OSSemAccept               000fa353   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
+_OSSemAccept               000fa460   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSSemCreate               000fa380   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
+_OSSemCreate               000fa48d   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_tmr.o
-_OSSemDel                  000fa3c0   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
+_OSSemDel                  000fa4cd   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSSemEn                   000fb6d1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSSemPend                 000fa482   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
+_OSSemEn                   000fb6f7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSSemPend                 000fa58f   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_tmr.o
-_OSSemPendAbort            000fa533   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
+_OSSemPendAbort            000fa640   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSSemPost                 000fa5ac   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
+_OSSemPost                 000fa6b9   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_tmr.o
-_OSSemQuery                000fa600   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
+_OSSemQuery                000fa70d   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSSemSet                  000fa65d   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
+_OSSemSet                  000fa76a   defined in .\Build-Debug\os_sem.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSStart                   000f845b   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSStart                   000f8503   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\test.o
-_OSStartHighRdy            000fb52a   defined in .\Build-Debug\os_cpu_a.o section NON_BANKED
+_OSStartHighRdy            000f8b57   defined in .\Build-Debug\os_cpu_a.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSStkWidth                000fb6d3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTCBCur                  0000157d   defined in .\Build-Debug\os_core.o section .bss
+_OSStkWidth                000fb6f9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTCBCur                  00001588   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_cpu_a.o
                                               .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mbox.o
@@ -1352,151 +1500,141 @@ _OSTCBCur                  0000157d   defined in .\Build-Debug\os_core.o section
                                               .\Build-Debug\os_sem.o
                                               .\Build-Debug\os_task.o
                                               .\Build-Debug\os_time.o
-_OSTCBFreeList             0000157b   defined in .\Build-Debug\os_core.o section .bss
+_OSTCBFreeList             00001586   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_task.o
-_OSTCBHighRdy              00001579   defined in .\Build-Debug\os_core.o section .bss
+_OSTCBHighRdy              00001584   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_cpu_a.o
-_OSTCBInitHook             000f8afc   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTCBInitHook             000f8c0e   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSTCBList                 00001577   defined in .\Build-Debug\os_core.o section .bss
+_OSTCBList                 00001582   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_task.o
-_OSTCBPrioTbl              000014f7   defined in .\Build-Debug\os_core.o section .bss
+_OSTCBPrioTbl              00001502   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_mutex.o
                                               .\Build-Debug\os_task.o
-_OSTCBPrioTblMax           000fb6ed   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTCBSize                 000fb6ef   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTCBTbl                  0000143d   defined in .\Build-Debug\os_core.o section .bss
-_OSTaskAbort               000f8af4   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
-_OSTaskChangePrio          000fa69e   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTCBPrioTblMax           000fb713   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTCBSize                 000fb715   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTCBTbl                  00001448   defined in .\Build-Debug\os_core.o section .bss
+_OSTaskAbort               000f8c06   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskChangePrio          000fa7ab   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTaskCreate              000fa833   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskCreate              000fa940   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\test.o
-_OSTaskCreateEn            000fb6d5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskCreateExt           000fa8c4   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskCreateEn            000fb6fb   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskCreateExt           000fa9d1   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
                                               .\Build-Debug\os_tmr.o
-_OSTaskCreateExtEn         000fb6d7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskCreateHook          000f8aae   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskCreateExtEn         000fb6fd   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskCreateHook          000f8bc0   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSTaskCtr                 00001623   defined in .\Build-Debug\os_core.o section .bss
+_OSTaskCtr                 0000162e   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_task.o
-_OSTaskDel                 000fa97c   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskDel                 000faa89   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_cpu_c.o
-_OSTaskDelEn               000fb6d9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskDelHook             000f8aaf   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskDelEn               000fb6ff   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskDelHook             000f8bc1   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_task.o
-_OSTaskDelReq              000faaa9   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskDelReq              000fabb6   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTaskIdleHook            000f8ab0   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskIdleHook            000f8bc2   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSTaskIdleStk             0000157f   defined in .\Build-Debug\os_core.o section .bss
-_OSTaskIdleStkSize         000fb6db   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskMax                 000fb6df   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskNameEn              000fb6e1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskNameGet             000fab15   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskIdleStk             0000158a   defined in .\Build-Debug\os_core.o section .bss
+_OSTaskIdleStkSize         000fb701   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskMax                 000fb705   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskNameEn              000fb707   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskNameGet             000fac22   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTaskNameSet             000fab84   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskNameSet             000fac91   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
                                               .\Build-Debug\os_tmr.o
-_OSTaskProfileEn           000fb6dd   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskQuery               000fadd2   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskProfileEn           000fb703   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskQuery               000faedf   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTaskRegTblSize          000fb6eb   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskResume              000fabe9   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskRegTblSize          000fb711   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskResume              000facf6   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTaskReturnHook          000f8ab1   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskReturnHook          000f8bc3   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_task.o
-_OSTaskStatEn              000fb6e3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskStatHook            000f8ab2   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskStatEn              000fb709   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskStatHook            000f8bc4   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTaskStatStkChkEn        000fb6e7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskStatStkSize         000fb6e5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTaskStkChk              000fac7b   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskStatStkChkEn        000fb70d   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskStatStkSize         000fb70b   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTaskStkChk              000fad88   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSTaskStkInit             000f8ab3   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskStkInit             000f8bc5   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_task.o
-_OSTaskSuspend             000fad31   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OSTaskSuspend             000fae3e   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTaskSwHook              000f8afb   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskSwHook              000f8c0d   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_cpu_a.o
-_OSTaskSwHookEn            000fb6e9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTickISR                 000fb56d   defined in .\Build-Debug\os_cpu_a.o section NON_BANKED
-                                      used in .\Build-Debug\vectors.o
-_OSTickISRHandler          000f8b1b   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTaskSwHookEn            000fb70f   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTickISR                 000f8b9a   defined in .\Build-Debug\os_cpu_a.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_OSTickISRHandler          000f8c17   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_cpu_a.o
-_OSTickStepState           0000143c   defined in .\Build-Debug\os_core.o section .bss
-_OSTicksPerSec             000fb6f1   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTime                    000013a2   defined in .\Build-Debug\os_core.o section .bss
+_OSTickStepState           00001447   defined in .\Build-Debug\os_core.o section .bss
+_OSTicksPerSec             000fb717   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTime                    000013ad   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_time.o
-_OSTimeDly                 000fae6d   defined in .\Build-Debug\os_time.o section .fxpg3E_code (.text)
+_OSTimeDly                 000faf7a   defined in .\Build-Debug\os_time.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\test.o
-_OSTimeGet                 000faec8   defined in .\Build-Debug\os_time.o section .fxpg3E_code (.text)
+_OSTimeGet                 000fafd5   defined in .\Build-Debug\os_time.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTimeSet                 000faee6   defined in .\Build-Debug\os_time.o section .fxpg3E_code (.text)
+_OSTimeSet                 000faff3   defined in .\Build-Debug\os_time.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTimeTick                000f847b   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
-                                      *** not used ***
-_OSTimeTickHook            000f8afd   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
+_OSTimeTick                000f8523   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\os_cpu_a.o
+_OSTimeTickHook            000f8c0f   defined in .\Build-Debug\os_cpu_c.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSTimeTickHookEn          000fb6f3   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrCfgMax               000fb6fb   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrCfgNameEn            000fb6fd   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrCfgTicksPerSec       000fb701   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrCfgWheelSize         000fb6ff   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrCreate               000faeff   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
+_OSTimeTickHookEn          000fb719   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrCfgMax               000fb721   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrCfgNameEn            000fb723   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrCfgTicksPerSec       000fb727   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrCfgWheelSize         000fb725   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrCreate               000fb00c   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTmrDel                  000faf79   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
+_OSTmrDel                  000fb086   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTmrEn                   000fb6f9   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrFree                 000013a0   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrEn                   000fb71f   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrFree                 000013ab   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrFreeList             00001224   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrFreeList             0000122f   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrRemainGet            000faff5   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
+_OSTmrRemainGet            000fb102   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTmrSem                  00001398   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrSem                  000013a3   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrSemSignal            00001396   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrSemSignal            000013a1   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrSignal               000fb20f   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\os_cpu_c.o
-_OSTmrSize                 000fb703   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrStart                000fb0eb   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
+_OSTmrSignal               000fb31c   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTmrStateGet             000fb09f   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
+_OSTmrSize                 000fb729   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrStart                000fb1f8   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTmrStop                 000fb171   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
+_OSTmrStateGet             000fb1ac   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSTmrTaskStk              00001184   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrStop                 000fb27e   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
+                                      *** not used ***
+_OSTmrTaskStk              0000118f   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrTbl                  00001226   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrTbl                  00001231   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrTblSize              000fb705   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrTime                 0000139a   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrTblSize              000fb72b   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrTime                 000013a5   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrUsed                 0000139e   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrUsed                 000013a9   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrWheelSize            000fb707   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmrWheelTbl             00001164   defined in .\Build-Debug\os_core.o section .bss
+_OSTmrWheelSize            000fb72d   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmrWheelTbl             0000116f   defined in .\Build-Debug\os_core.o section .bss
                                       used in .\Build-Debug\os_tmr.o
-_OSTmrWheelTblSize         000fb709   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OSTmr_Init                000fb274   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
+_OSTmrWheelTblSize         000fb72f   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OSTmr_Init                000fb381   defined in .\Build-Debug\os_tmr.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OSUnMapTbl                000fb589   defined in .\Build-Debug\os_core.o section .fxpg3E_const (.const)
-_OSVersion                 000f854f   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OSUnMapTbl                000fb5af   defined in .\Build-Debug\os_core.o section .fxpg3E_const (.const)
+_OSVersion                 000f85f7   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OSVersionNbr              000fb6f5   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OS_CPU_SR_Restore         000fb527   defined in .\Build-Debug\os_cpu_a.o section NON_BANKED
-                                      used in .\Build-Debug\os_core.o
-                                              .\Build-Debug\os_flag.o
-                                              .\Build-Debug\os_mbox.o
-                                              .\Build-Debug\os_mem.o
-                                              .\Build-Debug\os_mutex.o
-                                              .\Build-Debug\os_q.o
-                                              .\Build-Debug\os_sem.o
-                                              .\Build-Debug\os_task.o
-                                              .\Build-Debug\os_time.o
-_OS_CPU_SR_Save            000fb522   defined in .\Build-Debug\os_cpu_a.o section NON_BANKED
+_OSVersionNbr              000fb71b   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OS_CPU_SR_Restore         000f8b54   defined in .\Build-Debug\os_cpu_a.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
                                               .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mbox.o
@@ -1506,48 +1644,58 @@ _OS_CPU_SR_Save            000fb522   defined in .\Build-Debug\os_cpu_a.o sectio
                                               .\Build-Debug\os_sem.o
                                               .\Build-Debug\os_task.o
                                               .\Build-Debug\os_time.o
-_OS_Dummy                  000f8553   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_CPU_SR_Save            000f8b4f   defined in .\Build-Debug\os_cpu_a.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\os_core.o
+                                              .\Build-Debug\os_flag.o
+                                              .\Build-Debug\os_mbox.o
+                                              .\Build-Debug\os_mem.o
+                                              .\Build-Debug\os_mutex.o
+                                              .\Build-Debug\os_q.o
+                                              .\Build-Debug\os_sem.o
+                                              .\Build-Debug\os_task.o
+                                              .\Build-Debug\os_time.o
+_OS_Dummy                  000f85fb   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_task.o
-_OS_EventTaskRdy           000f8554   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_EventTaskRdy           000f85fc   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_mbox.o
                                               .\Build-Debug\os_mutex.o
                                               .\Build-Debug\os_q.o
                                               .\Build-Debug\os_sem.o
-_OS_EventTaskRemove        000f868f   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_EventTaskRemove        000f8737   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_mbox.o
                                               .\Build-Debug\os_mutex.o
                                               .\Build-Debug\os_q.o
                                               .\Build-Debug\os_sem.o
                                               .\Build-Debug\os_task.o
-_OS_EventTaskRemoveMulti   000f86bc   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_EventTaskRemoveMulti   000f8764   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_task.o
-_OS_EventTaskWait          000f85e8   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_EventTaskWait          000f8690   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_mbox.o
                                               .\Build-Debug\os_mutex.o
                                               .\Build-Debug\os_q.o
                                               .\Build-Debug\os_sem.o
-_OS_EventTaskWaitMulti     000f862c   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
-_OS_EventWaitListInit      000f8701   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_EventTaskWaitMulti     000f86d4   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_EventWaitListInit      000f87a9   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_mbox.o
                                               .\Build-Debug\os_mutex.o
                                               .\Build-Debug\os_q.o
                                               .\Build-Debug\os_sem.o
-_OS_FlagInit               000f90cd   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OS_FlagInit               000f91da   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OS_FlagUnlink             000f917e   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
+_OS_FlagUnlink             000f928b   defined in .\Build-Debug\os_flag.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_task.o
-_OS_MemClr                 000f885f   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_MemClr                 000f8907   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mem.o
                                               .\Build-Debug\os_q.o
                                               .\Build-Debug\os_tmr.o
-_OS_MemCopy                000f8873   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_MemCopy                000f891b   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_task.o
-_OS_MemInit                000f97a2   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
+_OS_MemInit                000f98af   defined in .\Build-Debug\os_mem.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OS_QInit                  000fa300   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
+_OS_QInit                  000fa40d   defined in .\Build-Debug\os_q.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_core.o
-_OS_Sched                  000f888b   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_Sched                  000f8933   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mbox.o
                                               .\Build-Debug\os_mutex.o
@@ -1555,348 +1703,377 @@ _OS_Sched                  000f888b   defined in .\Build-Debug\os_core.o section
                                               .\Build-Debug\os_sem.o
                                               .\Build-Debug\os_task.o
                                               .\Build-Debug\os_time.o
-_OS_StrLen                 000f8907   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_StrLen                 000f89af   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_flag.o
                                               .\Build-Debug\os_mem.o
                                               .\Build-Debug\os_task.o
-_OS_TCBInit                000f8989   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_TCBInit                000f8a31   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\os_task.o
-_OS_TLS_TblSize            000fb6f7   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
-_OS_TaskIdle               000f8922   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
-_OS_TaskReturn             000fae34   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_OS_TLS_TblSize            000fb71d   defined in .\Build-Debug\os_dbg_r.o section .fxpg3E_const (.const)
+_OS_TaskIdle               000f89ca   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_TaskReturn             000faf41   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OS_TaskStatStkChk         000f8947   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
+_OS_TaskStatStkChk         000f89ef   defined in .\Build-Debug\os_core.o section .fxpg3E_code (.text)
                                       *** not used ***
-_OS_TaskStkClr             000fae41   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
-_PA0H                      00000075   defined in .\Build-Debug\test.o
-_PA10H                     00000074   defined in .\Build-Debug\test.o
-_PA1H                      00000074   defined in .\Build-Debug\test.o
-_PA2H                      00000073   defined in .\Build-Debug\test.o
-_PA32H                     00000072   defined in .\Build-Debug\test.o
-_PA3H                      00000072   defined in .\Build-Debug\test.o
-_PACN0                     00000065   defined in .\Build-Debug\test.o
-_PACN1                     00000064   defined in .\Build-Debug\test.o
-_PACN10                    00000064   defined in .\Build-Debug\test.o
-_PACN2                     00000063   defined in .\Build-Debug\test.o
-_PACN3                     00000062   defined in .\Build-Debug\test.o
-_PACN32                    00000062   defined in .\Build-Debug\test.o
-_PACTL                     00000060   defined in .\Build-Debug\test.o
-_PAFLG                     00000061   defined in .\Build-Debug\test.o
-_PARTID                    0000001a   defined in .\Build-Debug\test.o
-_PBCTL                     00000070   defined in .\Build-Debug\test.o
-_PBFLG                     00000071   defined in .\Build-Debug\test.o
-_PEAR                      0000000a   defined in .\Build-Debug\test.o
-_PERH                      00000264   defined in .\Build-Debug\test.o
-_PERJ                      0000026c   defined in .\Build-Debug\test.o
-_PERM                      00000254   defined in .\Build-Debug\test.o
-_PERP                      0000025c   defined in .\Build-Debug\test.o
-_PERS                      0000024c   defined in .\Build-Debug\test.o
-_PERT                      00000244   defined in .\Build-Debug\test.o
-_PIEH                      00000266   defined in .\Build-Debug\test.o
-_PIEJ                      0000026e   defined in .\Build-Debug\test.o
-_PIEP                      0000025e   defined in .\Build-Debug\test.o
-_PIFH                      00000267   defined in .\Build-Debug\test.o
-_PIFJ                      0000026f   defined in .\Build-Debug\test.o
-_PIFP                      0000025f   defined in .\Build-Debug\test.o
-_PLLCTL                    0000003a   defined in .\Build-Debug\test.o
-_PORTA                     00000000   defined in .\Build-Debug\test.o
-_PORTAB                    00000000   defined in .\Build-Debug\test.o
-_PORTAD0                   0000008f   defined in .\Build-Debug\test.o
-_PORTAD1                   0000012f   defined in .\Build-Debug\test.o
-_PORTB                     00000001   defined in .\Build-Debug\test.o
-_PORTE                     00000008   defined in .\Build-Debug\test.o
-_PORTK                     00000032   defined in .\Build-Debug\test.o
-_PPAGE                     00000030   defined in .\Build-Debug\test.o
-_PPSH                      00000265   defined in .\Build-Debug\test.o
-_PPSJ                      0000026d   defined in .\Build-Debug\test.o
-_PPSM                      00000255   defined in .\Build-Debug\test.o
-_PPSP                      0000025d   defined in .\Build-Debug\test.o
-_PPSS                      0000024d   defined in .\Build-Debug\test.o
-_PPST                      00000245   defined in .\Build-Debug\test.o
-_PTH                       00000260   defined in .\Build-Debug\test.o
-_PTIH                      00000261   defined in .\Build-Debug\test.o
-_PTIJ                      00000269   defined in .\Build-Debug\test.o
-_PTIM                      00000251   defined in .\Build-Debug\test.o
-_PTIP                      00000259   defined in .\Build-Debug\test.o
-_PTIS                      00000249   defined in .\Build-Debug\test.o
-_PTIT                      00000241   defined in .\Build-Debug\test.o
-_PTJ                       00000268   defined in .\Build-Debug\test.o
-_PTM                       00000250   defined in .\Build-Debug\test.o
-_PTP                       00000258   defined in .\Build-Debug\test.o
-_PTS                       00000248   defined in .\Build-Debug\test.o
-_PTT                       00000240   defined in .\Build-Debug\test.o
-_PUCR                      0000000c   defined in .\Build-Debug\test.o
-_PWMCAE                    000000a4   defined in .\Build-Debug\test.o
-_PWMCLK                    000000a2   defined in .\Build-Debug\test.o
-_PWMCNT0                   000000ac   defined in .\Build-Debug\test.o
-_PWMCNT01                  000000ac   defined in .\Build-Debug\test.o
-_PWMCNT1                   000000ad   defined in .\Build-Debug\test.o
-_PWMCNT2                   000000ae   defined in .\Build-Debug\test.o
-_PWMCNT23                  000000ae   defined in .\Build-Debug\test.o
-_PWMCNT3                   000000af   defined in .\Build-Debug\test.o
-_PWMCNT4                   000000b0   defined in .\Build-Debug\test.o
-_PWMCNT45                  000000b0   defined in .\Build-Debug\test.o
-_PWMCNT5                   000000b1   defined in .\Build-Debug\test.o
-_PWMCNT6                   000000b2   defined in .\Build-Debug\test.o
-_PWMCNT67                  000000b2   defined in .\Build-Debug\test.o
-_PWMCNT7                   000000b3   defined in .\Build-Debug\test.o
-_PWMCTL                    000000a5   defined in .\Build-Debug\test.o
-_PWMDTY0                   000000bc   defined in .\Build-Debug\test.o
-_PWMDTY01                  000000bc   defined in .\Build-Debug\test.o
-_PWMDTY1                   000000bd   defined in .\Build-Debug\test.o
-_PWMDTY2                   000000be   defined in .\Build-Debug\test.o
-_PWMDTY23                  000000be   defined in .\Build-Debug\test.o
-_PWMDTY3                   000000bf   defined in .\Build-Debug\test.o
-_PWMDTY4                   000000c0   defined in .\Build-Debug\test.o
-_PWMDTY45                  000000c0   defined in .\Build-Debug\test.o
-_PWMDTY5                   000000c1   defined in .\Build-Debug\test.o
-_PWMDTY6                   000000c2   defined in .\Build-Debug\test.o
-_PWMDTY67                  000000c2   defined in .\Build-Debug\test.o
-_PWMDTY7                   000000c3   defined in .\Build-Debug\test.o
-_PWME                      000000a0   defined in .\Build-Debug\test.o
-_PWMPER0                   000000b4   defined in .\Build-Debug\test.o
-_PWMPER01                  000000b4   defined in .\Build-Debug\test.o
-_PWMPER1                   000000b5   defined in .\Build-Debug\test.o
-_PWMPER2                   000000b6   defined in .\Build-Debug\test.o
-_PWMPER23                  000000b6   defined in .\Build-Debug\test.o
-_PWMPER3                   000000b7   defined in .\Build-Debug\test.o
-_PWMPER4                   000000b8   defined in .\Build-Debug\test.o
-_PWMPER45                  000000b8   defined in .\Build-Debug\test.o
-_PWMPER5                   000000b9   defined in .\Build-Debug\test.o
-_PWMPER6                   000000ba   defined in .\Build-Debug\test.o
-_PWMPER67                  000000ba   defined in .\Build-Debug\test.o
-_PWMPER7                   000000bb   defined in .\Build-Debug\test.o
-_PWMPOL                    000000a1   defined in .\Build-Debug\test.o
-_PWMPRCLK                  000000a3   defined in .\Build-Debug\test.o
-_PWMPRSC                   000000a7   defined in .\Build-Debug\test.o
-_PWMSCLA                   000000a8   defined in .\Build-Debug\test.o
-_PWMSCLB                   000000a9   defined in .\Build-Debug\test.o
-_PWMSCNTA                  000000aa   defined in .\Build-Debug\test.o
-_PWMSCNTB                  000000ab   defined in .\Build-Debug\test.o
-_PWMSDN                    000000c4   defined in .\Build-Debug\test.o
-_PWMTST                    000000a6   defined in .\Build-Debug\test.o
-_RDRH                      00000263   defined in .\Build-Debug\test.o
-_RDRIV                     0000000d   defined in .\Build-Debug\test.o
-_RDRJ                      0000026b   defined in .\Build-Debug\test.o
-_RDRM                      00000253   defined in .\Build-Debug\test.o
-_RDRP                      0000025b   defined in .\Build-Debug\test.o
-_RDRS                      0000024b   defined in .\Build-Debug\test.o
-_RDRT                      00000243   defined in .\Build-Debug\test.o
-_REFDV                     00000035   defined in .\Build-Debug\test.o
-_RTICTL                    0000003b   defined in .\Build-Debug\test.o
-_SCI0BD                    000000c8   defined in .\Build-Debug\test.o
-_SCI0BDH                   000000c8   defined in .\Build-Debug\test.o
-_SCI0BDL                   000000c9   defined in .\Build-Debug\test.o
-_SCI0CR1                   000000ca   defined in .\Build-Debug\test.o
-_SCI0CR2                   000000cb   defined in .\Build-Debug\test.o
-_SCI0DRH                   000000ce   defined in .\Build-Debug\test.o
-_SCI0DRL                   000000cf   defined in .\Build-Debug\test.o
-_SCI0SR1                   000000cc   defined in .\Build-Debug\test.o
-_SCI0SR2                   000000cd   defined in .\Build-Debug\test.o
-_SCI1BD                    000000d0   defined in .\Build-Debug\test.o
-_SCI1BDH                   000000d0   defined in .\Build-Debug\test.o
-_SCI1BDL                   000000d1   defined in .\Build-Debug\test.o
-_SCI1CR1                   000000d2   defined in .\Build-Debug\test.o
-_SCI1CR2                   000000d3   defined in .\Build-Debug\test.o
-_SCI1DRH                   000000d6   defined in .\Build-Debug\test.o
-_SCI1DRL                   000000d7   defined in .\Build-Debug\test.o
-_SCI1SR1                   000000d4   defined in .\Build-Debug\test.o
-_SCI1SR2                   000000d5   defined in .\Build-Debug\test.o
-_SPI0BR                    000000da   defined in .\Build-Debug\test.o
-_SPI0CR1                   000000d8   defined in .\Build-Debug\test.o
-_SPI0CR2                   000000d9   defined in .\Build-Debug\test.o
-_SPI0DR                    000000dd   defined in .\Build-Debug\test.o
-_SPI0SR                    000000db   defined in .\Build-Debug\test.o
-_SPI1BR                    000000f2   defined in .\Build-Debug\test.o
-_SPI1CR1                   000000f0   defined in .\Build-Debug\test.o
-_SPI1CR2                   000000f1   defined in .\Build-Debug\test.o
-_SPI1DR                    000000f5   defined in .\Build-Debug\test.o
-_SPI1SR                    000000f3   defined in .\Build-Debug\test.o
-_SPI2BR                    000000fa   defined in .\Build-Debug\test.o
-_SPI2CR1                   000000f8   defined in .\Build-Debug\test.o
-_SPI2CR2                   000000f9   defined in .\Build-Debug\test.o
-_SPI2DR                    000000fd   defined in .\Build-Debug\test.o
-_SPI2SR                    000000fb   defined in .\Build-Debug\test.o
-_SYNR                      00000034   defined in .\Build-Debug\test.o
-_SoftwareTrap01            000fb520   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap02            000fb51e   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap03            000fb51c   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap04            000fb51a   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
+_OS_TaskStkClr             000faf4e   defined in .\Build-Debug\os_task.o section .fxpg3E_code (.text)
+_PA0H                      00000075   defined in .\Build-Debug\time.o
+_PA10H                     00000074   defined in .\Build-Debug\time.o
+_PA1H                      00000074   defined in .\Build-Debug\time.o
+_PA2H                      00000073   defined in .\Build-Debug\time.o
+_PA32H                     00000072   defined in .\Build-Debug\time.o
+_PA3H                      00000072   defined in .\Build-Debug\time.o
+_PACN0                     00000065   defined in .\Build-Debug\time.o
+_PACN1                     00000064   defined in .\Build-Debug\time.o
+_PACN10                    00000064   defined in .\Build-Debug\time.o
+_PACN2                     00000063   defined in .\Build-Debug\time.o
+_PACN3                     00000062   defined in .\Build-Debug\time.o
+_PACN32                    00000062   defined in .\Build-Debug\time.o
+_PACTL                     00000060   defined in .\Build-Debug\time.o
+_PAFLG                     00000061   defined in .\Build-Debug\time.o
+_PARTID                    0000001a   defined in .\Build-Debug\time.o
+_PBCTL                     00000070   defined in .\Build-Debug\time.o
+_PBFLG                     00000071   defined in .\Build-Debug\time.o
+_PEAR                      0000000a   defined in .\Build-Debug\time.o
+_PERH                      00000264   defined in .\Build-Debug\time.o
+_PERJ                      0000026c   defined in .\Build-Debug\time.o
+_PERM                      00000254   defined in .\Build-Debug\time.o
+_PERP                      0000025c   defined in .\Build-Debug\time.o
+_PERS                      0000024c   defined in .\Build-Debug\time.o
+_PERT                      00000244   defined in .\Build-Debug\time.o
+_PIEH                      00000266   defined in .\Build-Debug\time.o
+_PIEJ                      0000026e   defined in .\Build-Debug\time.o
+_PIEP                      0000025e   defined in .\Build-Debug\time.o
+_PIFH                      00000267   defined in .\Build-Debug\time.o
+_PIFJ                      0000026f   defined in .\Build-Debug\time.o
+_PIFP                      0000025f   defined in .\Build-Debug\time.o
+_PLLCTL                    0000003a   defined in .\Build-Debug\time.o
+_PORTA                     00000000   defined in .\Build-Debug\time.o
+_PORTAB                    00000000   defined in .\Build-Debug\time.o
+_PORTAD0                   0000008f   defined in .\Build-Debug\time.o
+_PORTAD1                   0000012f   defined in .\Build-Debug\time.o
+_PORTB                     00000001   defined in .\Build-Debug\time.o
+_PORTE                     00000008   defined in .\Build-Debug\time.o
+_PORTK                     00000032   defined in .\Build-Debug\time.o
+_PPAGE                     00000030   defined in .\Build-Debug\time.o
+_PPSH                      00000265   defined in .\Build-Debug\time.o
+_PPSJ                      0000026d   defined in .\Build-Debug\time.o
+_PPSM                      00000255   defined in .\Build-Debug\time.o
+_PPSP                      0000025d   defined in .\Build-Debug\time.o
+_PPSS                      0000024d   defined in .\Build-Debug\time.o
+_PPST                      00000245   defined in .\Build-Debug\time.o
+_PTH                       00000260   defined in .\Build-Debug\time.o
+_PTIH                      00000261   defined in .\Build-Debug\time.o
+_PTIJ                      00000269   defined in .\Build-Debug\time.o
+_PTIM                      00000251   defined in .\Build-Debug\time.o
+_PTIP                      00000259   defined in .\Build-Debug\time.o
+_PTIS                      00000249   defined in .\Build-Debug\time.o
+_PTIT                      00000241   defined in .\Build-Debug\time.o
+_PTJ                       00000268   defined in .\Build-Debug\time.o
+_PTM                       00000250   defined in .\Build-Debug\time.o
+_PTP                       00000258   defined in .\Build-Debug\time.o
+_PTS                       00000248   defined in .\Build-Debug\time.o
+_PTT                       00000240   defined in .\Build-Debug\time.o
+_PUCR                      0000000c   defined in .\Build-Debug\time.o
+_PWMCAE                    000000a4   defined in .\Build-Debug\time.o
+_PWMCLK                    000000a2   defined in .\Build-Debug\time.o
+_PWMCNT0                   000000ac   defined in .\Build-Debug\time.o
+_PWMCNT01                  000000ac   defined in .\Build-Debug\time.o
+_PWMCNT1                   000000ad   defined in .\Build-Debug\time.o
+_PWMCNT2                   000000ae   defined in .\Build-Debug\time.o
+_PWMCNT23                  000000ae   defined in .\Build-Debug\time.o
+_PWMCNT3                   000000af   defined in .\Build-Debug\time.o
+_PWMCNT4                   000000b0   defined in .\Build-Debug\time.o
+_PWMCNT45                  000000b0   defined in .\Build-Debug\time.o
+_PWMCNT5                   000000b1   defined in .\Build-Debug\time.o
+_PWMCNT6                   000000b2   defined in .\Build-Debug\time.o
+_PWMCNT67                  000000b2   defined in .\Build-Debug\time.o
+_PWMCNT7                   000000b3   defined in .\Build-Debug\time.o
+_PWMCTL                    000000a5   defined in .\Build-Debug\time.o
+_PWMDTY0                   000000bc   defined in .\Build-Debug\time.o
+_PWMDTY01                  000000bc   defined in .\Build-Debug\time.o
+_PWMDTY1                   000000bd   defined in .\Build-Debug\time.o
+_PWMDTY2                   000000be   defined in .\Build-Debug\time.o
+_PWMDTY23                  000000be   defined in .\Build-Debug\time.o
+_PWMDTY3                   000000bf   defined in .\Build-Debug\time.o
+_PWMDTY4                   000000c0   defined in .\Build-Debug\time.o
+_PWMDTY45                  000000c0   defined in .\Build-Debug\time.o
+_PWMDTY5                   000000c1   defined in .\Build-Debug\time.o
+_PWMDTY6                   000000c2   defined in .\Build-Debug\time.o
+_PWMDTY67                  000000c2   defined in .\Build-Debug\time.o
+_PWMDTY7                   000000c3   defined in .\Build-Debug\time.o
+_PWME                      000000a0   defined in .\Build-Debug\time.o
+_PWMPER0                   000000b4   defined in .\Build-Debug\time.o
+_PWMPER01                  000000b4   defined in .\Build-Debug\time.o
+_PWMPER1                   000000b5   defined in .\Build-Debug\time.o
+_PWMPER2                   000000b6   defined in .\Build-Debug\time.o
+_PWMPER23                  000000b6   defined in .\Build-Debug\time.o
+_PWMPER3                   000000b7   defined in .\Build-Debug\time.o
+_PWMPER4                   000000b8   defined in .\Build-Debug\time.o
+_PWMPER45                  000000b8   defined in .\Build-Debug\time.o
+_PWMPER5                   000000b9   defined in .\Build-Debug\time.o
+_PWMPER6                   000000ba   defined in .\Build-Debug\time.o
+_PWMPER67                  000000ba   defined in .\Build-Debug\time.o
+_PWMPER7                   000000bb   defined in .\Build-Debug\time.o
+_PWMPOL                    000000a1   defined in .\Build-Debug\time.o
+_PWMPRCLK                  000000a3   defined in .\Build-Debug\time.o
+_PWMPRSC                   000000a7   defined in .\Build-Debug\time.o
+_PWMSCLA                   000000a8   defined in .\Build-Debug\time.o
+_PWMSCLB                   000000a9   defined in .\Build-Debug\time.o
+_PWMSCNTA                  000000aa   defined in .\Build-Debug\time.o
+_PWMSCNTB                  000000ab   defined in .\Build-Debug\time.o
+_PWMSDN                    000000c4   defined in .\Build-Debug\time.o
+_PWMTST                    000000a6   defined in .\Build-Debug\time.o
+_PageFlash                 000039f5   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_RDRH                      00000263   defined in .\Build-Debug\time.o
+_RDRIV                     0000000d   defined in .\Build-Debug\time.o
+_RDRJ                      0000026b   defined in .\Build-Debug\time.o
+_RDRM                      00000253   defined in .\Build-Debug\time.o
+_RDRP                      0000025b   defined in .\Build-Debug\time.o
+_RDRS                      0000024b   defined in .\Build-Debug\time.o
+_RDRT                      00000243   defined in .\Build-Debug\time.o
+_REFDV                     00000035   defined in .\Build-Debug\time.o
+_RTICTL                    0000003b   defined in .\Build-Debug\time.o
+_SCI0BD                    000000c8   defined in .\Build-Debug\time.o
+_SCI0BDH                   000000c8   defined in .\Build-Debug\time.o
+_SCI0BDL                   000000c9   defined in .\Build-Debug\time.o
+_SCI0CR1                   000000ca   defined in .\Build-Debug\time.o
+_SCI0CR2                   000000cb   defined in .\Build-Debug\time.o
+_SCI0DRH                   000000ce   defined in .\Build-Debug\time.o
+_SCI0DRL                   000000cf   defined in .\Build-Debug\time.o
+_SCI0SR1                   000000cc   defined in .\Build-Debug\time.o
+_SCI0SR2                   000000cd   defined in .\Build-Debug\time.o
+_SCI1BD                    000000d0   defined in .\Build-Debug\time.o
+_SCI1BDH                   000000d0   defined in .\Build-Debug\time.o
+_SCI1BDL                   000000d1   defined in .\Build-Debug\time.o
+_SCI1CR1                   000000d2   defined in .\Build-Debug\time.o
+_SCI1CR2                   000000d3   defined in .\Build-Debug\time.o
+_SCI1DRH                   000000d6   defined in .\Build-Debug\time.o
+_SCI1DRL                   000000d7   defined in .\Build-Debug\time.o
+_SCI1SR1                   000000d4   defined in .\Build-Debug\time.o
+_SCI1SR2                   000000d5   defined in .\Build-Debug\time.o
+_SPI0BR                    000000da   defined in .\Build-Debug\time.o
+_SPI0CR1                   000000d8   defined in .\Build-Debug\time.o
+_SPI0CR2                   000000d9   defined in .\Build-Debug\time.o
+_SPI0DR                    000000dd   defined in .\Build-Debug\time.o
+_SPI0SR                    000000db   defined in .\Build-Debug\time.o
+_SPI1BR                    000000f2   defined in .\Build-Debug\time.o
+_SPI1CR1                   000000f0   defined in .\Build-Debug\time.o
+_SPI1CR2                   000000f1   defined in .\Build-Debug\time.o
+_SPI1DR                    000000f5   defined in .\Build-Debug\time.o
+_SPI1SR                    000000f3   defined in .\Build-Debug\time.o
+_SPI2BR                    000000fa   defined in .\Build-Debug\time.o
+_SPI2CR1                   000000f8   defined in .\Build-Debug\time.o
+_SPI2CR2                   000000f9   defined in .\Build-Debug\time.o
+_SPI2DR                    000000fd   defined in .\Build-Debug\time.o
+_SPI2SR                    000000fb   defined in .\Build-Debug\time.o
+_SYNR                      00000034   defined in .\Build-Debug\time.o
+_SoftwareTrap01            000f8125   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap02            000f8123   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap03            000f8121   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap04            000f811f   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
                                       *** not used ***
-_SoftwareTrap05            000fb518   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap06            000fb516   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap07            000fb514   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap08            000fb512   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap09            000fb510   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap10            000fb50e   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap11            000fb50c   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap12            000fb50a   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap13            000fb508   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap14            000fb506   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap15            000fb504   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
+_SoftwareTrap05            000f811d   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap06            000f811b   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap07            000f8119   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap08            000f8117   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap09            000f8115   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap10            000f8113   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap11            000f8111   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap12            000f810f   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap13            000f810d   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap14            000f810b   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap15            000f8109   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
                                       *** not used ***
-_SoftwareTrap16            000fb502   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap17            000fb500   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap18            000fb4fe   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap19            000fb4fc   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap20            000fb4fa   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap21            000fb4f8   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap22            000fb4f6   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap23            000fb4f4   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap24            000fb4f2   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap25            000fb4f0   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap26            000fb4ee   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap27            000fb4ec   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap28            000fb4ea   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap29            000fb4e8   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap30            000fb4e6   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap31            000fb4e4   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap32            000fb4e2   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap33            000fb4e0   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap34            000fb4de   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap35            000fb4dc   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap36            000fb4da   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap37            000fb4d8   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap38            000fb4d6   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap39            000fb4d4   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap40            000fb4d2   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap41            000fb4d0   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap42            000fb4ce   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap43            000fb4cc   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap44            000fb4ca   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap45            000fb4c8   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap46            000fb4c6   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap47            000fb4c4   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap48            000fb4c2   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap49            000fb4c0   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap50            000fb4be   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap51            000fb4bc   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap52            000fb4ba   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap53            000fb4b8   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap54            000fb4b6   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap55            000fb4b4   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap56            000fb4b2   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap57            000fb4b0   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap58            000fb4ae   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap59            000fb4ac   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap60            000fb4aa   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap61            000fb4a8   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap62            000fb4a6   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap63            000fb4a4   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
-                                      used in .\Build-Debug\vectors.o
-_SoftwareTrap64            000fb4a2   defined in .\Build-Debug\sw_traps.o section .fxpg3E_code (.text)
+_SoftwareTrap16            000f8107   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap17            000f8105   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap18            000f8103   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap19            000f8101   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap20            000f80ff   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap21            000f80fd   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap22            000f80fb   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap23            000f80f9   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap24            000f80f7   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap25            000f80f5   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap26            000f80f3   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap27            000f80f1   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap28            000f80ef   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap29            000f80ed   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap30            000f80eb   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap31            000f80e9   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap32            000f80e7   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap33            000f80e5   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap34            000f80e3   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap35            000f80e1   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap36            000f80df   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap37            000f80dd   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap38            000f80db   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap39            000f80d9   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap40            000f80d7   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap41            000f80d5   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap42            000f80d3   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap43            000f80d1   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap44            000f80cf   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap45            000f80cd   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap46            000f80cb   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap47            000f80c9   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap48            000f80c7   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap49            000f80c5   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap50            000f80c3   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap51            000f80c1   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap52            000f80bf   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap53            000f80bd   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap54            000f80bb   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap55            000f80b9   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap56            000f80b7   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap57            000f80b5   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap58            000f80b3   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap59            000f80b1   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap60            000f80af   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap61            000f80ad   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap62            000f80ab   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap63            000f80a9   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
+                                      used in .\Build-Debug\mc9s12dg256_jump_table.o
+_SoftwareTrap64            000f80a7   defined in .\Build-Debug\software_traps.o section .fxpg3E_code (.text)
                                       *** not used ***
-_TC0                       00000050   defined in .\Build-Debug\test.o
-_TC0H                      00000078   defined in .\Build-Debug\test.o
-_TC1                       00000052   defined in .\Build-Debug\test.o
-_TC1H                      0000007a   defined in .\Build-Debug\test.o
-_TC2                       00000054   defined in .\Build-Debug\test.o
-_TC2H                      0000007c   defined in .\Build-Debug\test.o
-_TC3                       00000056   defined in .\Build-Debug\test.o
-_TC3H                      0000007e   defined in .\Build-Debug\test.o
-_TC4                       00000058   defined in .\Build-Debug\test.o
-_TC5                       0000005a   defined in .\Build-Debug\test.o
-_TC6                       0000005c   defined in .\Build-Debug\test.o
-_TC7                       0000005e   defined in .\Build-Debug\test.o
-_TCNT                      00000044   defined in .\Build-Debug\test.o
-_TCTL1                     00000048   defined in .\Build-Debug\test.o
-_TCTL2                     00000049   defined in .\Build-Debug\test.o
-_TCTL3                     0000004a   defined in .\Build-Debug\test.o
-_TCTL4                     0000004b   defined in .\Build-Debug\test.o
-_TFLG1                     0000004e   defined in .\Build-Debug\test.o
-_TFLG2                     0000004f   defined in .\Build-Debug\test.o
-_TIE                       0000004c   defined in .\Build-Debug\test.o
-_TIMTST                    0000006d   defined in .\Build-Debug\test.o
-_TIOS                      00000040   defined in .\Build-Debug\test.o
-_TSCR1                     00000046   defined in .\Build-Debug\test.o
-_TSCR2                     0000004d   defined in .\Build-Debug\test.o
-_TTOV                      00000047   defined in .\Build-Debug\test.o
-_TestTask                  000f8056   defined in .\Build-Debug\test.o section .fxpg3E_code (.text)
-_TestTaskStk               00001100   defined in .\Build-Debug\test.o section .bss
-_WOMM                      00000256   defined in .\Build-Debug\test.o
-_WOMS                      0000024e   defined in .\Build-Debug\test.o
+_TC0                       00000050   defined in .\Build-Debug\time.o
+_TC0H                      00000078   defined in .\Build-Debug\time.o
+_TC1                       00000052   defined in .\Build-Debug\time.o
+_TC1H                      0000007a   defined in .\Build-Debug\time.o
+_TC2                       00000054   defined in .\Build-Debug\time.o
+_TC2H                      0000007c   defined in .\Build-Debug\time.o
+_TC3                       00000056   defined in .\Build-Debug\time.o
+_TC3H                      0000007e   defined in .\Build-Debug\time.o
+_TC4                       00000058   defined in .\Build-Debug\time.o
+_TC5                       0000005a   defined in .\Build-Debug\time.o
+_TC6                       0000005c   defined in .\Build-Debug\time.o
+_TC7                       0000005e   defined in .\Build-Debug\time.o
+_TCNT                      00000044   defined in .\Build-Debug\time.o
+_TCTL1                     00000048   defined in .\Build-Debug\time.o
+_TCTL2                     00000049   defined in .\Build-Debug\time.o
+_TCTL3                     0000004a   defined in .\Build-Debug\time.o
+_TCTL4                     0000004b   defined in .\Build-Debug\time.o
+_TFLG1                     0000004e   defined in .\Build-Debug\time.o
+_TFLG2                     0000004f   defined in .\Build-Debug\time.o
+_TIE                       0000004c   defined in .\Build-Debug\time.o
+_TIMTST                    0000006d   defined in .\Build-Debug\time.o
+_TIOS                      00000040   defined in .\Build-Debug\time.o
+_TSCR1                     00000046   defined in .\Build-Debug\time.o
+_TSCR2                     0000004d   defined in .\Build-Debug\time.o
+_TTOV                      00000047   defined in .\Build-Debug\time.o
+_TempUINT16                000039f8   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_TempUINT8                 000039f0   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+_TestTask                  000f8072   defined in .\Build-Debug\test.o section .fxpg3E_code (.text)
+_TestTaskStk               0000110b   defined in .\Build-Debug\test.o section .bss
+_WOMM                      00000256   defined in .\Build-Debug\time.o
+_WOMS                      0000024e   defined in .\Build-Debug\time.o
+_WasBLCmdRcvd              000039e4   defined in .\Build-Debug\mc9s12dg256_booting.o
+_WasBTCmdRcvd              000039f2   defined in .\Build-Debug\mc9s12dg256_bootloader.o
+__Vect                     000fff80   defined in .\Build-Debug\mc9s12dg256_vectors.o section .vectbl (.const)
 __idesc__                  000fc000   defined in linker section .init
                                       used in .\Build-Debug\crtsi_s256.o
-__memory                   000016ff   defined in command file section .bss
+__memory                   0000170a   defined in command file section .bss
                                       used in .\Build-Debug\crtsi_s256.o
-__reset                    000f8000   defined in .\Build-Debug\crtsi_s256.o section .fxpg3E_code (.text)
-                                      *** not used ***
-__sbss                     00001100   defined in command file section .bss
+__reset                    000ff600   defined in .\Build-Debug\mc9s12dg256_startup.o section .rsvd_pg_3F_bo (.text)
+                                      used in .\Build-Debug\mc9s12dg256_vectors.o
+__sbss                     00001102   defined in command file section .bss
                                       used in .\Build-Debug\crtsi_s256.o
 __stack                    00004000   defined in command file
                                       used in .\Build-Debug\crtsi_s256.o
+                                              .\Build-Debug\mc9s12dg256_startup.o
+                                              .\Build-Debug\mc9s12dg256_booting.o
 __stext                    000f8000   defined in .\Build-Debug\crtsi_s256.o section .fxpg3E_code (.text)
                                       *** not used ***
-__subsct                   00001000   defined in command file section .ubsct
+__subsct                   00001002   defined in command file section .ubsct
                                       *** not used ***
-__vect                     000fff80   defined in .\Build-Debug\vectors.o section .vectbl (.const)
+_eepera                    000fc052   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o section .fxpg3F_libs (.text)
+                                      *** not used ***
 _exit                      000f8035   defined in .\Build-Debug\crtsi_s256.o section .fxpg3E_code (.text)
-_main                      000f8064   defined in .\Build-Debug\test.o section .fxpg3E_code (.text)
+_main                      000f808c   defined in .\Build-Debug\test.o section .fxpg3E_code (.text)
                                       used in .\Build-Debug\crtsi_s256.o
-c_ladd                     000fc003   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libm.h12)ladd.o section .fxpg3F_libs (.text)
+c_eeprogs                  000fc02a   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o section .fxpg3F_libs (.text)
+                                      *** not used ***
+c_eewrc                    000fc0a1   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o section .fxpg3F_libs (.text)
+                                      *** not used ***
+c_eewrl                    000fc0b4   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o section .fxpg3F_libs (.text)
+                                      *** not used ***
+c_eewrw                    000fc011   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libe.h12)eeprom12.o section .fxpg3F_libs (.text)
+                                      used in .\Build-Debug\test.o
+c_ladd                     000fc0f3   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libm.h12)ladd.o section .fxpg3F_libs (.text)
                                       used in .\Build-Debug\os_mem.o
                                               .\Build-Debug\os_tmr.o
-c_lsub                     000fc00e   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libm.h12)lsub.o section .fxpg3F_libs (.text)
+c_lsub                     000fc0fe   defined in (C:\Program Files (x86)\COSMIC\CX12\LIB\libm.h12)lsub.o section .fxpg3F_libs (.text)
                                       used in .\Build-Debug\os_mem.o
                                               .\Build-Debug\os_task.o
                                               .\Build-Debug\os_tmr.o
+f_Time_DidPackTime         000c016e   defined in .\Build-Debug\time.o section .banked_pages (.ftext)
+                                      *** not used ***
+f_Time_DidSetTime          000c00c1   defined in .\Build-Debug\time.o section .banked_pages (.ftext)
+                                      *** not used ***
+f_Time_DidUnpackTime       000c01e9   defined in .\Build-Debug\time.o section .banked_pages (.ftext)
+                                      *** not used ***
+f_Time_GetTime             000c004b   defined in .\Build-Debug\time.o section .banked_pages (.ftext)
+                                      *** not used ***
+f_Time_IncrementTime       000c00fb   defined in .\Build-Debug\time.o section .banked_pages (.ftext)
+                                      *** not used ***
+f_Time_Init                000c0239   defined in .\Build-Debug\time.o section .banked_pages (.ftext)
+                                      *** not used ***

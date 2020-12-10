@@ -2,1507 +2,1507 @@
    2                     ; Parser V4.11.9 - 08 Feb 2017
    3                     ; Generator V4.8.12 - 22 Feb 2017
    4                     ; Optimizer V4.7.11 - 22 Feb 2017
- 537                     ; 60 _NEAR INT8U  OSTaskChangePrio (INT8U  oldprio,
- 537                     ; 61                               INT8U  newprio)
- 537                     ; 62 {
- 538                     	switch	.text
- 539 fa69e               _OSTaskChangePrio:
- 541 fa69e 3b            	pshd	
- 542 fa69f 1b92          	leas	-14,s
- 543       0000000e      OFST:	set	14
- 546                     ; 78     OS_CPU_SR  cpu_sr = 0u;                                 /* Storage for CPU status register         */
- 548                     ; 83     if (oldprio >= OS_LOWEST_PRIO) {
- 550 fa6a1 c13f          	cmpb	#63
- 551 fa6a3 2503          	blo	L113
- 552                     ; 84         if (oldprio != OS_PRIO_SELF) {
- 554 fa6a5 52            	incb	
- 555                     ; 85             return (OS_ERR_PRIO_INVALID);
- 558 fa6a6 2607          	bne	LC001
- 559 fa6a8               L113:
- 560                     ; 88     if (newprio >= OS_LOWEST_PRIO) {
- 562 fa6a8 e6f013        	ldab	OFST+5,s
- 563 fa6ab c13f          	cmpb	#63
- 564 fa6ad 2506          	blo	L513
- 565                     ; 89         return (OS_ERR_PRIO_INVALID);
- 567 fa6af               LC001:
- 568 fa6af c62a          	ldab	#42
- 570 fa6b1               L61:
- 572 fa6b1 1bf010        	leas	16,s
- 573 fa6b4 3d            	rts	
- 574 fa6b5               L513:
- 575                     ; 92     OS_ENTER_CRITICAL();
- 577 fa6b5 167522        	jsr	_OS_CPU_SR_Save
- 579 fa6b8 6b8c          	stab	OFST-2,s
- 580                     ; 93     if (OSTCBPrioTbl[newprio] != (OS_TCB *)0) {             /* New priority must not already exist     */
- 582 fa6ba e6f013        	ldab	OFST+5,s
- 583 fa6bd 87            	clra	
- 584 fa6be 59            	lsld	
- 585 fa6bf b746          	tfr	d,y
- 586 fa6c1 ecea14f7      	ldd	_OSTCBPrioTbl,y
- 587 fa6c5 270a          	beq	L713
- 588                     ; 94         OS_EXIT_CRITICAL();
- 590 fa6c7 e68c          	ldab	OFST-2,s
- 591 fa6c9 87            	clra	
- 592 fa6ca 167527        	jsr	_OS_CPU_SR_Restore
- 594                     ; 95         return (OS_ERR_PRIO_EXIST);
- 596 fa6cd c628          	ldab	#40
- 598 fa6cf 20e0          	bra	L61
- 599 fa6d1               L713:
- 600                     ; 97     if (oldprio == OS_PRIO_SELF) {                          /* See if changing self                    */
- 602 fa6d1 e68f          	ldab	OFST+1,s
- 603 fa6d3 c1ff          	cmpb	#255
- 604 fa6d5 2608          	bne	L123
- 605                     ; 98         oldprio = OSTCBCur->OSTCBPrio;                      /* Yes, get priority                       */
- 607 fa6d7 fd157d        	ldy	_OSTCBCur
- 608 fa6da e6e824        	ldab	36,y
- 609 fa6dd 6b8f          	stab	OFST+1,s
- 610 fa6df               L123:
- 611                     ; 100     ptcb = OSTCBPrioTbl[oldprio];
- 613 fa6df 87            	clra	
- 614 fa6e0 59            	lsld	
- 615 fa6e1 b746          	tfr	d,y
- 616 fa6e3 ecea14f7      	ldd	_OSTCBPrioTbl,y
- 617 fa6e7 6c82          	std	OFST-12,s
- 618                     ; 101     if (ptcb == (OS_TCB *)0) {                              /* Does task to change exist?              */
- 620 fa6e9 2609          	bne	L323
- 621                     ; 102         OS_EXIT_CRITICAL();                                 /* No, can't change its priority!          */
- 623 fa6eb e68c          	ldab	OFST-2,s
- 624 fa6ed 167527        	jsr	_OS_CPU_SR_Restore
- 626                     ; 103         return (OS_ERR_PRIO);
- 628 fa6f0 c629          	ldab	#41
- 630 fa6f2 20bd          	bra	L61
- 631 fa6f4               L323:
- 632                     ; 105     if (ptcb == OS_TCB_RESERVED) {                          /* Is task assigned to Mutex               */
- 634 fa6f4 042409        	dbne	d,L523
- 635                     ; 106         OS_EXIT_CRITICAL();                                 /* No, can't change its priority!          */
- 637 fa6f7 e68c          	ldab	OFST-2,s
- 638 fa6f9 167527        	jsr	_OS_CPU_SR_Restore
- 640                     ; 107         return (OS_ERR_TASK_NOT_EXIST);
- 642 fa6fc c643          	ldab	#67
- 644 fa6fe 20b1          	bra	L61
- 645 fa700               L523:
- 646                     ; 110     y_new                 = (INT8U)(newprio >> 3u);         /* Yes, compute new TCB fields             */
- 648 fa700 e6f013        	ldab	OFST+5,s
- 649 fa703 54            	lsrb	
- 650 fa704 54            	lsrb	
- 651 fa705 54            	lsrb	
- 652 fa706 6b87          	stab	OFST-7,s
- 653                     ; 111     x_new                 = (INT8U)(newprio & 0x07u);
- 655 fa708 e6f013        	ldab	OFST+5,s
- 656 fa70b c407          	andb	#7
- 657 fa70d 6b8d          	stab	OFST-1,s
- 658                     ; 116     bity_new              = (OS_PRIO)(1uL << y_new);
- 660 fa70f c601          	ldab	#1
- 661 fa711 a687          	ldaa	OFST-7,s
- 662 fa713 2704          	beq	L6
- 663 fa715               L01:
- 664 fa715 58            	lslb	
- 665 fa716 0430fc        	dbne	a,L01
- 666 fa719               L6:
- 667 fa719 6b88          	stab	OFST-6,s
- 668                     ; 117     bitx_new              = (OS_PRIO)(1uL << x_new);
- 670 fa71b c601          	ldab	#1
- 671 fa71d a68d          	ldaa	OFST-1,s
- 672 fa71f 2704          	beq	L21
- 673 fa721               L41:
- 674 fa721 58            	lslb	
- 675 fa722 0430fc        	dbne	a,L41
- 676 fa725               L21:
- 677 fa725 6b89          	stab	OFST-5,s
- 678                     ; 119     OSTCBPrioTbl[oldprio] = (OS_TCB *)0;                    /* Remove TCB from old priority            */
- 680 fa727 e68f          	ldab	OFST+1,s
- 681 fa729 87            	clra	
- 682 fa72a 59            	lsld	
- 683 fa72b b746          	tfr	d,y
- 684 fa72d 87            	clra	
- 685 fa72e c7            	clrb	
- 686 fa72f 6cea14f7      	std	_OSTCBPrioTbl,y
- 687                     ; 120     OSTCBPrioTbl[newprio] =  ptcb;                          /* Place pointer to TCB @ new priority     */
- 689 fa733 e6f013        	ldab	OFST+5,s
- 690 fa736 59            	lsld	
- 691 fa737 b746          	tfr	d,y
- 692 fa739 ec82          	ldd	OFST-12,s
- 693 fa73b 6cea14f7      	std	_OSTCBPrioTbl,y
- 694                     ; 121     y_old                 =  ptcb->OSTCBY;
- 696 fa73f b746          	tfr	d,y
- 697 fa741 e6e826        	ldab	38,y
- 698 fa744 6b84          	stab	OFST-10,s
- 699                     ; 122     bity_old              =  ptcb->OSTCBBitY;
- 701 fa746 e6e828        	ldab	40,y
- 702 fa749 6b8b          	stab	OFST-3,s
- 703                     ; 123     bitx_old              =  ptcb->OSTCBBitX;
- 705 fa74b e6e827        	ldab	39,y
- 706 fa74e 6b8a          	stab	OFST-4,s
- 707                     ; 124     if ((OSRdyTbl[y_old] &   bitx_old) != 0u) {             /* If task is ready make it not            */
- 709 fa750 e684          	ldab	OFST-10,s
- 710 fa752 b796          	exg	b,y
- 711 fa754 e6ea1625      	ldab	_OSRdyTbl,y
- 712 fa758 e48a          	andb	OFST-4,s
- 713 fa75a 272c          	beq	L723
- 714                     ; 125          OSRdyTbl[y_old] &= (OS_PRIO)~bitx_old;
- 716 fa75c e68a          	ldab	OFST-4,s
- 717 fa75e 51            	comb	
- 718 fa75f e4ea1625      	andb	_OSRdyTbl,y
- 719 fa763 6bea1625      	stab	_OSRdyTbl,y
- 720                     ; 126          if (OSRdyTbl[y_old] == 0u) {
- 722 fa767 2609          	bne	L133
- 723                     ; 127              OSRdyGrp &= (OS_PRIO)~bity_old;
- 725 fa769 e68b          	ldab	OFST-3,s
- 726 fa76b 51            	comb	
- 727 fa76c f4162d        	andb	_OSRdyGrp
- 728 fa76f 7b162d        	stab	_OSRdyGrp
- 729 fa772               L133:
- 730                     ; 129          OSRdyGrp        |= bity_new;                       /* Make new priority ready to run          */
- 732 fa772 e688          	ldab	OFST-6,s
- 733 fa774 fa162d        	orab	_OSRdyGrp
- 734 fa777 7b162d        	stab	_OSRdyGrp
- 735                     ; 130          OSRdyTbl[y_new] |= bitx_new;
- 737 fa77a e687          	ldab	OFST-7,s
- 738 fa77c b796          	exg	b,y
- 739 fa77e e689          	ldab	OFST-5,s
- 740 fa780 eaea1625      	orab	_OSRdyTbl,y
- 741 fa784 6bea1625      	stab	_OSRdyTbl,y
- 743 fa788               L723:
- 744                     ; 135     pevent = ptcb->OSTCBEventPtr;
- 746 fa788 ed82          	ldy	OFST-12,s
- 747 fa78a ede812        	ldy	18,y
- 748 fa78d 6d80          	sty	OFST-14,s
- 749                     ; 136     if (pevent != (OS_EVENT *)0) {
- 751 fa78f 2730          	beq	L333
- 752                     ; 137         pevent->OSEventTbl[y_old] &= (OS_PRIO)~bitx_old;    /* Remove old task prio from wait list     */
- 754 fa791 e684          	ldab	OFST-10,s
- 755 fa793 19ed          	leay	b,y
- 756 fa795 e68a          	ldab	OFST-4,s
- 757 fa797 51            	comb	
- 758 fa798 e446          	andb	6,y
- 759 fa79a 6b46          	stab	6,y
- 760                     ; 138         if (pevent->OSEventTbl[y_old] == 0u) {
- 762 fa79c ed80          	ldy	OFST-14,s
- 763 fa79e e684          	ldab	OFST-10,s
- 764 fa7a0 19ed          	leay	b,y
- 765 fa7a2 e646          	ldab	6,y
- 766 fa7a4 2609          	bne	L533
- 767                     ; 139             pevent->OSEventGrp    &= (OS_PRIO)~bity_old;
- 769 fa7a6 ed80          	ldy	OFST-14,s
- 770 fa7a8 e68b          	ldab	OFST-3,s
- 771 fa7aa 51            	comb	
- 772 fa7ab e445          	andb	5,y
- 773 fa7ad 6b45          	stab	5,y
- 774 fa7af               L533:
- 775                     ; 141         pevent->OSEventGrp        |= bity_new;              /* Add    new task prio to   wait list     */
- 777 fa7af ed80          	ldy	OFST-14,s
- 778 fa7b1 e688          	ldab	OFST-6,s
- 779 fa7b3 ea45          	orab	5,y
- 780 fa7b5 6b45          	stab	5,y
- 781                     ; 142         pevent->OSEventTbl[y_new] |= bitx_new;
- 783 fa7b7 e687          	ldab	OFST-7,s
- 784 fa7b9 19ed          	leay	b,y
- 785 fa7bb e689          	ldab	OFST-5,s
- 786 fa7bd ea46          	orab	6,y
- 787 fa7bf 6b46          	stab	6,y
- 788 fa7c1               L333:
- 789                     ; 145     if (ptcb->OSTCBEventMultiPtr != (OS_EVENT **)0) {
- 791 fa7c1 ed82          	ldy	OFST-12,s
- 792 fa7c3 ece814        	ldd	20,y
- 793 fa7c6 273e          	beq	L733
- 794                     ; 146         pevents =  ptcb->OSTCBEventMultiPtr;
- 796 fa7c8 6c85          	std	OFST-9,s
- 797                     ; 147         pevent  = *pevents;
- 799 fa7ca ecf30005      	ldd	[OFST-9,s]
- 801 fa7ce 202e          	bra	L543
- 802 fa7d0               L143:
- 803                     ; 149             pevent->OSEventTbl[y_old] &= (OS_PRIO)~bitx_old;   /* Remove old task prio from wait lists */
- 805 fa7d0 e684          	ldab	OFST-10,s
- 806 fa7d2 19ed          	leay	b,y
- 807 fa7d4 e68a          	ldab	OFST-4,s
- 808 fa7d6 51            	comb	
- 809 fa7d7 e446          	andb	6,y
- 810 fa7d9 6b46          	stab	6,y
- 811                     ; 150             if (pevent->OSEventTbl[y_old] == 0u) {
- 813 fa7db 2609          	bne	L153
- 814                     ; 151                 pevent->OSEventGrp    &= (OS_PRIO)~bity_old;
- 816 fa7dd ed80          	ldy	OFST-14,s
- 817 fa7df e68b          	ldab	OFST-3,s
- 818 fa7e1 51            	comb	
- 819 fa7e2 e445          	andb	5,y
- 820 fa7e4 6b45          	stab	5,y
- 821 fa7e6               L153:
- 822                     ; 153             pevent->OSEventGrp        |= bity_new;          /* Add    new task prio to   wait lists    */
- 824 fa7e6 ed80          	ldy	OFST-14,s
- 825 fa7e8 e688          	ldab	OFST-6,s
- 826 fa7ea ea45          	orab	5,y
- 827 fa7ec 6b45          	stab	5,y
- 828                     ; 154             pevent->OSEventTbl[y_new] |= bitx_new;
- 830 fa7ee e687          	ldab	OFST-7,s
- 831 fa7f0 19ed          	leay	b,y
- 832 fa7f2 e689          	ldab	OFST-5,s
- 833 fa7f4 ea46          	orab	6,y
- 834 fa7f6 6b46          	stab	6,y
- 835                     ; 155             pevents++;
- 837 fa7f8 ed85          	ldy	OFST-9,s
- 838                     ; 156             pevent                     = *pevents;
- 840 fa7fa ec61          	ldd	2,+y
- 841 fa7fc 6d85          	sty	OFST-9,s
- 842 fa7fe               L543:
- 843 fa7fe 6c80          	std	OFST-14,s
- 844                     ; 148         while (pevent != (OS_EVENT *)0) {
- 846 fa800 ed80          	ldy	OFST-14,s
- 847 fa802 26cc          	bne	L143
- 848 fa804 ed82          	ldy	OFST-12,s
- 849 fa806               L733:
- 850                     ; 162     ptcb->OSTCBPrio = newprio;                              /* Set new task priority                   */
- 852 fa806 e6f013        	ldab	OFST+5,s
- 853 fa809 6be824        	stab	36,y
- 854                     ; 163     ptcb->OSTCBY    = y_new;
- 856 fa80c e687          	ldab	OFST-7,s
- 857 fa80e 6be826        	stab	38,y
- 858                     ; 164     ptcb->OSTCBX    = x_new;
- 860 fa811 e68d          	ldab	OFST-1,s
- 861 fa813 6be825        	stab	37,y
- 862                     ; 165     ptcb->OSTCBBitY = bity_new;
- 864 fa816 e688          	ldab	OFST-6,s
- 865 fa818 6be828        	stab	40,y
- 866                     ; 166     ptcb->OSTCBBitX = bitx_new;
- 868 fa81b e689          	ldab	OFST-5,s
- 869 fa81d 6be827        	stab	39,y
- 870                     ; 167     OS_EXIT_CRITICAL();
- 872 fa820 e68c          	ldab	OFST-2,s
- 873 fa822 87            	clra	
- 874 fa823 167527        	jsr	_OS_CPU_SR_Restore
- 876                     ; 168     if (OSRunning == OS_TRUE) {
- 878 fa826 f61624        	ldab	_OSRunning
- 879 fa829 042103        	dbne	b,L353
- 880                     ; 169         OS_Sched();                                         /* Find new highest priority task          */
- 882 fa82c 16488b        	jsr	_OS_Sched
- 884 fa82f               L353:
- 885                     ; 171     return (OS_ERR_NONE);
- 887 fa82f c7            	clrb	
- 889 fa830 0666b1        	bra	L61
- 983                     ; 219 _NEAR INT8U  OSTaskCreate (void   (*task)(void *p_arg),
- 983                     ; 220                           void    *p_arg,
- 983                     ; 221                           OS_STK  *ptos,
- 983                     ; 222                           INT8U    prio)
- 983                     ; 223 {
- 984                     	switch	.text
- 985 fa833               _OSTaskCreate:
- 987 fa833 3b            	pshd	
- 988 fa834 1b9c          	leas	-4,s
- 989       00000004      OFST:	set	4
- 992                     ; 227     OS_CPU_SR   cpu_sr = 0u;
- 994                     ; 240     if (prio > OS_LOWEST_PRIO) {             /* Make sure priority is within allowable range           */
- 996 fa836 e68d          	ldab	OFST+9,s
- 997 fa838 c13f          	cmpb	#63
- 998 fa83a 2304          	bls	L514
- 999                     ; 241         return (OS_ERR_PRIO_INVALID);
-1001 fa83c c62a          	ldab	#42
-1003 fa83e 2010          	bra	L22
-1004 fa840               L514:
-1005                     ; 244     OS_ENTER_CRITICAL();
-1007 fa840 167522        	jsr	_OS_CPU_SR_Save
-1009 fa843 6b80          	stab	OFST-4,s
-1010                     ; 245     if (OSIntNesting > 0u) {                 /* Make sure we don't create the task from within an ISR  */
-1012 fa845 b61631        	ldaa	_OSIntNesting
-1013 fa848 2709          	beq	L714
-1014                     ; 246         OS_EXIT_CRITICAL();
-1016 fa84a 87            	clra	
-1017 fa84b 167527        	jsr	_OS_CPU_SR_Restore
-1019                     ; 247         return (OS_ERR_TASK_CREATE_ISR);
-1021 fa84e c63c          	ldab	#60
-1023 fa850               L22:
-1025 fa850 1b86          	leas	6,s
-1026 fa852 3d            	rts	
-1027 fa853               L714:
-1028                     ; 249     if (OSTCBPrioTbl[prio] == (OS_TCB *)0) { /* Make sure task doesn't already exist at this priority  */
-1030 fa853 e68d          	ldab	OFST+9,s
-1031 fa855 59            	lsld	
-1032 fa856 b746          	tfr	d,y
-1033 fa858 ecea14f7      	ldd	_OSTCBPrioTbl,y
-1034 fa85c 265b          	bne	L124
-1035                     ; 250         OSTCBPrioTbl[prio] = OS_TCB_RESERVED;/* Reserve the priority to prevent others from doing ...  */
-1037 fa85e cc0001        	ldd	#1
-1038 fa861 6cea14f7      	std	_OSTCBPrioTbl,y
-1039                     ; 252         OS_EXIT_CRITICAL();
-1041 fa865 e680          	ldab	OFST-4,s
-1042 fa867 167527        	jsr	_OS_CPU_SR_Restore
-1044                     ; 253         psp = OSTaskStkInit(task, p_arg, ptos, 0u);             /* Initialize the task's stack         */
-1046 fa86a 87            	clra	
-1047 fa86b c7            	clrb	
-1048 fa86c 3b            	pshd	
-1049 fa86d ec8c          	ldd	OFST+8,s
-1050 fa86f 3b            	pshd	
-1051 fa870 ec8c          	ldd	OFST+8,s
-1052 fa872 3b            	pshd	
-1053 fa873 ec8a          	ldd	OFST+6,s
-1054 fa875 164ab3        	jsr	_OSTaskStkInit
-1056 fa878 1b86          	leas	6,s
-1057 fa87a 6c82          	std	OFST-2,s
-1058                     ; 254         err = OS_TCBInit(prio, psp, (OS_STK *)0, 0u, 0u, (void *)0, 0u);
-1060 fa87c 87            	clra	
-1061 fa87d c7            	clrb	
-1062 fa87e 3b            	pshd	
-1063 fa87f 3b            	pshd	
-1064 fa880 3b            	pshd	
-1065 fa881 3b            	pshd	
-1066 fa882 3b            	pshd	
-1067 fa883 3b            	pshd	
-1068 fa884 ec8e          	ldd	OFST+10,s
-1069 fa886 3b            	pshd	
-1070 fa887 e6f01b        	ldab	OFST+23,s
-1071 fa88a 87            	clra	
-1072 fa88b 164989        	jsr	_OS_TCBInit
-1074 fa88e 1b8e          	leas	14,s
-1075 fa890 6b81          	stab	OFST-3,s
-1076                     ; 255         if (err == OS_ERR_NONE) {
-1078 fa892 260b          	bne	L324
-1079                     ; 257             if (OSRunning == OS_TRUE) {      /* Find highest priority task if multitasking has started */
-1082 fa894 f61624        	ldab	_OSRunning
-1083 fa897 04211b        	dbne	b,L724
-1084                     ; 258                 OS_Sched();
-1086 fa89a 16488b        	jsr	_OS_Sched
-1088 fa89d 2016          	bra	L724
-1089 fa89f               L324:
-1090                     ; 262             OS_ENTER_CRITICAL();
-1093 fa89f 167522        	jsr	_OS_CPU_SR_Save
-1095 fa8a2 6b80          	stab	OFST-4,s
-1096                     ; 263             OSTCBPrioTbl[prio] = (OS_TCB *)0;/* Make this priority available to others                 */
-1098 fa8a4 e68d          	ldab	OFST+9,s
-1099 fa8a6 87            	clra	
-1100 fa8a7 59            	lsld	
-1101 fa8a8 b746          	tfr	d,y
-1102 fa8aa 87            	clra	
-1103 fa8ab c7            	clrb	
-1104 fa8ac 6cea14f7      	std	_OSTCBPrioTbl,y
-1105                     ; 264             OS_EXIT_CRITICAL();
-1107 fa8b0 e680          	ldab	OFST-4,s
-1108 fa8b2 167527        	jsr	_OS_CPU_SR_Restore
-1110 fa8b5               L724:
-1111                     ; 266         return (err);
-1113 fa8b5 e681          	ldab	OFST-3,s
-1115 fa8b7 2008          	bra	L42
-1116 fa8b9               L124:
-1117                     ; 268     OS_EXIT_CRITICAL();
-1119 fa8b9 e680          	ldab	OFST-4,s
-1120 fa8bb 87            	clra	
-1121 fa8bc 167527        	jsr	_OS_CPU_SR_Restore
-1123                     ; 269     return (OS_ERR_PRIO_EXIST);
-1125 fa8bf c628          	ldab	#40
-1127 fa8c1               L42:
-1129 fa8c1 1b86          	leas	6,s
-1130 fa8c3 3d            	rts	
-1266                     ; 347 _NEAR INT8U  OSTaskCreateExt (void   (*task)(void *p_arg),
-1266                     ; 348                              void    *p_arg,
-1266                     ; 349                              OS_STK  *ptos,
-1266                     ; 350                              INT8U    prio,
-1266                     ; 351                              INT16U   id,
-1266                     ; 352                              OS_STK  *pbos,
-1266                     ; 353                              INT32U   stk_size,
-1266                     ; 354                              void    *pext,
-1266                     ; 355                              INT16U   opt)
-1266                     ; 356 {
-1267                     	switch	.text
-1268 fa8c4               _OSTaskCreateExt:
-1270 fa8c4 3b            	pshd	
-1271 fa8c5 1b9c          	leas	-4,s
-1272       00000004      OFST:	set	4
-1275                     ; 360     OS_CPU_SR   cpu_sr = 0u;
-1277                     ; 373     if (prio > OS_LOWEST_PRIO) {             /* Make sure priority is within allowable range           */
-1279 fa8c7 e68d          	ldab	OFST+9,s
-1280 fa8c9 c13f          	cmpb	#63
-1281 fa8cb 2304          	bls	L705
-1282                     ; 374         return (OS_ERR_PRIO_INVALID);
-1284 fa8cd c62a          	ldab	#42
-1286 fa8cf 2010          	bra	L03
-1287 fa8d1               L705:
-1288                     ; 377     OS_ENTER_CRITICAL();
-1290 fa8d1 167522        	jsr	_OS_CPU_SR_Save
-1292 fa8d4 6b80          	stab	OFST-4,s
-1293                     ; 378     if (OSIntNesting > 0u) {                 /* Make sure we don't create the task from within an ISR  */
-1295 fa8d6 b61631        	ldaa	_OSIntNesting
-1296 fa8d9 2709          	beq	L115
-1297                     ; 379         OS_EXIT_CRITICAL();
-1299 fa8db 87            	clra	
-1300 fa8dc 167527        	jsr	_OS_CPU_SR_Restore
-1302                     ; 380         return (OS_ERR_TASK_CREATE_ISR);
-1304 fa8df c63c          	ldab	#60
-1306 fa8e1               L03:
-1308 fa8e1 1b86          	leas	6,s
-1309 fa8e3 3d            	rts	
-1310 fa8e4               L115:
-1311                     ; 382     if (OSTCBPrioTbl[prio] == (OS_TCB *)0) { /* Make sure task doesn't already exist at this priority  */
-1313 fa8e4 e68d          	ldab	OFST+9,s
-1314 fa8e6 59            	lsld	
-1315 fa8e7 b746          	tfr	d,y
-1316 fa8e9 ecea14f7      	ldd	_OSTCBPrioTbl,y
-1317 fa8ed 18260080      	bne	L315
-1318                     ; 383         OSTCBPrioTbl[prio] = OS_TCB_RESERVED;/* Reserve the priority to prevent others from doing ...  */
-1320 fa8f1 cc0001        	ldd	#1
-1321 fa8f4 6cea14f7      	std	_OSTCBPrioTbl,y
-1322                     ; 385         OS_EXIT_CRITICAL();
-1324 fa8f8 e680          	ldab	OFST-4,s
-1325 fa8fa 167527        	jsr	_OS_CPU_SR_Restore
-1327                     ; 388         OS_TaskStkClr(pbos, stk_size, opt);                    /* Clear the task stack (if needed)     */
-1329 fa8fd ecf018        	ldd	OFST+20,s
-1330 fa900 3b            	pshd	
-1331 fa901 ecf016        	ldd	OFST+18,s
-1332 fa904 3b            	pshd	
-1333 fa905 ecf016        	ldd	OFST+18,s
-1334 fa908 3b            	pshd	
-1335 fa909 ecf016        	ldd	OFST+18,s
-1336 fa90c 166e41        	jsr	_OS_TaskStkClr
-1338 fa90f 1b86          	leas	6,s
-1339                     ; 391         psp = OSTaskStkInit(task, p_arg, ptos, opt);           /* Initialize the task's stack          */
-1341 fa911 ecf018        	ldd	OFST+20,s
-1342 fa914 3b            	pshd	
-1343 fa915 ec8c          	ldd	OFST+8,s
-1344 fa917 3b            	pshd	
-1345 fa918 ec8c          	ldd	OFST+8,s
-1346 fa91a 3b            	pshd	
-1347 fa91b ec8a          	ldd	OFST+6,s
-1348 fa91d 164ab3        	jsr	_OSTaskStkInit
-1350 fa920 1b86          	leas	6,s
-1351 fa922 6c82          	std	OFST-2,s
-1352                     ; 392         err = OS_TCBInit(prio, psp, pbos, id, stk_size, pext, opt);
-1354 fa924 ecf018        	ldd	OFST+20,s
-1355 fa927 3b            	pshd	
-1356 fa928 ecf018        	ldd	OFST+20,s
-1357 fa92b 3b            	pshd	
-1358 fa92c ecf018        	ldd	OFST+20,s
-1359 fa92f 3b            	pshd	
-1360 fa930 ecf018        	ldd	OFST+20,s
-1361 fa933 3b            	pshd	
-1362 fa934 ecf016        	ldd	OFST+18,s
-1363 fa937 3b            	pshd	
-1364 fa938 ecf01a        	ldd	OFST+22,s
-1365 fa93b 3b            	pshd	
-1366 fa93c ec8e          	ldd	OFST+10,s
-1367 fa93e 3b            	pshd	
-1368 fa93f e6f01b        	ldab	OFST+23,s
-1369 fa942 87            	clra	
-1370 fa943 164989        	jsr	_OS_TCBInit
-1372 fa946 1b8e          	leas	14,s
-1373 fa948 6b81          	stab	OFST-3,s
-1374                     ; 393         if (err == OS_ERR_NONE) {
-1376 fa94a 260b          	bne	L515
-1377                     ; 395             if (OSRunning == OS_TRUE) {                        /* Find HPT if multitasking has started */
-1380 fa94c f61624        	ldab	_OSRunning
-1381 fa94f 04211b        	dbne	b,L125
-1382                     ; 396                 OS_Sched();
-1384 fa952 16488b        	jsr	_OS_Sched
-1386 fa955 2016          	bra	L125
-1387 fa957               L515:
-1388                     ; 399             OS_ENTER_CRITICAL();
-1390 fa957 167522        	jsr	_OS_CPU_SR_Save
-1392 fa95a 6b80          	stab	OFST-4,s
-1393                     ; 400             OSTCBPrioTbl[prio] = (OS_TCB *)0;                  /* Make this priority avail. to others  */
-1395 fa95c e68d          	ldab	OFST+9,s
-1396 fa95e 87            	clra	
-1397 fa95f 59            	lsld	
-1398 fa960 b746          	tfr	d,y
-1399 fa962 87            	clra	
-1400 fa963 c7            	clrb	
-1401 fa964 6cea14f7      	std	_OSTCBPrioTbl,y
-1402                     ; 401             OS_EXIT_CRITICAL();
-1404 fa968 e680          	ldab	OFST-4,s
-1405 fa96a 167527        	jsr	_OS_CPU_SR_Restore
-1407 fa96d               L125:
-1408                     ; 403         return (err);
-1410 fa96d e681          	ldab	OFST-3,s
-1412 fa96f 2008          	bra	L23
-1413 fa971               L315:
-1414                     ; 405     OS_EXIT_CRITICAL();
-1416 fa971 e680          	ldab	OFST-4,s
-1417 fa973 87            	clra	
-1418 fa974 167527        	jsr	_OS_CPU_SR_Restore
-1420                     ; 406     return (OS_ERR_PRIO_EXIST);
-1422 fa977 c628          	ldab	#40
-1424 fa979               L23:
-1426 fa979 1b86          	leas	6,s
-1427 fa97b 3d            	rts	
-1507                     ; 450 _NEAR INT8U  OSTaskDel (INT8U prio)
-1507                     ; 451 {
-1508                     	switch	.text
-1509 fa97c               _OSTaskDel:
-1511 fa97c 3b            	pshd	
-1512 fa97d 1b9b          	leas	-5,s
-1513       00000005      OFST:	set	5
-1516                     ; 457     OS_CPU_SR     cpu_sr = 0u;
-1518                     ; 469     if (OSIntNesting > 0u) {                            /* See if trying to delete from ISR            */
-1520 fa97f f61631        	ldab	_OSIntNesting
-1521 fa982 2704          	beq	L555
-1522                     ; 470         return (OS_ERR_TASK_DEL_ISR);
-1524 fa984 c640          	ldab	#64
-1526 fa986 2008          	bra	L63
-1527 fa988               L555:
-1528                     ; 472     if (prio == OS_TASK_IDLE_PRIO) {                    /* Not allowed to delete idle task             */
-1530 fa988 e686          	ldab	OFST+1,s
-1531 fa98a c13f          	cmpb	#63
-1532 fa98c 2605          	bne	L755
-1533                     ; 473         return (OS_ERR_TASK_DEL_IDLE);
-1535 fa98e c63e          	ldab	#62
-1537 fa990               L63:
-1539 fa990 1b87          	leas	7,s
-1540 fa992 3d            	rts	
-1541 fa993               L755:
-1542                     ; 476     if (prio >= OS_LOWEST_PRIO) {                       /* Task priority valid ?                       */
-1544 fa993 2507          	blo	L165
-1545                     ; 477         if (prio != OS_PRIO_SELF) {
-1547 fa995 048104        	ibeq	b,L165
-1548                     ; 478             return (OS_ERR_PRIO_INVALID);
-1550 fa998 c62a          	ldab	#42
-1552 fa99a 20f4          	bra	L63
-1553 fa99c               L165:
-1554                     ; 483     OS_ENTER_CRITICAL();
-1556 fa99c 167522        	jsr	_OS_CPU_SR_Save
-1558 fa99f 6b82          	stab	OFST-3,s
-1559                     ; 484     if (prio == OS_PRIO_SELF) {                         /* See if requesting to delete self            */
-1561 fa9a1 e686          	ldab	OFST+1,s
-1562 fa9a3 c1ff          	cmpb	#255
-1563 fa9a5 2608          	bne	L565
-1564                     ; 485         prio = OSTCBCur->OSTCBPrio;                     /* Set priority to delete to current           */
-1566 fa9a7 fd157d        	ldy	_OSTCBCur
-1567 fa9aa e6e824        	ldab	36,y
-1568 fa9ad 6b86          	stab	OFST+1,s
-1569 fa9af               L565:
-1570                     ; 487     ptcb = OSTCBPrioTbl[prio];
-1572 fa9af 87            	clra	
-1573 fa9b0 59            	lsld	
-1574 fa9b1 b746          	tfr	d,y
-1575 fa9b3 ecea14f7      	ldd	_OSTCBPrioTbl,y
-1576 fa9b7 6c80          	std	OFST-5,s
-1577                     ; 488     if (ptcb == (OS_TCB *)0) {                          /* Task to delete must exist                   */
-1579 fa9b9 2609          	bne	L765
-1580                     ; 489         OS_EXIT_CRITICAL();
-1582 fa9bb e682          	ldab	OFST-3,s
-1583 fa9bd 167527        	jsr	_OS_CPU_SR_Restore
-1585                     ; 490         return (OS_ERR_TASK_NOT_EXIST);
-1587 fa9c0 c643          	ldab	#67
-1589 fa9c2 20cc          	bra	L63
-1590 fa9c4               L765:
-1591                     ; 492     if (ptcb == OS_TCB_RESERVED) {                      /* Must not be assigned to Mutex               */
-1593 fa9c4 8c0001        	cpd	#1
-1594 fa9c7 260a          	bne	L175
-1595                     ; 493         OS_EXIT_CRITICAL();
-1597 fa9c9 e682          	ldab	OFST-3,s
-1598 fa9cb 87            	clra	
-1599 fa9cc 167527        	jsr	_OS_CPU_SR_Restore
-1601                     ; 494         return (OS_ERR_TASK_DEL);
-1603 fa9cf c63d          	ldab	#61
-1605 fa9d1 20bd          	bra	L63
-1606 fa9d3               L175:
-1607                     ; 497     OSRdyTbl[ptcb->OSTCBY] &= (OS_PRIO)~ptcb->OSTCBBitX;
-1609 fa9d3 b746          	tfr	d,y
-1610 fa9d5 e6e826        	ldab	38,y
-1611 fa9d8 b796          	exg	b,y
-1612 fa9da ee80          	ldx	OFST-5,s
-1613 fa9dc e6e027        	ldab	39,x
-1614 fa9df 51            	comb	
-1615 fa9e0 e4ea1625      	andb	_OSRdyTbl,y
-1616 fa9e4 6bea1625      	stab	_OSRdyTbl,y
-1617                     ; 499     if (OSRdyTbl[ptcb->OSTCBY] == 0u) {                 /* Make task not ready                         */
-1620 fa9e8 260c          	bne	L375
-1621                     ; 500         OSRdyGrp           &= (OS_PRIO)~ptcb->OSTCBBitY;
-1623 fa9ea b756          	tfr	x,y
-1624 fa9ec e6e828        	ldab	40,y
-1625 fa9ef 51            	comb	
-1626 fa9f0 f4162d        	andb	_OSRdyGrp
-1627 fa9f3 7b162d        	stab	_OSRdyGrp
-1628 fa9f6               L375:
-1629                     ; 504     if (ptcb->OSTCBEventPtr != (OS_EVENT *)0) {
-1631 fa9f6 b756          	tfr	x,y
-1632 fa9f8 ece812        	ldd	18,y
-1633 fa9fb 270a          	beq	L575
-1634                     ; 505         OS_EventTaskRemove(ptcb, ptcb->OSTCBEventPtr);  /* Remove this task from any event   wait list */
-1636 fa9fd 3b            	pshd	
-1637 fa9fe b754          	tfr	x,d
-1638 faa00 16468f        	jsr	_OS_EventTaskRemove
-1640 faa03 1b82          	leas	2,s
-1641 faa05 ed80          	ldy	OFST-5,s
-1642 faa07               L575:
-1643                     ; 508     if (ptcb->OSTCBEventMultiPtr != (OS_EVENT **)0) {   /* Remove this task from any events' wait lists*/
-1645 faa07 ece814        	ldd	20,y
-1646 faa0a 270a          	beq	L775
-1647                     ; 509         OS_EventTaskRemoveMulti(ptcb, ptcb->OSTCBEventMultiPtr);
-1649 faa0c 3b            	pshd	
-1650 faa0d ec82          	ldd	OFST-3,s
-1651 faa0f 1646bc        	jsr	_OS_EventTaskRemoveMulti
-1653 faa12 1b82          	leas	2,s
-1654 faa14 ed80          	ldy	OFST-5,s
-1655 faa16               L775:
-1656                     ; 515     pnode = ptcb->OSTCBFlagNode;
-1658 faa16 ece81a        	ldd	26,y
-1659 faa19 6c83          	std	OFST-2,s
-1660                     ; 516     if (pnode != (OS_FLAG_NODE *)0) {                   /* If task is waiting on event flag            */
-1662 faa1b 2705          	beq	L106
-1663                     ; 517         OS_FlagUnlink(pnode);                           /* Remove from wait list                       */
-1665 faa1d 16517e        	jsr	_OS_FlagUnlink
-1667 faa20 ed80          	ldy	OFST-5,s
-1668 faa22               L106:
-1669                     ; 521     ptcb->OSTCBDly      = 0u;                           /* Prevent OSTimeTick() from updating          */
-1671 faa22 87            	clra	
-1672 faa23 c7            	clrb	
-1673 faa24 6ce820        	std	32,y
-1674 faa27 6ce81e        	std	30,y
-1675                     ; 522     ptcb->OSTCBStat     = OS_STAT_RDY;                  /* Prevent task from being resumed             */
-1677                     ; 523     ptcb->OSTCBStatPend = OS_STAT_PEND_OK;
-1679 faa2a 6ce822        	std	34,y
-1680                     ; 524     if (OSLockNesting < 255u) {                         /* Make sure we don't context switch           */
-1682 faa2d f61630        	ldab	_OSLockNesting
-1683 faa30 c1ff          	cmpb	#255
-1684 faa32 2403          	bhs	L306
-1685                     ; 525         OSLockNesting++;
-1687 faa34 721630        	inc	_OSLockNesting
-1688 faa37               L306:
-1689                     ; 527     OS_EXIT_CRITICAL();                                 /* Enabling INT. ignores next instruc.         */
-1691 faa37 e682          	ldab	OFST-3,s
-1692 faa39 87            	clra	
-1693 faa3a 167527        	jsr	_OS_CPU_SR_Restore
-1695                     ; 528     OS_Dummy();                                         /* ... Dummy ensures that INTs will be         */
-1697 faa3d 164553        	jsr	_OS_Dummy
-1699                     ; 529     OS_ENTER_CRITICAL();                                /* ... disabled HERE!                          */
-1701 faa40 167522        	jsr	_OS_CPU_SR_Save
-1703 faa43 6b82          	stab	OFST-3,s
-1704                     ; 530     if (OSLockNesting > 0u) {                           /* Remove context switch lock                  */
-1706 faa45 f71630        	tst	_OSLockNesting
-1707 faa48 2703          	beq	L506
-1708                     ; 531         OSLockNesting--;
-1710 faa4a 731630        	dec	_OSLockNesting
-1711 faa4d               L506:
-1712                     ; 533     OSTaskDelHook(ptcb);                                /* Call user defined hook                      */
-1714 faa4d ec80          	ldd	OFST-5,s
-1715 faa4f 164aaf        	jsr	_OSTaskDelHook
-1717                     ; 541     OSTaskCtr--;                                        /* One less task being managed                 */
-1719 faa52 731623        	dec	_OSTaskCtr
-1720                     ; 542     OSTCBPrioTbl[prio] = (OS_TCB *)0;                   /* Clear old priority entry                    */
-1722 faa55 e686          	ldab	OFST+1,s
-1723 faa57 87            	clra	
-1724 faa58 59            	lsld	
-1725 faa59 b746          	tfr	d,y
-1726 faa5b 87            	clra	
-1727 faa5c c7            	clrb	
-1728 faa5d 6cea14f7      	std	_OSTCBPrioTbl,y
-1729                     ; 543     if (ptcb->OSTCBPrev == (OS_TCB *)0) {               /* Remove from TCB chain                       */
-1731 faa61 ed80          	ldy	OFST-5,s
-1732 faa63 eee810        	ldx	16,y
-1733 faa66 260e          	bne	L706
-1734                     ; 544         ptcb->OSTCBNext->OSTCBPrev = (OS_TCB *)0;
-1736 faa68 ed4e          	ldy	14,y
-1737 faa6a 6ce810        	std	16,y
-1738                     ; 545         OSTCBList                  = ptcb->OSTCBNext;
-1740 faa6d ed80          	ldy	OFST-5,s
-1741 faa6f 18054e1577    	movw	14,y,_OSTCBList
-1743 faa74 2012          	bra	L116
-1744 faa76               L706:
-1745                     ; 547         ptcb->OSTCBPrev->OSTCBNext = ptcb->OSTCBNext;
-1747 faa76 18024e0e      	movw	14,y,14,x
-1748                     ; 548         ptcb->OSTCBNext->OSTCBPrev = ptcb->OSTCBPrev;
-1750 faa7a ee4e          	ldx	14,y
-1751 faa7c 1ae010        	leax	16,x
-1752 faa7f 19e810        	leay	16,y
-1753 faa82 18024000      	movw	0,y,0,x
-1754 faa86 ed80          	ldy	OFST-5,s
-1755 faa88               L116:
-1756                     ; 550     ptcb->OSTCBNext     = OSTCBFreeList;                /* Return TCB to free TCB list                 */
-1758 faa88 18014e157b    	movw	_OSTCBFreeList,14,y
-1759                     ; 551     OSTCBFreeList       = ptcb;
-1761 faa8d 7d157b        	sty	_OSTCBFreeList
-1762                     ; 553     ptcb->OSTCBTaskName = (INT8U *)(void *)"?";
-1764 faa90 cc771d        	ldd	#L316
-1765 faa93 6ce83c        	std	60,y
-1766                     ; 555     OS_EXIT_CRITICAL();
-1768 faa96 e682          	ldab	OFST-3,s
-1769 faa98 87            	clra	
-1770 faa99 167527        	jsr	_OS_CPU_SR_Restore
-1772                     ; 556     if (OSRunning == OS_TRUE) {
-1774 faa9c f61624        	ldab	_OSRunning
-1775 faa9f 042103        	dbne	b,L516
-1776                     ; 557         OS_Sched();                                     /* Find new highest priority task              */
-1778 faaa2 16488b        	jsr	_OS_Sched
-1780 faaa5               L516:
-1781                     ; 559     return (OS_ERR_NONE);
-1783 faaa5 c7            	clrb	
-1786 faaa6 1b87          	leas	7,s
-1787 faaa8 3d            	rts	
-1848                     ; 613 _NEAR INT8U  OSTaskDelReq (INT8U prio)
-1848                     ; 614 {
-1849                     	switch	.text
-1850 faaa9               _OSTaskDelReq:
-1852 faaa9 3b            	pshd	
-1853 faaaa 1b9c          	leas	-4,s
-1854       00000004      OFST:	set	4
-1857                     ; 618     OS_CPU_SR  cpu_sr = 0u;
-1859                     ; 630     if (prio == OS_TASK_IDLE_PRIO) {                            /* Not allowed to delete idle task     */
-1861 faaac c13f          	cmpb	#63
-1862 faaae 2604          	bne	L546
-1863                     ; 631         return (OS_ERR_TASK_DEL_IDLE);
-1865 faab0 c63e          	ldab	#62
-1867 faab2 200c          	bra	L24
-1868 faab4               L546:
-1869                     ; 634     if (prio >= OS_LOWEST_PRIO) {                               /* Task priority valid ?               */
-1871 faab4 e685          	ldab	OFST+1,s
-1872 faab6 c13f          	cmpb	#63
-1873 faab8 2509          	blo	L746
-1874                     ; 635         if (prio != OS_PRIO_SELF) {
-1876 faaba c1ff          	cmpb	#255
-1877 faabc 2705          	beq	L746
-1878                     ; 636             return (OS_ERR_PRIO_INVALID);
-1880 faabe c62a          	ldab	#42
-1882 faac0               L24:
-1884 faac0 1b86          	leas	6,s
-1885 faac2 3d            	rts	
-1886 faac3               L746:
-1887                     ; 640     if (prio == OS_PRIO_SELF) {                                 /* See if a task is requesting to ...  */
-1889 faac3 04a117        	ibne	b,L356
-1890                     ; 641         OS_ENTER_CRITICAL();                                    /* ... this task to delete itself      */
-1892 faac6 167522        	jsr	_OS_CPU_SR_Save
-1894 faac9 6b80          	stab	OFST-4,s
-1895                     ; 642         stat = OSTCBCur->OSTCBDelReq;                           /* Return request status to caller     */
-1897 faacb fd157d        	ldy	_OSTCBCur
-1898 faace e6e829        	ldab	41,y
-1899 faad1 6b83          	stab	OFST-1,s
-1900                     ; 643         OS_EXIT_CRITICAL();
-1902 faad3 e680          	ldab	OFST-4,s
-1903 faad5 87            	clra	
-1904 faad6 167527        	jsr	_OS_CPU_SR_Restore
-1906                     ; 644         return (stat);
-1908 faad9 e683          	ldab	OFST-1,s
-1910 faadb 20e3          	bra	L24
-1911 faadd               L356:
-1912                     ; 646     OS_ENTER_CRITICAL();
-1914 faadd 167522        	jsr	_OS_CPU_SR_Save
-1916 faae0 6b80          	stab	OFST-4,s
-1917                     ; 647     ptcb = OSTCBPrioTbl[prio];
-1919 faae2 e685          	ldab	OFST+1,s
-1920 faae4 87            	clra	
-1921 faae5 59            	lsld	
-1922 faae6 b746          	tfr	d,y
-1923 faae8 ecea14f7      	ldd	_OSTCBPrioTbl,y
-1924 faaec 6c81          	std	OFST-3,s
-1925                     ; 648     if (ptcb == (OS_TCB *)0) {                                  /* Task to delete must exist           */
-1927 faaee 2609          	bne	L556
-1928                     ; 649         OS_EXIT_CRITICAL();
-1930 faaf0 e680          	ldab	OFST-4,s
-1931 faaf2 167527        	jsr	_OS_CPU_SR_Restore
-1933                     ; 650         return (OS_ERR_TASK_NOT_EXIST);                         /* Task must already be deleted        */
-1935 faaf5 c643          	ldab	#67
-1937 faaf7 20c7          	bra	L24
-1938 faaf9               L556:
-1939                     ; 652     if (ptcb == OS_TCB_RESERVED) {                              /* Must NOT be assigned to a Mutex     */
-1941 faaf9 042409        	dbne	d,L756
-1942                     ; 653         OS_EXIT_CRITICAL();
-1944 faafc e680          	ldab	OFST-4,s
-1945 faafe 167527        	jsr	_OS_CPU_SR_Restore
-1947                     ; 654         return (OS_ERR_TASK_DEL);
-1949 fab01 c63d          	ldab	#61
-1951 fab03 20bb          	bra	L24
-1952 fab05               L756:
-1953                     ; 656     ptcb->OSTCBDelReq = OS_ERR_TASK_DEL_REQ;                    /* Set flag indicating task to be DEL. */
-1955 fab05 c63f          	ldab	#63
-1956 fab07 ee81          	ldx	OFST-3,s
-1957 fab09 6be029        	stab	41,x
-1958                     ; 657     OS_EXIT_CRITICAL();
-1960 fab0c e680          	ldab	OFST-4,s
-1961 fab0e 87            	clra	
-1962 fab0f 167527        	jsr	_OS_CPU_SR_Restore
-1964                     ; 658     return (OS_ERR_NONE);
-1966 fab12 c7            	clrb	
-1968 fab13 20ab          	bra	L24
-2052                     ; 688 _NEAR INT8U  OSTaskNameGet (INT8U    prio,
-2052                     ; 689                            INT8U  **pname,
-2052                     ; 690                            INT8U   *perr)
-2052                     ; 691 {
-2053                     	switch	.text
-2054 fab15               _OSTaskNameGet:
-2056 fab15 3b            	pshd	
-2057 fab16 1b9c          	leas	-4,s
-2058       00000004      OFST:	set	4
-2061                     ; 695     OS_CPU_SR  cpu_sr = 0u;
-2063                     ; 708     if (prio > OS_LOWEST_PRIO) {                         /* Task priority valid ?                      */
-2065 fab18 c13f          	cmpb	#63
-2066 fab1a 2307          	bls	L717
-2067                     ; 709         if (prio != OS_PRIO_SELF) {
-2069 fab1c 048104        	ibeq	b,L717
-2070                     ; 710             *perr = OS_ERR_PRIO_INVALID;                 /* No                                         */
-2072 fab1f c62a          	ldab	#42
-2073                     ; 711             return (0u);
-2076 fab21 2006          	bra	LC002
-2077 fab23               L717:
-2078                     ; 714     if (pname == (INT8U **)0) {                          /* Is 'pname' a NULL pointer?                 */
-2080 fab23 ec88          	ldd	OFST+4,s
-2081 fab25 260a          	bne	L327
-2082                     ; 715         *perr = OS_ERR_PNAME_NULL;                       /* Yes                                        */
-2084 fab27 c60c          	ldab	#12
-2085                     ; 716         return (0u);
-2087 fab29               LC002:
-2088 fab29 6bf3000a      	stab	[OFST+6,s]
-2089 fab2d c7            	clrb	
-2091 fab2e               L64:
-2093 fab2e 1b86          	leas	6,s
-2094 fab30 3d            	rts	
-2095 fab31               L327:
-2096                     ; 719     if (OSIntNesting > 0u) {                              /* See if trying to call from an ISR          */
-2098 fab31 f61631        	ldab	_OSIntNesting
-2099 fab34 2704          	beq	L527
-2100                     ; 720         *perr = OS_ERR_NAME_GET_ISR;
-2102 fab36 c611          	ldab	#17
-2103                     ; 721         return (0u);
-2106 fab38 20ef          	bra	LC002
-2107 fab3a               L527:
-2108                     ; 723     OS_ENTER_CRITICAL();
-2110 fab3a 167522        	jsr	_OS_CPU_SR_Save
-2112 fab3d 6b80          	stab	OFST-4,s
-2113                     ; 724     if (prio == OS_PRIO_SELF) {                          /* See if caller desires it's own name        */
-2115 fab3f e685          	ldab	OFST+1,s
-2116 fab41 c1ff          	cmpb	#255
-2117 fab43 2608          	bne	L727
-2118                     ; 725         prio = OSTCBCur->OSTCBPrio;
-2120 fab45 fd157d        	ldy	_OSTCBCur
-2121 fab48 e6e824        	ldab	36,y
-2122 fab4b 6b85          	stab	OFST+1,s
-2123 fab4d               L727:
-2124                     ; 727     ptcb = OSTCBPrioTbl[prio];
-2126 fab4d 87            	clra	
-2127 fab4e 59            	lsld	
-2128 fab4f b746          	tfr	d,y
-2129 fab51 ecea14f7      	ldd	_OSTCBPrioTbl,y
-2130 fab55 6c81          	std	OFST-3,s
-2131                     ; 728     if (ptcb == (OS_TCB *)0) {                           /* Does task exist?                           */
-2133 fab57 260a          	bne	L137
-2134                     ; 729         OS_EXIT_CRITICAL();                              /* No                                         */
-2137                     ; 730         *perr = OS_ERR_TASK_NOT_EXIST;
-2139 fab59               LC003:
-2140 fab59 e680          	ldab	OFST-4,s
-2141 fab5b 87            	clra	
-2142 fab5c 167527        	jsr	_OS_CPU_SR_Restore
-2143 fab5f c643          	ldab	#67
-2144                     ; 731         return (0u);
-2147 fab61 20c6          	bra	LC002
-2148 fab63               L137:
-2149                     ; 733     if (ptcb == OS_TCB_RESERVED) {                       /* Task assigned to a Mutex?                  */
-2151 fab63 8c0001        	cpd	#1
-2152                     ; 734         OS_EXIT_CRITICAL();                              /* Yes                                        */
-2155                     ; 735         *perr = OS_ERR_TASK_NOT_EXIST;
-2157                     ; 736         return (0u);
-2160 fab66 27f1          	beq	LC003
-2161                     ; 738     *pname = ptcb->OSTCBTaskName;
-2163 fab68 b746          	tfr	d,y
-2164 fab6a ece83c        	ldd	60,y
-2165 fab6d ee88          	ldx	OFST+4,s
-2166 fab6f 6c00          	std	0,x
-2167                     ; 739     len    = OS_StrLen(*pname);
-2169 fab71 164907        	jsr	_OS_StrLen
-2171 fab74 6b83          	stab	OFST-1,s
-2172                     ; 740     OS_EXIT_CRITICAL();
-2174 fab76 e680          	ldab	OFST-4,s
-2175 fab78 87            	clra	
-2176 fab79 167527        	jsr	_OS_CPU_SR_Restore
-2178                     ; 741     *perr  = OS_ERR_NONE;
-2180 fab7c 69f3000a      	clr	[OFST+6,s]
-2181                     ; 742     return (len);
-2183 fab80 e683          	ldab	OFST-1,s
-2185 fab82 20aa          	bra	L64
-2260                     ; 770 _NEAR void  OSTaskNameSet (INT8U   prio,
-2260                     ; 771                           INT8U  *pname,
-2260                     ; 772                           INT8U  *perr)
-2260                     ; 773 {
-2261                     	switch	.text
-2262 fab84               _OSTaskNameSet:
-2264 fab84 3b            	pshd	
-2265 fab85 1b9d          	leas	-3,s
-2266       00000003      OFST:	set	3
-2269                     ; 776     OS_CPU_SR  cpu_sr = 0u;
-2271                     ; 789     if (prio > OS_LOWEST_PRIO) {                     /* Task priority valid ?                          */
-2273 fab87 c13f          	cmpb	#63
-2274 fab89 2307          	bls	L177
-2275                     ; 790         if (prio != OS_PRIO_SELF) {
-2277 fab8b 048104        	ibeq	b,L177
-2278                     ; 791             *perr = OS_ERR_PRIO_INVALID;             /* No                                             */
-2280 fab8e c62a          	ldab	#42
-2281                     ; 792             return;
-2283 fab90 2006          	bra	LC004
-2284 fab92               L177:
-2285                     ; 795     if (pname == (INT8U *)0) {                       /* Is 'pname' a NULL pointer?                     */
-2287 fab92 ec87          	ldd	OFST+4,s
-2288 fab94 2609          	bne	L577
-2289                     ; 796         *perr = OS_ERR_PNAME_NULL;                   /* Yes                                            */
-2291 fab96 c60c          	ldab	#12
-2292 fab98               LC004:
-2293 fab98 6bf30009      	stab	[OFST+6,s]
-2294                     ; 797         return;
-2295 fab9c               L25:
-2298 fab9c 1b85          	leas	5,s
-2299 fab9e 3d            	rts	
-2300 fab9f               L577:
-2301                     ; 800     if (OSIntNesting > 0u) {                         /* See if trying to call from an ISR              */
-2303 fab9f f61631        	ldab	_OSIntNesting
-2304 faba2 2704          	beq	L777
-2305                     ; 801         *perr = OS_ERR_NAME_SET_ISR;
-2307 faba4 c612          	ldab	#18
-2308                     ; 802         return;
-2310 faba6 20f0          	bra	LC004
-2311 faba8               L777:
-2312                     ; 804     OS_ENTER_CRITICAL();
-2314 faba8 167522        	jsr	_OS_CPU_SR_Save
-2316 fabab 6b80          	stab	OFST-3,s
-2317                     ; 805     if (prio == OS_PRIO_SELF) {                      /* See if caller desires to set it's own name     */
-2319 fabad e684          	ldab	OFST+1,s
-2320 fabaf c1ff          	cmpb	#255
-2321 fabb1 2608          	bne	L1001
-2322                     ; 806         prio = OSTCBCur->OSTCBPrio;
-2324 fabb3 fd157d        	ldy	_OSTCBCur
-2325 fabb6 e6e824        	ldab	36,y
-2326 fabb9 6b84          	stab	OFST+1,s
-2327 fabbb               L1001:
-2328                     ; 808     ptcb = OSTCBPrioTbl[prio];
-2330 fabbb 87            	clra	
-2331 fabbc 59            	lsld	
-2332 fabbd b746          	tfr	d,y
-2333 fabbf ecea14f7      	ldd	_OSTCBPrioTbl,y
-2334 fabc3 6c81          	std	OFST-2,s
-2335                     ; 809     if (ptcb == (OS_TCB *)0) {                       /* Does task exist?                               */
-2337 fabc5 260a          	bne	L3001
-2338                     ; 810         OS_EXIT_CRITICAL();                          /* No                                             */
-2341                     ; 811         *perr = OS_ERR_TASK_NOT_EXIST;
-2343 fabc7               LC005:
-2344 fabc7 e680          	ldab	OFST-3,s
-2345 fabc9 87            	clra	
-2346 fabca 167527        	jsr	_OS_CPU_SR_Restore
-2347 fabcd c643          	ldab	#67
-2348                     ; 812         return;
-2350 fabcf 20c7          	bra	LC004
-2351 fabd1               L3001:
-2352                     ; 814     if (ptcb == OS_TCB_RESERVED) {                   /* Task assigned to a Mutex?                      */
-2354 fabd1 8c0001        	cpd	#1
-2355                     ; 815         OS_EXIT_CRITICAL();                          /* Yes                                            */
-2358                     ; 816         *perr = OS_ERR_TASK_NOT_EXIST;
-2360                     ; 817         return;
-2362 fabd4 27f1          	beq	LC005
-2363                     ; 819     ptcb->OSTCBTaskName = pname;
-2365 fabd6 ec87          	ldd	OFST+4,s
-2366 fabd8 ee81          	ldx	OFST-2,s
-2367 fabda 6ce03c        	std	60,x
-2368                     ; 821     OS_EXIT_CRITICAL();
-2371 fabdd e680          	ldab	OFST-3,s
-2372 fabdf 87            	clra	
-2373 fabe0 167527        	jsr	_OS_CPU_SR_Restore
-2375                     ; 822     *perr               = OS_ERR_NONE;
-2377 fabe3 69f30009      	clr	[OFST+6,s]
-2378                     ; 823 }
-2380 fabe7 20b3          	bra	L25
-2437                     ; 846 _NEAR INT8U  OSTaskResume (INT8U prio)
-2437                     ; 847 {
-2438                     	switch	.text
-2439 fabe9               _OSTaskResume:
-2441 fabe9 3b            	pshd	
-2442 fabea 1b9d          	leas	-3,s
-2443       00000003      OFST:	set	3
-2446                     ; 850     OS_CPU_SR  cpu_sr = 0u;
-2448                     ; 856     if (prio >= OS_LOWEST_PRIO) {                             /* Make sure task priority is valid      */
-2450 fabec c13f          	cmpb	#63
-2451 fabee 2504          	blo	L3301
-2452                     ; 857         return (OS_ERR_PRIO_INVALID);
-2454 fabf0 c62a          	ldab	#42
-2456 fabf2 201a          	bra	L06
-2457 fabf4               L3301:
-2458                     ; 860     OS_ENTER_CRITICAL();
-2460 fabf4 167522        	jsr	_OS_CPU_SR_Save
-2462 fabf7 6b82          	stab	OFST-1,s
-2463                     ; 861     ptcb = OSTCBPrioTbl[prio];
-2465 fabf9 e684          	ldab	OFST+1,s
-2466 fabfb 87            	clra	
-2467 fabfc 59            	lsld	
-2468 fabfd b746          	tfr	d,y
-2469 fabff ecea14f7      	ldd	_OSTCBPrioTbl,y
-2470 fac03 6c80          	std	OFST-3,s
-2471                     ; 862     if (ptcb == (OS_TCB *)0) {                                /* Task to suspend must exist            */
-2473 fac05 260a          	bne	L5301
-2474                     ; 863         OS_EXIT_CRITICAL();
-2476 fac07 e682          	ldab	OFST-1,s
-2477 fac09 167527        	jsr	_OS_CPU_SR_Restore
-2479                     ; 864         return (OS_ERR_TASK_RESUME_PRIO);
-2481 fac0c c646          	ldab	#70
-2483 fac0e               L06:
-2485 fac0e 1b85          	leas	5,s
-2486 fac10 3d            	rts	
-2487 fac11               L5301:
-2488                     ; 866     if (ptcb == OS_TCB_RESERVED) {                            /* See if assigned to Mutex              */
-2490 fac11 8c0001        	cpd	#1
-2491 fac14 260a          	bne	L7301
-2492                     ; 867         OS_EXIT_CRITICAL();
-2494 fac16 e682          	ldab	OFST-1,s
-2495 fac18 87            	clra	
-2496 fac19 167527        	jsr	_OS_CPU_SR_Restore
-2498                     ; 868         return (OS_ERR_TASK_NOT_EXIST);
-2500 fac1c c643          	ldab	#67
-2502 fac1e 20ee          	bra	L06
-2503 fac20               L7301:
-2504                     ; 870     if ((ptcb->OSTCBStat & OS_STAT_SUSPEND) != OS_STAT_RDY) { /* Task must be suspended                */
-2506 fac20 b746          	tfr	d,y
-2507 fac22 0fe8220849    	brclr	34,y,8,L1401
-2508                     ; 871         ptcb->OSTCBStat &= (INT8U)~(INT8U)OS_STAT_SUSPEND;    /* Remove suspension                     */
-2510 fac27 0de82208      	bclr	34,y,8
-2511                     ; 872         if ((ptcb->OSTCBStat & OS_STAT_PEND_ANY) == OS_STAT_RDY) { /* See if task is now ready         */
-2513 fac2b e6e822        	ldab	34,y
-2514 fac2e c537          	bitb	#55
-2515 fac30 2635          	bne	L5401
-2516                     ; 873             if (ptcb->OSTCBDly == 0u) {
-2518 fac32 ece81e        	ldd	30,y
-2519 fac35 2630          	bne	L5401
-2520 fac37 ece820        	ldd	32,y
-2521 fac3a 262b          	bne	L5401
-2522                     ; 874                 OSRdyGrp               |= ptcb->OSTCBBitY;    /* Yes, Make task ready to run           */
-2524 fac3c e6e828        	ldab	40,y
-2525 fac3f fa162d        	orab	_OSRdyGrp
-2526 fac42 7b162d        	stab	_OSRdyGrp
-2527                     ; 875                 OSRdyTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
-2529 fac45 e6e826        	ldab	38,y
-2530 fac48 b746          	tfr	d,y
-2531 fac4a ee80          	ldx	OFST-3,s
-2532 fac4c e6e027        	ldab	39,x
-2533 fac4f eaea1625      	orab	_OSRdyTbl,y
-2534 fac53 6bea1625      	stab	_OSRdyTbl,y
-2535                     ; 877                 OS_EXIT_CRITICAL();
-2538 fac57 e682          	ldab	OFST-1,s
-2539 fac59 167527        	jsr	_OS_CPU_SR_Restore
-2541                     ; 878                 if (OSRunning == OS_TRUE) {
-2543 fac5c f61624        	ldab	_OSRunning
-2544 fac5f 04210b        	dbne	b,L3501
-2545                     ; 880                     OS_Sched();                               /* Find new highest priority task        */
-2548 fac62 16488b        	jsr	_OS_Sched
-2550 fac65 2006          	bra	L3501
-2551 fac67               L5401:
-2552                     ; 883                 OS_EXIT_CRITICAL();
-2555                     ; 886             OS_EXIT_CRITICAL();
-2557 fac67 e682          	ldab	OFST-1,s
-2558 fac69 87            	clra	
-2559 fac6a 167527        	jsr	_OS_CPU_SR_Restore
-2561 fac6d               L3501:
-2562                     ; 888         return (OS_ERR_NONE);
-2564 fac6d c7            	clrb	
-2566 fac6e 2008          	bra	L26
-2567 fac70               L1401:
-2568                     ; 890     OS_EXIT_CRITICAL();
-2570 fac70 e682          	ldab	OFST-1,s
-2571 fac72 87            	clra	
-2572 fac73 167527        	jsr	_OS_CPU_SR_Restore
-2574                     ; 891     return (OS_ERR_TASK_NOT_SUSPENDED);
-2576 fac76 c644          	ldab	#68
-2578 fac78               L26:
-2580 fac78 1b85          	leas	5,s
-2581 fac7a 3d            	rts	
-2692                     ; 916 _NEAR INT8U  OSTaskStkChk (INT8U         prio,
-2692                     ; 917                           OS_STK_DATA  *p_stk_data)
-2692                     ; 918 {
-2693                     	switch	.text
-2694 fac7b               _OSTaskStkChk:
-2696 fac7b 3b            	pshd	
-2697 fac7c 1b95          	leas	-11,s
-2698       0000000b      OFST:	set	11
-2701                     ; 924     OS_CPU_SR  cpu_sr = 0u;
-2703                     ; 930     if (prio > OS_LOWEST_PRIO) {                       /* Make sure task priority is valid             */
-2705 fac7e c13f          	cmpb	#63
-2706 fac80 2307          	bls	L7211
-2707                     ; 931         if (prio != OS_PRIO_SELF) {
-2709 fac82 048104        	ibeq	b,L7211
-2710                     ; 932             return (OS_ERR_PRIO_INVALID);
-2712 fac85 c62a          	ldab	#42
-2714 fac87 2006          	bra	L07
-2715 fac89               L7211:
-2716                     ; 935     if (p_stk_data == (OS_STK_DATA *)0) {              /* Validate 'p_stk_data'                        */
-2718 fac89 ed8f          	ldy	OFST+4,s
-2719 fac8b 2605          	bne	L3311
-2720                     ; 936         return (OS_ERR_PDATA_NULL);
-2722 fac8d c609          	ldab	#9
-2724 fac8f               L07:
-2726 fac8f 1b8d          	leas	13,s
-2727 fac91 3d            	rts	
-2728 fac92               L3311:
-2729                     ; 939     p_stk_data->OSFree = 0u;                           /* Assume failure, set to 0 size                */
-2731 fac92 87            	clra	
-2732 fac93 c7            	clrb	
-2733 fac94 6c42          	std	2,y
-2734 fac96 6c40          	std	0,y
-2735                     ; 940     p_stk_data->OSUsed = 0u;
-2737 fac98 6c46          	std	6,y
-2738 fac9a 6c44          	std	4,y
-2739                     ; 941     OS_ENTER_CRITICAL();
-2741 fac9c 167522        	jsr	_OS_CPU_SR_Save
-2743 fac9f 6b86          	stab	OFST-5,s
-2744                     ; 942     if (prio == OS_PRIO_SELF) {                        /* See if check for SELF                        */
-2746 faca1 e68c          	ldab	OFST+1,s
-2747 faca3 c1ff          	cmpb	#255
-2748 faca5 2608          	bne	L5311
-2749                     ; 943         prio = OSTCBCur->OSTCBPrio;
-2751 faca7 fd157d        	ldy	_OSTCBCur
-2752 facaa e6e824        	ldab	36,y
-2753 facad 6b8c          	stab	OFST+1,s
-2754 facaf               L5311:
-2755                     ; 945     ptcb = OSTCBPrioTbl[prio];
-2757 facaf 87            	clra	
-2758 facb0 59            	lsld	
-2759 facb1 b746          	tfr	d,y
-2760 facb3 ecea14f7      	ldd	_OSTCBPrioTbl,y
-2761 facb7 6c80          	std	OFST-11,s
-2762                     ; 946     if (ptcb == (OS_TCB *)0) {                         /* Make sure task exist                         */
-2764 facb9 2609          	bne	L7311
-2765                     ; 947         OS_EXIT_CRITICAL();
-2767 facbb e686          	ldab	OFST-5,s
-2768 facbd 167527        	jsr	_OS_CPU_SR_Restore
-2770                     ; 948         return (OS_ERR_TASK_NOT_EXIST);
-2772 facc0 c643          	ldab	#67
-2774 facc2 20cb          	bra	L07
-2775 facc4               L7311:
-2776                     ; 950     if (ptcb == OS_TCB_RESERVED) {
-2778 facc4 8c0001        	cpd	#1
-2779 facc7 260a          	bne	L1411
-2780                     ; 951         OS_EXIT_CRITICAL();
-2782 facc9 e686          	ldab	OFST-5,s
-2783 faccb 87            	clra	
-2784 faccc 167527        	jsr	_OS_CPU_SR_Restore
-2786                     ; 952         return (OS_ERR_TASK_NOT_EXIST);
-2788 faccf c643          	ldab	#67
-2790 facd1 20bc          	bra	L07
-2791 facd3               L1411:
-2792                     ; 954     if ((ptcb->OSTCBOpt & OS_TASK_OPT_STK_CHK) == 0u) { /* Make sure stack checking option is set      */
-2794 facd3 b746          	tfr	d,y
-2795 facd5 0e4b010a      	brset	11,y,1,L3411
-2796                     ; 955         OS_EXIT_CRITICAL();
-2798 facd9 e686          	ldab	OFST-5,s
-2799 facdb 87            	clra	
-2800 facdc 167527        	jsr	_OS_CPU_SR_Restore
-2802                     ; 956         return (OS_ERR_TASK_OPT);
-2804 facdf c645          	ldab	#69
-2806 face1 20ac          	bra	L07
-2807 face3               L3411:
-2808                     ; 958     nfree = 0u;
-2810 face3 87            	clra	
-2811 face4 c7            	clrb	
-2812 face5 6c84          	std	OFST-7,s
-2813 face7 6c82          	std	OFST-9,s
-2814                     ; 959     size  = ptcb->OSTCBStkSize;
-2816 face9 18024889      	movw	8,y,OFST-2,s
-2817 faced 18024687      	movw	6,y,OFST-4,s
-2818                     ; 960     pchk  = ptcb->OSTCBStkBottom;
-2820 facf1 18024480      	movw	4,y,OFST-11,s
-2821                     ; 961     OS_EXIT_CRITICAL();
-2823 facf5 e686          	ldab	OFST-5,s
-2824 facf7 167527        	jsr	_OS_CPU_SR_Restore
-2827 facfa ed80          	ldy	OFST-11,s
-2828 facfc 200f          	bra	L66
-2829 facfe               L5411:
-2830                     ; 964         nfree++;
-2832 facfe ec84          	ldd	OFST-7,s
-2833 fad00 c30001        	addd	#1
-2834 fad03 6c84          	std	OFST-7,s
-2835 fad05 2406          	bcc	L66
-2836 fad07 6283          	inc	OFST-8,s
-2837 fad09 2602          	bne	L66
-2838 fad0b 6282          	inc	OFST-9,s
-2839 fad0d               L66:
-2840                     ; 963     while (*pchk++ == (OS_STK)0) {                    /* Compute the number of zero entries on the stk */
-2842 fad0d e670          	ldab	1,y+
-2843 fad0f 6d80          	sty	OFST-11,s
-2844 fad11 0451ea        	tbeq	b,L5411
-2845                     ; 971     p_stk_data->OSFree = nfree;                       /* Store   number of free entries on the stk     */
-2847 fad14 ed8f          	ldy	OFST+4,s
-2848 fad16 18028442      	movw	OFST-7,s,2,y
-2849 fad1a 18028240      	movw	OFST-9,s,0,y
-2850                     ; 972     p_stk_data->OSUsed = size - nfree;                /* Compute number of entries used on the stk     */
-2852 fad1e ec89          	ldd	OFST-2,s
-2853 fad20 ee87          	ldx	OFST-4,s
-2854 fad22 1982          	leay	OFST-9,s
-2855 fad24 16c00e        	jsr	c_lsub
-2857 fad27 ed8f          	ldy	OFST+4,s
-2858 fad29 6c46          	std	6,y
-2859 fad2b 6e44          	stx	4,y
-2860                     ; 973     return (OS_ERR_NONE);
-2862 fad2d c7            	clrb	
-2865 fad2e 1b8d          	leas	13,s
-2866 fad30 3d            	rts	
-2937                     ; 1002 _NEAR INT8U  OSTaskSuspend (INT8U prio)
-2937                     ; 1003 {
-2938                     	switch	.text
-2939 fad31               _OSTaskSuspend:
-2941 fad31 3b            	pshd	
-2942 fad32 1b9b          	leas	-5,s
-2943       00000005      OFST:	set	5
-2946                     ; 1008     OS_CPU_SR  cpu_sr = 0u;
-2948                     ; 1014     if (prio == OS_TASK_IDLE_PRIO) {                            /* Not allowed to suspend idle task    */
-2950 fad34 c13f          	cmpb	#63
-2951 fad36 2604          	bne	L3021
-2952                     ; 1015         return (OS_ERR_TASK_SUSPEND_IDLE);
-2954 fad38 c647          	ldab	#71
-2956 fad3a 200b          	bra	L47
-2957 fad3c               L3021:
-2958                     ; 1017     if (prio >= OS_LOWEST_PRIO) {                               /* Task priority valid ?               */
-2960 fad3c e686          	ldab	OFST+1,s
-2961 fad3e c13f          	cmpb	#63
-2962 fad40 2508          	blo	L5021
-2963                     ; 1018         if (prio != OS_PRIO_SELF) {
-2965 fad42 048105        	ibeq	b,L5021
-2966                     ; 1019             return (OS_ERR_PRIO_INVALID);
-2968 fad45 c62a          	ldab	#42
-2970 fad47               L47:
-2972 fad47 1b87          	leas	7,s
-2973 fad49 3d            	rts	
-2974 fad4a               L5021:
-2975                     ; 1023     OS_ENTER_CRITICAL();
-2977 fad4a 167522        	jsr	_OS_CPU_SR_Save
-2979 fad4d 6b82          	stab	OFST-3,s
-2980                     ; 1024     if (prio == OS_PRIO_SELF) {                                 /* See if suspend SELF                 */
-2982 fad4f e686          	ldab	OFST+1,s
-2983 fad51 c1ff          	cmpb	#255
-2984 fad53 260a          	bne	L1121
-2985                     ; 1025         prio = OSTCBCur->OSTCBPrio;
-2987 fad55 fd157d        	ldy	_OSTCBCur
-2988 fad58 e6e824        	ldab	36,y
-2989 fad5b 6b86          	stab	OFST+1,s
-2990                     ; 1026         self = OS_TRUE;
-2993 fad5d 2008          	bra	LC007
-2994 fad5f               L1121:
-2995                     ; 1027     } else if (prio == OSTCBCur->OSTCBPrio) {                   /* See if suspending self              */
-2997 fad5f fd157d        	ldy	_OSTCBCur
-2998 fad62 e1e824        	cmpb	36,y
-2999 fad65 2608          	bne	L5121
-3000                     ; 1028         self = OS_TRUE;
-3002 fad67               LC007:
-3003 fad67 c601          	ldab	#1
-3004 fad69 6b83          	stab	OFST-2,s
-3006 fad6b e686          	ldab	OFST+1,s
-3007 fad6d 2002          	bra	L3121
-3008 fad6f               L5121:
-3009                     ; 1030         self = OS_FALSE;                                        /* No suspending another task          */
-3011 fad6f 6983          	clr	OFST-2,s
-3012 fad71               L3121:
-3013                     ; 1032     ptcb = OSTCBPrioTbl[prio];
-3015 fad71 87            	clra	
-3016 fad72 59            	lsld	
-3017 fad73 b746          	tfr	d,y
-3018 fad75 ecea14f7      	ldd	_OSTCBPrioTbl,y
-3019 fad79 6c80          	std	OFST-5,s
-3020                     ; 1033     if (ptcb == (OS_TCB *)0) {                                  /* Task to suspend must exist          */
-3022 fad7b 2609          	bne	L1221
-3023                     ; 1034         OS_EXIT_CRITICAL();
-3025 fad7d e682          	ldab	OFST-3,s
-3026 fad7f 167527        	jsr	_OS_CPU_SR_Restore
-3028                     ; 1035         return (OS_ERR_TASK_SUSPEND_PRIO);
-3030 fad82 c648          	ldab	#72
-3032 fad84 20c1          	bra	L47
-3033 fad86               L1221:
-3034                     ; 1037     if (ptcb == OS_TCB_RESERVED) {                              /* See if assigned to Mutex            */
-3036 fad86 8c0001        	cpd	#1
-3037 fad89 260a          	bne	L3221
-3038                     ; 1038         OS_EXIT_CRITICAL();
-3040 fad8b e682          	ldab	OFST-3,s
-3041 fad8d 87            	clra	
-3042 fad8e 167527        	jsr	_OS_CPU_SR_Restore
-3044                     ; 1039         return (OS_ERR_TASK_NOT_EXIST);
-3046 fad91 c643          	ldab	#67
-3048 fad93 20b2          	bra	L47
-3049 fad95               L3221:
-3050                     ; 1041     y            = ptcb->OSTCBY;
-3052 fad95 b746          	tfr	d,y
-3053 fad97 e6e826        	ldab	38,y
-3054 fad9a 6b84          	stab	OFST-1,s
-3055                     ; 1042     OSRdyTbl[y] &= (OS_PRIO)~ptcb->OSTCBBitX;                   /* Make task not ready                 */
-3057 fad9c b796          	exg	b,y
-3058 fad9e ee80          	ldx	OFST-5,s
-3059 fada0 e6e027        	ldab	39,x
-3060 fada3 51            	comb	
-3061 fada4 e4ea1625      	andb	_OSRdyTbl,y
-3062 fada8 6bea1625      	stab	_OSRdyTbl,y
-3063                     ; 1043     if (OSRdyTbl[y] == 0u) {
-3065 fadac 260c          	bne	L5221
-3066                     ; 1044         OSRdyGrp &= (OS_PRIO)~ptcb->OSTCBBitY;
-3068 fadae b756          	tfr	x,y
-3069 fadb0 e6e828        	ldab	40,y
-3070 fadb3 51            	comb	
-3071 fadb4 f4162d        	andb	_OSRdyGrp
-3072 fadb7 7b162d        	stab	_OSRdyGrp
-3073 fadba               L5221:
-3074                     ; 1046     ptcb->OSTCBStat |= OS_STAT_SUSPEND;                         /* Status of task is 'SUSPENDED'       */
-3076 fadba b756          	tfr	x,y
-3077 fadbc 0ce82208      	bset	34,y,8
-3078                     ; 1047     OS_EXIT_CRITICAL();
-3080 fadc0 e682          	ldab	OFST-3,s
-3081 fadc2 87            	clra	
-3082 fadc3 167527        	jsr	_OS_CPU_SR_Restore
-3084                     ; 1050     if (self == OS_TRUE) {                                      /* Context switch only if SELF         */
-3088 fadc6 e683          	ldab	OFST-2,s
-3089 fadc8 042103        	dbne	b,L7221
-3090                     ; 1051         OS_Sched();                                             /* Find new highest priority task      */
-3092 fadcb 16488b        	jsr	_OS_Sched
-3094 fadce               L7221:
-3095                     ; 1053     return (OS_ERR_NONE);
-3097 fadce c7            	clrb	
-3100 fadcf 1b87          	leas	7,s
-3101 fadd1 3d            	rts	
-3168                     ; 1078 _NEAR INT8U  OSTaskQuery (INT8U    prio,
-3168                     ; 1079                          OS_TCB  *p_task_data)
-3168                     ; 1080 {
-3169                     	switch	.text
-3170 fadd2               _OSTaskQuery:
-3172 fadd2 3b            	pshd	
-3173 fadd3 1b9d          	leas	-3,s
-3174       00000003      OFST:	set	3
-3177                     ; 1083     OS_CPU_SR  cpu_sr = 0u;
-3179                     ; 1089     if (prio > OS_LOWEST_PRIO) {                 /* Task priority valid ?                              */
-3181 fadd5 c13f          	cmpb	#63
-3182 fadd7 2307          	bls	L3621
-3183                     ; 1090         if (prio != OS_PRIO_SELF) {
-3185 fadd9 048104        	ibeq	b,L3621
-3186                     ; 1091             return (OS_ERR_PRIO_INVALID);
-3188 faddc c62a          	ldab	#42
-3190 fadde 2006          	bra	L001
-3191 fade0               L3621:
-3192                     ; 1094     if (p_task_data == (OS_TCB *)0) {            /* Validate 'p_task_data'                             */
-3194 fade0 ec87          	ldd	OFST+4,s
-3195 fade2 2605          	bne	L7621
-3196                     ; 1095         return (OS_ERR_PDATA_NULL);
-3198 fade4 c609          	ldab	#9
-3200 fade6               L001:
-3202 fade6 1b85          	leas	5,s
-3203 fade8 3d            	rts	
-3204 fade9               L7621:
-3205                     ; 1098     OS_ENTER_CRITICAL();
-3207 fade9 167522        	jsr	_OS_CPU_SR_Save
-3209 fadec 6b80          	stab	OFST-3,s
-3210                     ; 1099     if (prio == OS_PRIO_SELF) {                  /* See if suspend SELF                                */
-3212 fadee e684          	ldab	OFST+1,s
-3213 fadf0 c1ff          	cmpb	#255
-3214 fadf2 2608          	bne	L1721
-3215                     ; 1100         prio = OSTCBCur->OSTCBPrio;
-3217 fadf4 fd157d        	ldy	_OSTCBCur
-3218 fadf7 e6e824        	ldab	36,y
-3219 fadfa 6b84          	stab	OFST+1,s
-3220 fadfc               L1721:
-3221                     ; 1102     ptcb = OSTCBPrioTbl[prio];
-3223 fadfc 87            	clra	
-3224 fadfd 59            	lsld	
-3225 fadfe b746          	tfr	d,y
-3226 fae00 ecea14f7      	ldd	_OSTCBPrioTbl,y
-3227 fae04 6c81          	std	OFST-2,s
-3228                     ; 1103     if (ptcb == (OS_TCB *)0) {                   /* Task to query must exist                           */
-3230 fae06 2609          	bne	L3721
-3231                     ; 1104         OS_EXIT_CRITICAL();
-3233 fae08 e680          	ldab	OFST-3,s
-3234 fae0a 167527        	jsr	_OS_CPU_SR_Restore
-3236                     ; 1105         return (OS_ERR_PRIO);
-3238 fae0d c629          	ldab	#41
-3240 fae0f 20d5          	bra	L001
-3241 fae11               L3721:
-3242                     ; 1107     if (ptcb == OS_TCB_RESERVED) {               /* Task to query must not be assigned to a Mutex      */
-3244 fae11 042409        	dbne	d,L5721
-3245                     ; 1108         OS_EXIT_CRITICAL();
-3247 fae14 e680          	ldab	OFST-3,s
-3248 fae16 167527        	jsr	_OS_CPU_SR_Restore
-3250                     ; 1109         return (OS_ERR_TASK_NOT_EXIST);
-3252 fae19 c643          	ldab	#67
-3254 fae1b 20c9          	bra	L001
-3255 fae1d               L5721:
-3256                     ; 1112     OS_MemCopy((INT8U *)p_task_data, (INT8U *)ptcb, sizeof(OS_TCB));
-3258 fae1d cc003e        	ldd	#62
-3259 fae20 3b            	pshd	
-3260 fae21 ec83          	ldd	OFST+0,s
-3261 fae23 3b            	pshd	
-3262 fae24 ec8b          	ldd	OFST+8,s
-3263 fae26 164873        	jsr	_OS_MemCopy
-3265 fae29 1b84          	leas	4,s
-3266                     ; 1113     OS_EXIT_CRITICAL();
-3268 fae2b e680          	ldab	OFST-3,s
-3269 fae2d 87            	clra	
-3270 fae2e 167527        	jsr	_OS_CPU_SR_Restore
-3272                     ; 1114     return (OS_ERR_NONE);
-3274 fae31 c7            	clrb	
-3276 fae32 20b2          	bra	L001
-3301                     ; 1327 _NEAR void  OS_TaskReturn (void)
-3301                     ; 1328 {
-3302                     	switch	.text
-3303 fae34               _OS_TaskReturn:
-3307                     ; 1329     OSTaskReturnHook(OSTCBCur);                   /* Call hook to let user decide on what to do        */
-3309 fae34 fc157d        	ldd	_OSTCBCur
-3310 fae37 164ab1        	jsr	_OSTaskReturnHook
-3312                     ; 1332     (void)OSTaskDel(OS_PRIO_SELF);                /* Delete task if it accidentally returns!           */
-3314 fae3a cc00ff        	ldd	#255
-3315 fae3d 16697c        	jsr	_OSTaskDel
-3317                     ; 1338 }
-3320 fae40 3d            	rts	
-3368                     ; 1364 _NEAR void  OS_TaskStkClr (OS_STK  *pbos,
-3368                     ; 1365                      INT32U   size,
-3368                     ; 1366                      INT16U   opt)
-3368                     ; 1367 {
-3369                     	switch	.text
-3370 fae41               _OS_TaskStkClr:
-3372 fae41 3b            	pshd	
-3373       00000000      OFST:	set	0
-3376                     ; 1368     if ((opt & OS_TASK_OPT_STK_CHK) != 0x0000u) {      /* See if stack checking has been enabled       */
-3378 fae42 e689          	ldab	OFST+9,s
-3379 fae44 c501          	bitb	#1
-3380 fae46 2723          	beq	L1331
-3381                     ; 1369         if ((opt & OS_TASK_OPT_STK_CLR) != 0x0000u) {  /* See if stack needs to be cleared             */
-3383 fae48 c502          	bitb	#2
-3384 fae4a 271f          	beq	L1331
-3386 fae4c 2015          	bra	L7331
-3387 fae4e               L5331:
-3388                     ; 1372                 size--;
-3390 fae4e ec86          	ldd	OFST+6,s
-3391 fae50 830001        	subd	#1
-3392 fae53 6c86          	std	OFST+6,s
-3393 fae55 ec84          	ldd	OFST+4,s
-3394 fae57 c200          	sbcb	#0
-3395 fae59 8200          	sbca	#0
-3396 fae5b 6c84          	std	OFST+4,s
-3397                     ; 1373                 *pbos++ = (OS_STK)0;                   /* Clear from bottom of stack and up!           */
-3399 fae5d ed80          	ldy	OFST+0,s
-3400 fae5f 6970          	clr	1,y+
-3401 fae61 6d80          	sty	OFST+0,s
-3402 fae63               L7331:
-3403                     ; 1371             while (size > 0u) {                        /* Stack grows from HIGH to LOW memory          */
-3405 fae63 ec84          	ldd	OFST+4,s
-3406 fae65 26e7          	bne	L5331
-3407 fae67 ec86          	ldd	OFST+6,s
-3408 fae69 26e3          	bne	L5331
-3409 fae6b               L1331:
-3410                     ; 1383 }
-3413 fae6b 31            	puly	
-3414 fae6c 3d            	rts	
-3426                     	xref	_OSTaskStkInit
-3427                     	xref	_OSTaskReturnHook
-3428                     	xref	_OSTaskDelHook
-3429                     	xref	_OS_TCBInit
-3430                     	xdef	_OS_TaskStkClr
-3431                     	xdef	_OS_TaskReturn
-3432                     	xref	_OS_StrLen
-3433                     	xref	_OS_Sched
-3434                     	xref	_OS_MemCopy
-3435                     	xref	_OS_FlagUnlink
-3436                     	xref	_OS_EventTaskRemoveMulti
-3437                     	xref	_OS_EventTaskRemove
-3438                     	xref	_OS_Dummy
-3439                     	xdef	_OSTaskQuery
-3440                     	xdef	_OSTaskStkChk
-3441                     	xdef	_OSTaskSuspend
-3442                     	xdef	_OSTaskResume
-3443                     	xdef	_OSTaskNameSet
-3444                     	xdef	_OSTaskNameGet
-3445                     	xdef	_OSTaskDelReq
-3446                     	xdef	_OSTaskDel
-3447                     	xdef	_OSTaskCreateExt
-3448                     	xdef	_OSTaskCreate
-3449                     	xdef	_OSTaskChangePrio
-3450                     	xref	_OSTCBPrioTbl
-3451                     	xref	_OSTCBList
-3452                     	xref	_OSTCBFreeList
-3453                     	xref	_OSTCBCur
-3454                     	xref	_OSTaskCtr
-3455                     	xref	_OSRunning
-3456                     	xref	_OSRdyTbl
-3457                     	xref	_OSRdyGrp
-3458                     	xref	_OSLockNesting
-3459                     	xref	_OSIntNesting
-3460                     	xref	_OS_CPU_SR_Restore
-3461                     	xref	_OS_CPU_SR_Save
-3462                     .const:	section	.data
-3463 fb71d               L316:
-3464 fb71d 3f00          	dc.b	"?",0
-3485                     	xref	c_lsub
-3486                     	end
+4504                     ; 60 _NEAR INT8U  OSTaskChangePrio (INT8U  oldprio,
+4504                     ; 61                               INT8U  newprio)
+4504                     ; 62 {
+4505                     	switch	.text
+4506 fa7ab               _OSTaskChangePrio:
+4508 fa7ab 3b            	pshd	
+4509 fa7ac 1b92          	leas	-14,s
+4510       0000000e      OFST:	set	14
+4513                     ; 78     OS_CPU_SR  cpu_sr = 0u;                                 /* Storage for CPU status register         */
+4515                     ; 83     if (oldprio >= OS_LOWEST_PRIO) {
+4517 fa7ae c13f          	cmpb	#63
+4518 fa7b0 2503          	blo	L1513
+4519                     ; 84         if (oldprio != OS_PRIO_SELF) {
+4521 fa7b2 52            	incb	
+4522                     ; 85             return (OS_ERR_PRIO_INVALID);
+4525 fa7b3 2607          	bne	LC001
+4526 fa7b5               L1513:
+4527                     ; 88     if (newprio >= OS_LOWEST_PRIO) {
+4529 fa7b5 e6f013        	ldab	OFST+5,s
+4530 fa7b8 c13f          	cmpb	#63
+4531 fa7ba 2506          	blo	L5513
+4532                     ; 89         return (OS_ERR_PRIO_INVALID);
+4534 fa7bc               LC001:
+4535 fa7bc c62a          	ldab	#42
+4537 fa7be               L61:
+4539 fa7be 1bf010        	leas	16,s
+4540 fa7c1 3d            	rts	
+4541 fa7c2               L5513:
+4542                     ; 92     OS_ENTER_CRITICAL();
+4544 fa7c2 164b4f        	jsr	_OS_CPU_SR_Save
+4546 fa7c5 6b8c          	stab	OFST-2,s
+4547                     ; 93     if (OSTCBPrioTbl[newprio] != (OS_TCB *)0) {             /* New priority must not already exist     */
+4549 fa7c7 e6f013        	ldab	OFST+5,s
+4550 fa7ca 87            	clra	
+4551 fa7cb 59            	lsld	
+4552 fa7cc b746          	tfr	d,y
+4553 fa7ce ecea1502      	ldd	_OSTCBPrioTbl,y
+4554 fa7d2 270a          	beq	L7513
+4555                     ; 94         OS_EXIT_CRITICAL();
+4557 fa7d4 e68c          	ldab	OFST-2,s
+4558 fa7d6 87            	clra	
+4559 fa7d7 164b54        	jsr	_OS_CPU_SR_Restore
+4561                     ; 95         return (OS_ERR_PRIO_EXIST);
+4563 fa7da c628          	ldab	#40
+4565 fa7dc 20e0          	bra	L61
+4566 fa7de               L7513:
+4567                     ; 97     if (oldprio == OS_PRIO_SELF) {                          /* See if changing self                    */
+4569 fa7de e68f          	ldab	OFST+1,s
+4570 fa7e0 c1ff          	cmpb	#255
+4571 fa7e2 2608          	bne	L1613
+4572                     ; 98         oldprio = OSTCBCur->OSTCBPrio;                      /* Yes, get priority                       */
+4574 fa7e4 fd1588        	ldy	_OSTCBCur
+4575 fa7e7 e6e824        	ldab	36,y
+4576 fa7ea 6b8f          	stab	OFST+1,s
+4577 fa7ec               L1613:
+4578                     ; 100     ptcb = OSTCBPrioTbl[oldprio];
+4580 fa7ec 87            	clra	
+4581 fa7ed 59            	lsld	
+4582 fa7ee b746          	tfr	d,y
+4583 fa7f0 ecea1502      	ldd	_OSTCBPrioTbl,y
+4584 fa7f4 6c82          	std	OFST-12,s
+4585                     ; 101     if (ptcb == (OS_TCB *)0) {                              /* Does task to change exist?              */
+4587 fa7f6 2609          	bne	L3613
+4588                     ; 102         OS_EXIT_CRITICAL();                                 /* No, can't change its priority!          */
+4590 fa7f8 e68c          	ldab	OFST-2,s
+4591 fa7fa 164b54        	jsr	_OS_CPU_SR_Restore
+4593                     ; 103         return (OS_ERR_PRIO);
+4595 fa7fd c629          	ldab	#41
+4597 fa7ff 20bd          	bra	L61
+4598 fa801               L3613:
+4599                     ; 105     if (ptcb == OS_TCB_RESERVED) {                          /* Is task assigned to Mutex               */
+4601 fa801 042409        	dbne	d,L5613
+4602                     ; 106         OS_EXIT_CRITICAL();                                 /* No, can't change its priority!          */
+4604 fa804 e68c          	ldab	OFST-2,s
+4605 fa806 164b54        	jsr	_OS_CPU_SR_Restore
+4607                     ; 107         return (OS_ERR_TASK_NOT_EXIST);
+4609 fa809 c643          	ldab	#67
+4611 fa80b 20b1          	bra	L61
+4612 fa80d               L5613:
+4613                     ; 110     y_new                 = (INT8U)(newprio >> 3u);         /* Yes, compute new TCB fields             */
+4615 fa80d e6f013        	ldab	OFST+5,s
+4616 fa810 54            	lsrb	
+4617 fa811 54            	lsrb	
+4618 fa812 54            	lsrb	
+4619 fa813 6b87          	stab	OFST-7,s
+4620                     ; 111     x_new                 = (INT8U)(newprio & 0x07u);
+4622 fa815 e6f013        	ldab	OFST+5,s
+4623 fa818 c407          	andb	#7
+4624 fa81a 6b8d          	stab	OFST-1,s
+4625                     ; 116     bity_new              = (OS_PRIO)(1uL << y_new);
+4627 fa81c c601          	ldab	#1
+4628 fa81e a687          	ldaa	OFST-7,s
+4629 fa820 2704          	beq	L6
+4630 fa822               L01:
+4631 fa822 58            	lslb	
+4632 fa823 0430fc        	dbne	a,L01
+4633 fa826               L6:
+4634 fa826 6b88          	stab	OFST-6,s
+4635                     ; 117     bitx_new              = (OS_PRIO)(1uL << x_new);
+4637 fa828 c601          	ldab	#1
+4638 fa82a a68d          	ldaa	OFST-1,s
+4639 fa82c 2704          	beq	L21
+4640 fa82e               L41:
+4641 fa82e 58            	lslb	
+4642 fa82f 0430fc        	dbne	a,L41
+4643 fa832               L21:
+4644 fa832 6b89          	stab	OFST-5,s
+4645                     ; 119     OSTCBPrioTbl[oldprio] = (OS_TCB *)0;                    /* Remove TCB from old priority            */
+4647 fa834 e68f          	ldab	OFST+1,s
+4648 fa836 87            	clra	
+4649 fa837 59            	lsld	
+4650 fa838 b746          	tfr	d,y
+4651 fa83a 87            	clra	
+4652 fa83b c7            	clrb	
+4653 fa83c 6cea1502      	std	_OSTCBPrioTbl,y
+4654                     ; 120     OSTCBPrioTbl[newprio] =  ptcb;                          /* Place pointer to TCB @ new priority     */
+4656 fa840 e6f013        	ldab	OFST+5,s
+4657 fa843 59            	lsld	
+4658 fa844 b746          	tfr	d,y
+4659 fa846 ec82          	ldd	OFST-12,s
+4660 fa848 6cea1502      	std	_OSTCBPrioTbl,y
+4661                     ; 121     y_old                 =  ptcb->OSTCBY;
+4663 fa84c b746          	tfr	d,y
+4664 fa84e e6e826        	ldab	38,y
+4665 fa851 6b84          	stab	OFST-10,s
+4666                     ; 122     bity_old              =  ptcb->OSTCBBitY;
+4668 fa853 e6e828        	ldab	40,y
+4669 fa856 6b8b          	stab	OFST-3,s
+4670                     ; 123     bitx_old              =  ptcb->OSTCBBitX;
+4672 fa858 e6e827        	ldab	39,y
+4673 fa85b 6b8a          	stab	OFST-4,s
+4674                     ; 124     if ((OSRdyTbl[y_old] &   bitx_old) != 0u) {             /* If task is ready make it not            */
+4676 fa85d e684          	ldab	OFST-10,s
+4677 fa85f b796          	exg	b,y
+4678 fa861 e6ea1630      	ldab	_OSRdyTbl,y
+4679 fa865 e48a          	andb	OFST-4,s
+4680 fa867 272c          	beq	L7613
+4681                     ; 125          OSRdyTbl[y_old] &= (OS_PRIO)~bitx_old;
+4683 fa869 e68a          	ldab	OFST-4,s
+4684 fa86b 51            	comb	
+4685 fa86c e4ea1630      	andb	_OSRdyTbl,y
+4686 fa870 6bea1630      	stab	_OSRdyTbl,y
+4687                     ; 126          if (OSRdyTbl[y_old] == 0u) {
+4689 fa874 2609          	bne	L1713
+4690                     ; 127              OSRdyGrp &= (OS_PRIO)~bity_old;
+4692 fa876 e68b          	ldab	OFST-3,s
+4693 fa878 51            	comb	
+4694 fa879 f41638        	andb	_OSRdyGrp
+4695 fa87c 7b1638        	stab	_OSRdyGrp
+4696 fa87f               L1713:
+4697                     ; 129          OSRdyGrp        |= bity_new;                       /* Make new priority ready to run          */
+4699 fa87f e688          	ldab	OFST-6,s
+4700 fa881 fa1638        	orab	_OSRdyGrp
+4701 fa884 7b1638        	stab	_OSRdyGrp
+4702                     ; 130          OSRdyTbl[y_new] |= bitx_new;
+4704 fa887 e687          	ldab	OFST-7,s
+4705 fa889 b796          	exg	b,y
+4706 fa88b e689          	ldab	OFST-5,s
+4707 fa88d eaea1630      	orab	_OSRdyTbl,y
+4708 fa891 6bea1630      	stab	_OSRdyTbl,y
+4710 fa895               L7613:
+4711                     ; 135     pevent = ptcb->OSTCBEventPtr;
+4713 fa895 ed82          	ldy	OFST-12,s
+4714 fa897 ede812        	ldy	18,y
+4715 fa89a 6d80          	sty	OFST-14,s
+4716                     ; 136     if (pevent != (OS_EVENT *)0) {
+4718 fa89c 2730          	beq	L3713
+4719                     ; 137         pevent->OSEventTbl[y_old] &= (OS_PRIO)~bitx_old;    /* Remove old task prio from wait list     */
+4721 fa89e e684          	ldab	OFST-10,s
+4722 fa8a0 19ed          	leay	b,y
+4723 fa8a2 e68a          	ldab	OFST-4,s
+4724 fa8a4 51            	comb	
+4725 fa8a5 e446          	andb	6,y
+4726 fa8a7 6b46          	stab	6,y
+4727                     ; 138         if (pevent->OSEventTbl[y_old] == 0u) {
+4729 fa8a9 ed80          	ldy	OFST-14,s
+4730 fa8ab e684          	ldab	OFST-10,s
+4731 fa8ad 19ed          	leay	b,y
+4732 fa8af e646          	ldab	6,y
+4733 fa8b1 2609          	bne	L5713
+4734                     ; 139             pevent->OSEventGrp    &= (OS_PRIO)~bity_old;
+4736 fa8b3 ed80          	ldy	OFST-14,s
+4737 fa8b5 e68b          	ldab	OFST-3,s
+4738 fa8b7 51            	comb	
+4739 fa8b8 e445          	andb	5,y
+4740 fa8ba 6b45          	stab	5,y
+4741 fa8bc               L5713:
+4742                     ; 141         pevent->OSEventGrp        |= bity_new;              /* Add    new task prio to   wait list     */
+4744 fa8bc ed80          	ldy	OFST-14,s
+4745 fa8be e688          	ldab	OFST-6,s
+4746 fa8c0 ea45          	orab	5,y
+4747 fa8c2 6b45          	stab	5,y
+4748                     ; 142         pevent->OSEventTbl[y_new] |= bitx_new;
+4750 fa8c4 e687          	ldab	OFST-7,s
+4751 fa8c6 19ed          	leay	b,y
+4752 fa8c8 e689          	ldab	OFST-5,s
+4753 fa8ca ea46          	orab	6,y
+4754 fa8cc 6b46          	stab	6,y
+4755 fa8ce               L3713:
+4756                     ; 145     if (ptcb->OSTCBEventMultiPtr != (OS_EVENT **)0) {
+4758 fa8ce ed82          	ldy	OFST-12,s
+4759 fa8d0 ece814        	ldd	20,y
+4760 fa8d3 273e          	beq	L7713
+4761                     ; 146         pevents =  ptcb->OSTCBEventMultiPtr;
+4763 fa8d5 6c85          	std	OFST-9,s
+4764                     ; 147         pevent  = *pevents;
+4766 fa8d7 ecf30005      	ldd	[OFST-9,s]
+4768 fa8db 202e          	bra	L5023
+4769 fa8dd               L1023:
+4770                     ; 149             pevent->OSEventTbl[y_old] &= (OS_PRIO)~bitx_old;   /* Remove old task prio from wait lists */
+4772 fa8dd e684          	ldab	OFST-10,s
+4773 fa8df 19ed          	leay	b,y
+4774 fa8e1 e68a          	ldab	OFST-4,s
+4775 fa8e3 51            	comb	
+4776 fa8e4 e446          	andb	6,y
+4777 fa8e6 6b46          	stab	6,y
+4778                     ; 150             if (pevent->OSEventTbl[y_old] == 0u) {
+4780 fa8e8 2609          	bne	L1123
+4781                     ; 151                 pevent->OSEventGrp    &= (OS_PRIO)~bity_old;
+4783 fa8ea ed80          	ldy	OFST-14,s
+4784 fa8ec e68b          	ldab	OFST-3,s
+4785 fa8ee 51            	comb	
+4786 fa8ef e445          	andb	5,y
+4787 fa8f1 6b45          	stab	5,y
+4788 fa8f3               L1123:
+4789                     ; 153             pevent->OSEventGrp        |= bity_new;          /* Add    new task prio to   wait lists    */
+4791 fa8f3 ed80          	ldy	OFST-14,s
+4792 fa8f5 e688          	ldab	OFST-6,s
+4793 fa8f7 ea45          	orab	5,y
+4794 fa8f9 6b45          	stab	5,y
+4795                     ; 154             pevent->OSEventTbl[y_new] |= bitx_new;
+4797 fa8fb e687          	ldab	OFST-7,s
+4798 fa8fd 19ed          	leay	b,y
+4799 fa8ff e689          	ldab	OFST-5,s
+4800 fa901 ea46          	orab	6,y
+4801 fa903 6b46          	stab	6,y
+4802                     ; 155             pevents++;
+4804 fa905 ed85          	ldy	OFST-9,s
+4805                     ; 156             pevent                     = *pevents;
+4807 fa907 ec61          	ldd	2,+y
+4808 fa909 6d85          	sty	OFST-9,s
+4809 fa90b               L5023:
+4810 fa90b 6c80          	std	OFST-14,s
+4811                     ; 148         while (pevent != (OS_EVENT *)0) {
+4813 fa90d ed80          	ldy	OFST-14,s
+4814 fa90f 26cc          	bne	L1023
+4815 fa911 ed82          	ldy	OFST-12,s
+4816 fa913               L7713:
+4817                     ; 162     ptcb->OSTCBPrio = newprio;                              /* Set new task priority                   */
+4819 fa913 e6f013        	ldab	OFST+5,s
+4820 fa916 6be824        	stab	36,y
+4821                     ; 163     ptcb->OSTCBY    = y_new;
+4823 fa919 e687          	ldab	OFST-7,s
+4824 fa91b 6be826        	stab	38,y
+4825                     ; 164     ptcb->OSTCBX    = x_new;
+4827 fa91e e68d          	ldab	OFST-1,s
+4828 fa920 6be825        	stab	37,y
+4829                     ; 165     ptcb->OSTCBBitY = bity_new;
+4831 fa923 e688          	ldab	OFST-6,s
+4832 fa925 6be828        	stab	40,y
+4833                     ; 166     ptcb->OSTCBBitX = bitx_new;
+4835 fa928 e689          	ldab	OFST-5,s
+4836 fa92a 6be827        	stab	39,y
+4837                     ; 167     OS_EXIT_CRITICAL();
+4839 fa92d e68c          	ldab	OFST-2,s
+4840 fa92f 87            	clra	
+4841 fa930 164b54        	jsr	_OS_CPU_SR_Restore
+4843                     ; 168     if (OSRunning == OS_TRUE) {
+4845 fa933 f6162f        	ldab	_OSRunning
+4846 fa936 042103        	dbne	b,L3123
+4847                     ; 169         OS_Sched();                                         /* Find new highest priority task          */
+4849 fa939 164933        	jsr	_OS_Sched
+4851 fa93c               L3123:
+4852                     ; 171     return (OS_ERR_NONE);
+4854 fa93c c7            	clrb	
+4856 fa93d 0667be        	bra	L61
+4950                     ; 219 _NEAR INT8U  OSTaskCreate (void   (*task)(void *p_arg),
+4950                     ; 220                           void    *p_arg,
+4950                     ; 221                           OS_STK  *ptos,
+4950                     ; 222                           INT8U    prio)
+4950                     ; 223 {
+4951                     	switch	.text
+4952 fa940               _OSTaskCreate:
+4954 fa940 3b            	pshd	
+4955 fa941 1b9c          	leas	-4,s
+4956       00000004      OFST:	set	4
+4959                     ; 227     OS_CPU_SR   cpu_sr = 0u;
+4961                     ; 240     if (prio > OS_LOWEST_PRIO) {             /* Make sure priority is within allowable range           */
+4963 fa943 e68d          	ldab	OFST+9,s
+4964 fa945 c13f          	cmpb	#63
+4965 fa947 2304          	bls	L5523
+4966                     ; 241         return (OS_ERR_PRIO_INVALID);
+4968 fa949 c62a          	ldab	#42
+4970 fa94b 2010          	bra	L22
+4971 fa94d               L5523:
+4972                     ; 244     OS_ENTER_CRITICAL();
+4974 fa94d 164b4f        	jsr	_OS_CPU_SR_Save
+4976 fa950 6b80          	stab	OFST-4,s
+4977                     ; 245     if (OSIntNesting > 0u) {                 /* Make sure we don't create the task from within an ISR  */
+4979 fa952 b6163c        	ldaa	_OSIntNesting
+4980 fa955 2709          	beq	L7523
+4981                     ; 246         OS_EXIT_CRITICAL();
+4983 fa957 87            	clra	
+4984 fa958 164b54        	jsr	_OS_CPU_SR_Restore
+4986                     ; 247         return (OS_ERR_TASK_CREATE_ISR);
+4988 fa95b c63c          	ldab	#60
+4990 fa95d               L22:
+4992 fa95d 1b86          	leas	6,s
+4993 fa95f 3d            	rts	
+4994 fa960               L7523:
+4995                     ; 249     if (OSTCBPrioTbl[prio] == (OS_TCB *)0) { /* Make sure task doesn't already exist at this priority  */
+4997 fa960 e68d          	ldab	OFST+9,s
+4998 fa962 59            	lsld	
+4999 fa963 b746          	tfr	d,y
+5000 fa965 ecea1502      	ldd	_OSTCBPrioTbl,y
+5001 fa969 265b          	bne	L1623
+5002                     ; 250         OSTCBPrioTbl[prio] = OS_TCB_RESERVED;/* Reserve the priority to prevent others from doing ...  */
+5004 fa96b cc0001        	ldd	#1
+5005 fa96e 6cea1502      	std	_OSTCBPrioTbl,y
+5006                     ; 252         OS_EXIT_CRITICAL();
+5008 fa972 e680          	ldab	OFST-4,s
+5009 fa974 164b54        	jsr	_OS_CPU_SR_Restore
+5011                     ; 253         psp = OSTaskStkInit(task, p_arg, ptos, 0u);             /* Initialize the task's stack         */
+5013 fa977 87            	clra	
+5014 fa978 c7            	clrb	
+5015 fa979 3b            	pshd	
+5016 fa97a ec8c          	ldd	OFST+8,s
+5017 fa97c 3b            	pshd	
+5018 fa97d ec8c          	ldd	OFST+8,s
+5019 fa97f 3b            	pshd	
+5020 fa980 ec8a          	ldd	OFST+6,s
+5021 fa982 164bc5        	jsr	_OSTaskStkInit
+5023 fa985 1b86          	leas	6,s
+5024 fa987 6c82          	std	OFST-2,s
+5025                     ; 254         err = OS_TCBInit(prio, psp, (OS_STK *)0, 0u, 0u, (void *)0, 0u);
+5027 fa989 87            	clra	
+5028 fa98a c7            	clrb	
+5029 fa98b 3b            	pshd	
+5030 fa98c 3b            	pshd	
+5031 fa98d 3b            	pshd	
+5032 fa98e 3b            	pshd	
+5033 fa98f 3b            	pshd	
+5034 fa990 3b            	pshd	
+5035 fa991 ec8e          	ldd	OFST+10,s
+5036 fa993 3b            	pshd	
+5037 fa994 e6f01b        	ldab	OFST+23,s
+5038 fa997 87            	clra	
+5039 fa998 164a31        	jsr	_OS_TCBInit
+5041 fa99b 1b8e          	leas	14,s
+5042 fa99d 6b81          	stab	OFST-3,s
+5043                     ; 255         if (err == OS_ERR_NONE) {
+5045 fa99f 260b          	bne	L3623
+5046                     ; 257             if (OSRunning == OS_TRUE) {      /* Find highest priority task if multitasking has started */
+5049 fa9a1 f6162f        	ldab	_OSRunning
+5050 fa9a4 04211b        	dbne	b,L7623
+5051                     ; 258                 OS_Sched();
+5053 fa9a7 164933        	jsr	_OS_Sched
+5055 fa9aa 2016          	bra	L7623
+5056 fa9ac               L3623:
+5057                     ; 262             OS_ENTER_CRITICAL();
+5060 fa9ac 164b4f        	jsr	_OS_CPU_SR_Save
+5062 fa9af 6b80          	stab	OFST-4,s
+5063                     ; 263             OSTCBPrioTbl[prio] = (OS_TCB *)0;/* Make this priority available to others                 */
+5065 fa9b1 e68d          	ldab	OFST+9,s
+5066 fa9b3 87            	clra	
+5067 fa9b4 59            	lsld	
+5068 fa9b5 b746          	tfr	d,y
+5069 fa9b7 87            	clra	
+5070 fa9b8 c7            	clrb	
+5071 fa9b9 6cea1502      	std	_OSTCBPrioTbl,y
+5072                     ; 264             OS_EXIT_CRITICAL();
+5074 fa9bd e680          	ldab	OFST-4,s
+5075 fa9bf 164b54        	jsr	_OS_CPU_SR_Restore
+5077 fa9c2               L7623:
+5078                     ; 266         return (err);
+5080 fa9c2 e681          	ldab	OFST-3,s
+5082 fa9c4 2008          	bra	L42
+5083 fa9c6               L1623:
+5084                     ; 268     OS_EXIT_CRITICAL();
+5086 fa9c6 e680          	ldab	OFST-4,s
+5087 fa9c8 87            	clra	
+5088 fa9c9 164b54        	jsr	_OS_CPU_SR_Restore
+5090                     ; 269     return (OS_ERR_PRIO_EXIST);
+5092 fa9cc c628          	ldab	#40
+5094 fa9ce               L42:
+5096 fa9ce 1b86          	leas	6,s
+5097 fa9d0 3d            	rts	
+5233                     ; 347 _NEAR INT8U  OSTaskCreateExt (void   (*task)(void *p_arg),
+5233                     ; 348                              void    *p_arg,
+5233                     ; 349                              OS_STK  *ptos,
+5233                     ; 350                              INT8U    prio,
+5233                     ; 351                              INT16U   id,
+5233                     ; 352                              OS_STK  *pbos,
+5233                     ; 353                              INT32U   stk_size,
+5233                     ; 354                              void    *pext,
+5233                     ; 355                              INT16U   opt)
+5233                     ; 356 {
+5234                     	switch	.text
+5235 fa9d1               _OSTaskCreateExt:
+5237 fa9d1 3b            	pshd	
+5238 fa9d2 1b9c          	leas	-4,s
+5239       00000004      OFST:	set	4
+5242                     ; 360     OS_CPU_SR   cpu_sr = 0u;
+5244                     ; 373     if (prio > OS_LOWEST_PRIO) {             /* Make sure priority is within allowable range           */
+5246 fa9d4 e68d          	ldab	OFST+9,s
+5247 fa9d6 c13f          	cmpb	#63
+5248 fa9d8 2304          	bls	L7433
+5249                     ; 374         return (OS_ERR_PRIO_INVALID);
+5251 fa9da c62a          	ldab	#42
+5253 fa9dc 2010          	bra	L03
+5254 fa9de               L7433:
+5255                     ; 377     OS_ENTER_CRITICAL();
+5257 fa9de 164b4f        	jsr	_OS_CPU_SR_Save
+5259 fa9e1 6b80          	stab	OFST-4,s
+5260                     ; 378     if (OSIntNesting > 0u) {                 /* Make sure we don't create the task from within an ISR  */
+5262 fa9e3 b6163c        	ldaa	_OSIntNesting
+5263 fa9e6 2709          	beq	L1533
+5264                     ; 379         OS_EXIT_CRITICAL();
+5266 fa9e8 87            	clra	
+5267 fa9e9 164b54        	jsr	_OS_CPU_SR_Restore
+5269                     ; 380         return (OS_ERR_TASK_CREATE_ISR);
+5271 fa9ec c63c          	ldab	#60
+5273 fa9ee               L03:
+5275 fa9ee 1b86          	leas	6,s
+5276 fa9f0 3d            	rts	
+5277 fa9f1               L1533:
+5278                     ; 382     if (OSTCBPrioTbl[prio] == (OS_TCB *)0) { /* Make sure task doesn't already exist at this priority  */
+5280 fa9f1 e68d          	ldab	OFST+9,s
+5281 fa9f3 59            	lsld	
+5282 fa9f4 b746          	tfr	d,y
+5283 fa9f6 ecea1502      	ldd	_OSTCBPrioTbl,y
+5284 fa9fa 18260080      	bne	L3533
+5285                     ; 383         OSTCBPrioTbl[prio] = OS_TCB_RESERVED;/* Reserve the priority to prevent others from doing ...  */
+5287 fa9fe cc0001        	ldd	#1
+5288 faa01 6cea1502      	std	_OSTCBPrioTbl,y
+5289                     ; 385         OS_EXIT_CRITICAL();
+5291 faa05 e680          	ldab	OFST-4,s
+5292 faa07 164b54        	jsr	_OS_CPU_SR_Restore
+5294                     ; 388         OS_TaskStkClr(pbos, stk_size, opt);                    /* Clear the task stack (if needed)     */
+5296 faa0a ecf018        	ldd	OFST+20,s
+5297 faa0d 3b            	pshd	
+5298 faa0e ecf016        	ldd	OFST+18,s
+5299 faa11 3b            	pshd	
+5300 faa12 ecf016        	ldd	OFST+18,s
+5301 faa15 3b            	pshd	
+5302 faa16 ecf016        	ldd	OFST+18,s
+5303 faa19 166f4e        	jsr	_OS_TaskStkClr
+5305 faa1c 1b86          	leas	6,s
+5306                     ; 391         psp = OSTaskStkInit(task, p_arg, ptos, opt);           /* Initialize the task's stack          */
+5308 faa1e ecf018        	ldd	OFST+20,s
+5309 faa21 3b            	pshd	
+5310 faa22 ec8c          	ldd	OFST+8,s
+5311 faa24 3b            	pshd	
+5312 faa25 ec8c          	ldd	OFST+8,s
+5313 faa27 3b            	pshd	
+5314 faa28 ec8a          	ldd	OFST+6,s
+5315 faa2a 164bc5        	jsr	_OSTaskStkInit
+5317 faa2d 1b86          	leas	6,s
+5318 faa2f 6c82          	std	OFST-2,s
+5319                     ; 392         err = OS_TCBInit(prio, psp, pbos, id, stk_size, pext, opt);
+5321 faa31 ecf018        	ldd	OFST+20,s
+5322 faa34 3b            	pshd	
+5323 faa35 ecf018        	ldd	OFST+20,s
+5324 faa38 3b            	pshd	
+5325 faa39 ecf018        	ldd	OFST+20,s
+5326 faa3c 3b            	pshd	
+5327 faa3d ecf018        	ldd	OFST+20,s
+5328 faa40 3b            	pshd	
+5329 faa41 ecf016        	ldd	OFST+18,s
+5330 faa44 3b            	pshd	
+5331 faa45 ecf01a        	ldd	OFST+22,s
+5332 faa48 3b            	pshd	
+5333 faa49 ec8e          	ldd	OFST+10,s
+5334 faa4b 3b            	pshd	
+5335 faa4c e6f01b        	ldab	OFST+23,s
+5336 faa4f 87            	clra	
+5337 faa50 164a31        	jsr	_OS_TCBInit
+5339 faa53 1b8e          	leas	14,s
+5340 faa55 6b81          	stab	OFST-3,s
+5341                     ; 393         if (err == OS_ERR_NONE) {
+5343 faa57 260b          	bne	L5533
+5344                     ; 395             if (OSRunning == OS_TRUE) {                        /* Find HPT if multitasking has started */
+5347 faa59 f6162f        	ldab	_OSRunning
+5348 faa5c 04211b        	dbne	b,L1633
+5349                     ; 396                 OS_Sched();
+5351 faa5f 164933        	jsr	_OS_Sched
+5353 faa62 2016          	bra	L1633
+5354 faa64               L5533:
+5355                     ; 399             OS_ENTER_CRITICAL();
+5357 faa64 164b4f        	jsr	_OS_CPU_SR_Save
+5359 faa67 6b80          	stab	OFST-4,s
+5360                     ; 400             OSTCBPrioTbl[prio] = (OS_TCB *)0;                  /* Make this priority avail. to others  */
+5362 faa69 e68d          	ldab	OFST+9,s
+5363 faa6b 87            	clra	
+5364 faa6c 59            	lsld	
+5365 faa6d b746          	tfr	d,y
+5366 faa6f 87            	clra	
+5367 faa70 c7            	clrb	
+5368 faa71 6cea1502      	std	_OSTCBPrioTbl,y
+5369                     ; 401             OS_EXIT_CRITICAL();
+5371 faa75 e680          	ldab	OFST-4,s
+5372 faa77 164b54        	jsr	_OS_CPU_SR_Restore
+5374 faa7a               L1633:
+5375                     ; 403         return (err);
+5377 faa7a e681          	ldab	OFST-3,s
+5379 faa7c 2008          	bra	L23
+5380 faa7e               L3533:
+5381                     ; 405     OS_EXIT_CRITICAL();
+5383 faa7e e680          	ldab	OFST-4,s
+5384 faa80 87            	clra	
+5385 faa81 164b54        	jsr	_OS_CPU_SR_Restore
+5387                     ; 406     return (OS_ERR_PRIO_EXIST);
+5389 faa84 c628          	ldab	#40
+5391 faa86               L23:
+5393 faa86 1b86          	leas	6,s
+5394 faa88 3d            	rts	
+5474                     ; 450 _NEAR INT8U  OSTaskDel (INT8U prio)
+5474                     ; 451 {
+5475                     	switch	.text
+5476 faa89               _OSTaskDel:
+5478 faa89 3b            	pshd	
+5479 faa8a 1b9b          	leas	-5,s
+5480       00000005      OFST:	set	5
+5483                     ; 457     OS_CPU_SR     cpu_sr = 0u;
+5485                     ; 469     if (OSIntNesting > 0u) {                            /* See if trying to delete from ISR            */
+5487 faa8c f6163c        	ldab	_OSIntNesting
+5488 faa8f 2704          	beq	L5143
+5489                     ; 470         return (OS_ERR_TASK_DEL_ISR);
+5491 faa91 c640          	ldab	#64
+5493 faa93 2008          	bra	L63
+5494 faa95               L5143:
+5495                     ; 472     if (prio == OS_TASK_IDLE_PRIO) {                    /* Not allowed to delete idle task             */
+5497 faa95 e686          	ldab	OFST+1,s
+5498 faa97 c13f          	cmpb	#63
+5499 faa99 2605          	bne	L7143
+5500                     ; 473         return (OS_ERR_TASK_DEL_IDLE);
+5502 faa9b c63e          	ldab	#62
+5504 faa9d               L63:
+5506 faa9d 1b87          	leas	7,s
+5507 faa9f 3d            	rts	
+5508 faaa0               L7143:
+5509                     ; 476     if (prio >= OS_LOWEST_PRIO) {                       /* Task priority valid ?                       */
+5511 faaa0 2507          	blo	L1243
+5512                     ; 477         if (prio != OS_PRIO_SELF) {
+5514 faaa2 048104        	ibeq	b,L1243
+5515                     ; 478             return (OS_ERR_PRIO_INVALID);
+5517 faaa5 c62a          	ldab	#42
+5519 faaa7 20f4          	bra	L63
+5520 faaa9               L1243:
+5521                     ; 483     OS_ENTER_CRITICAL();
+5523 faaa9 164b4f        	jsr	_OS_CPU_SR_Save
+5525 faaac 6b82          	stab	OFST-3,s
+5526                     ; 484     if (prio == OS_PRIO_SELF) {                         /* See if requesting to delete self            */
+5528 faaae e686          	ldab	OFST+1,s
+5529 faab0 c1ff          	cmpb	#255
+5530 faab2 2608          	bne	L5243
+5531                     ; 485         prio = OSTCBCur->OSTCBPrio;                     /* Set priority to delete to current           */
+5533 faab4 fd1588        	ldy	_OSTCBCur
+5534 faab7 e6e824        	ldab	36,y
+5535 faaba 6b86          	stab	OFST+1,s
+5536 faabc               L5243:
+5537                     ; 487     ptcb = OSTCBPrioTbl[prio];
+5539 faabc 87            	clra	
+5540 faabd 59            	lsld	
+5541 faabe b746          	tfr	d,y
+5542 faac0 ecea1502      	ldd	_OSTCBPrioTbl,y
+5543 faac4 6c80          	std	OFST-5,s
+5544                     ; 488     if (ptcb == (OS_TCB *)0) {                          /* Task to delete must exist                   */
+5546 faac6 2609          	bne	L7243
+5547                     ; 489         OS_EXIT_CRITICAL();
+5549 faac8 e682          	ldab	OFST-3,s
+5550 faaca 164b54        	jsr	_OS_CPU_SR_Restore
+5552                     ; 490         return (OS_ERR_TASK_NOT_EXIST);
+5554 faacd c643          	ldab	#67
+5556 faacf 20cc          	bra	L63
+5557 faad1               L7243:
+5558                     ; 492     if (ptcb == OS_TCB_RESERVED) {                      /* Must not be assigned to Mutex               */
+5560 faad1 8c0001        	cpd	#1
+5561 faad4 260a          	bne	L1343
+5562                     ; 493         OS_EXIT_CRITICAL();
+5564 faad6 e682          	ldab	OFST-3,s
+5565 faad8 87            	clra	
+5566 faad9 164b54        	jsr	_OS_CPU_SR_Restore
+5568                     ; 494         return (OS_ERR_TASK_DEL);
+5570 faadc c63d          	ldab	#61
+5572 faade 20bd          	bra	L63
+5573 faae0               L1343:
+5574                     ; 497     OSRdyTbl[ptcb->OSTCBY] &= (OS_PRIO)~ptcb->OSTCBBitX;
+5576 faae0 b746          	tfr	d,y
+5577 faae2 e6e826        	ldab	38,y
+5578 faae5 b796          	exg	b,y
+5579 faae7 ee80          	ldx	OFST-5,s
+5580 faae9 e6e027        	ldab	39,x
+5581 faaec 51            	comb	
+5582 faaed e4ea1630      	andb	_OSRdyTbl,y
+5583 faaf1 6bea1630      	stab	_OSRdyTbl,y
+5584                     ; 499     if (OSRdyTbl[ptcb->OSTCBY] == 0u) {                 /* Make task not ready                         */
+5587 faaf5 260c          	bne	L3343
+5588                     ; 500         OSRdyGrp           &= (OS_PRIO)~ptcb->OSTCBBitY;
+5590 faaf7 b756          	tfr	x,y
+5591 faaf9 e6e828        	ldab	40,y
+5592 faafc 51            	comb	
+5593 faafd f41638        	andb	_OSRdyGrp
+5594 fab00 7b1638        	stab	_OSRdyGrp
+5595 fab03               L3343:
+5596                     ; 504     if (ptcb->OSTCBEventPtr != (OS_EVENT *)0) {
+5598 fab03 b756          	tfr	x,y
+5599 fab05 ece812        	ldd	18,y
+5600 fab08 270a          	beq	L5343
+5601                     ; 505         OS_EventTaskRemove(ptcb, ptcb->OSTCBEventPtr);  /* Remove this task from any event   wait list */
+5603 fab0a 3b            	pshd	
+5604 fab0b b754          	tfr	x,d
+5605 fab0d 164737        	jsr	_OS_EventTaskRemove
+5607 fab10 1b82          	leas	2,s
+5608 fab12 ed80          	ldy	OFST-5,s
+5609 fab14               L5343:
+5610                     ; 508     if (ptcb->OSTCBEventMultiPtr != (OS_EVENT **)0) {   /* Remove this task from any events' wait lists*/
+5612 fab14 ece814        	ldd	20,y
+5613 fab17 270a          	beq	L7343
+5614                     ; 509         OS_EventTaskRemoveMulti(ptcb, ptcb->OSTCBEventMultiPtr);
+5616 fab19 3b            	pshd	
+5617 fab1a ec82          	ldd	OFST-3,s
+5618 fab1c 164764        	jsr	_OS_EventTaskRemoveMulti
+5620 fab1f 1b82          	leas	2,s
+5621 fab21 ed80          	ldy	OFST-5,s
+5622 fab23               L7343:
+5623                     ; 515     pnode = ptcb->OSTCBFlagNode;
+5625 fab23 ece81a        	ldd	26,y
+5626 fab26 6c83          	std	OFST-2,s
+5627                     ; 516     if (pnode != (OS_FLAG_NODE *)0) {                   /* If task is waiting on event flag            */
+5629 fab28 2705          	beq	L1443
+5630                     ; 517         OS_FlagUnlink(pnode);                           /* Remove from wait list                       */
+5632 fab2a 16528b        	jsr	_OS_FlagUnlink
+5634 fab2d ed80          	ldy	OFST-5,s
+5635 fab2f               L1443:
+5636                     ; 521     ptcb->OSTCBDly      = 0u;                           /* Prevent OSTimeTick() from updating          */
+5638 fab2f 87            	clra	
+5639 fab30 c7            	clrb	
+5640 fab31 6ce820        	std	32,y
+5641 fab34 6ce81e        	std	30,y
+5642                     ; 522     ptcb->OSTCBStat     = OS_STAT_RDY;                  /* Prevent task from being resumed             */
+5644                     ; 523     ptcb->OSTCBStatPend = OS_STAT_PEND_OK;
+5646 fab37 6ce822        	std	34,y
+5647                     ; 524     if (OSLockNesting < 255u) {                         /* Make sure we don't context switch           */
+5649 fab3a f6163b        	ldab	_OSLockNesting
+5650 fab3d c1ff          	cmpb	#255
+5651 fab3f 2403          	bhs	L3443
+5652                     ; 525         OSLockNesting++;
+5654 fab41 72163b        	inc	_OSLockNesting
+5655 fab44               L3443:
+5656                     ; 527     OS_EXIT_CRITICAL();                                 /* Enabling INT. ignores next instruc.         */
+5658 fab44 e682          	ldab	OFST-3,s
+5659 fab46 87            	clra	
+5660 fab47 164b54        	jsr	_OS_CPU_SR_Restore
+5662                     ; 528     OS_Dummy();                                         /* ... Dummy ensures that INTs will be         */
+5664 fab4a 1645fb        	jsr	_OS_Dummy
+5666                     ; 529     OS_ENTER_CRITICAL();                                /* ... disabled HERE!                          */
+5668 fab4d 164b4f        	jsr	_OS_CPU_SR_Save
+5670 fab50 6b82          	stab	OFST-3,s
+5671                     ; 530     if (OSLockNesting > 0u) {                           /* Remove context switch lock                  */
+5673 fab52 f7163b        	tst	_OSLockNesting
+5674 fab55 2703          	beq	L5443
+5675                     ; 531         OSLockNesting--;
+5677 fab57 73163b        	dec	_OSLockNesting
+5678 fab5a               L5443:
+5679                     ; 533     OSTaskDelHook(ptcb);                                /* Call user defined hook                      */
+5681 fab5a ec80          	ldd	OFST-5,s
+5682 fab5c 164bc1        	jsr	_OSTaskDelHook
+5684                     ; 541     OSTaskCtr--;                                        /* One less task being managed                 */
+5686 fab5f 73162e        	dec	_OSTaskCtr
+5687                     ; 542     OSTCBPrioTbl[prio] = (OS_TCB *)0;                   /* Clear old priority entry                    */
+5689 fab62 e686          	ldab	OFST+1,s
+5690 fab64 87            	clra	
+5691 fab65 59            	lsld	
+5692 fab66 b746          	tfr	d,y
+5693 fab68 87            	clra	
+5694 fab69 c7            	clrb	
+5695 fab6a 6cea1502      	std	_OSTCBPrioTbl,y
+5696                     ; 543     if (ptcb->OSTCBPrev == (OS_TCB *)0) {               /* Remove from TCB chain                       */
+5698 fab6e ed80          	ldy	OFST-5,s
+5699 fab70 eee810        	ldx	16,y
+5700 fab73 260e          	bne	L7443
+5701                     ; 544         ptcb->OSTCBNext->OSTCBPrev = (OS_TCB *)0;
+5703 fab75 ed4e          	ldy	14,y
+5704 fab77 6ce810        	std	16,y
+5705                     ; 545         OSTCBList                  = ptcb->OSTCBNext;
+5707 fab7a ed80          	ldy	OFST-5,s
+5708 fab7c 18054e1582    	movw	14,y,_OSTCBList
+5710 fab81 2012          	bra	L1543
+5711 fab83               L7443:
+5712                     ; 547         ptcb->OSTCBPrev->OSTCBNext = ptcb->OSTCBNext;
+5714 fab83 18024e0e      	movw	14,y,14,x
+5715                     ; 548         ptcb->OSTCBNext->OSTCBPrev = ptcb->OSTCBPrev;
+5717 fab87 ee4e          	ldx	14,y
+5718 fab89 1ae010        	leax	16,x
+5719 fab8c 19e810        	leay	16,y
+5720 fab8f 18024000      	movw	0,y,0,x
+5721 fab93 ed80          	ldy	OFST-5,s
+5722 fab95               L1543:
+5723                     ; 550     ptcb->OSTCBNext     = OSTCBFreeList;                /* Return TCB to free TCB list                 */
+5725 fab95 18014e1586    	movw	_OSTCBFreeList,14,y
+5726                     ; 551     OSTCBFreeList       = ptcb;
+5728 fab9a 7d1586        	sty	_OSTCBFreeList
+5729                     ; 553     ptcb->OSTCBTaskName = (INT8U *)(void *)"?";
+5731 fab9d cc7743        	ldd	#L3543
+5732 faba0 6ce83c        	std	60,y
+5733                     ; 555     OS_EXIT_CRITICAL();
+5735 faba3 e682          	ldab	OFST-3,s
+5736 faba5 87            	clra	
+5737 faba6 164b54        	jsr	_OS_CPU_SR_Restore
+5739                     ; 556     if (OSRunning == OS_TRUE) {
+5741 faba9 f6162f        	ldab	_OSRunning
+5742 fabac 042103        	dbne	b,L5543
+5743                     ; 557         OS_Sched();                                     /* Find new highest priority task              */
+5745 fabaf 164933        	jsr	_OS_Sched
+5747 fabb2               L5543:
+5748                     ; 559     return (OS_ERR_NONE);
+5750 fabb2 c7            	clrb	
+5753 fabb3 1b87          	leas	7,s
+5754 fabb5 3d            	rts	
+5815                     ; 613 _NEAR INT8U  OSTaskDelReq (INT8U prio)
+5815                     ; 614 {
+5816                     	switch	.text
+5817 fabb6               _OSTaskDelReq:
+5819 fabb6 3b            	pshd	
+5820 fabb7 1b9c          	leas	-4,s
+5821       00000004      OFST:	set	4
+5824                     ; 618     OS_CPU_SR  cpu_sr = 0u;
+5826                     ; 630     if (prio == OS_TASK_IDLE_PRIO) {                            /* Not allowed to delete idle task     */
+5828 fabb9 c13f          	cmpb	#63
+5829 fabbb 2604          	bne	L5053
+5830                     ; 631         return (OS_ERR_TASK_DEL_IDLE);
+5832 fabbd c63e          	ldab	#62
+5834 fabbf 200c          	bra	L24
+5835 fabc1               L5053:
+5836                     ; 634     if (prio >= OS_LOWEST_PRIO) {                               /* Task priority valid ?               */
+5838 fabc1 e685          	ldab	OFST+1,s
+5839 fabc3 c13f          	cmpb	#63
+5840 fabc5 2509          	blo	L7053
+5841                     ; 635         if (prio != OS_PRIO_SELF) {
+5843 fabc7 c1ff          	cmpb	#255
+5844 fabc9 2705          	beq	L7053
+5845                     ; 636             return (OS_ERR_PRIO_INVALID);
+5847 fabcb c62a          	ldab	#42
+5849 fabcd               L24:
+5851 fabcd 1b86          	leas	6,s
+5852 fabcf 3d            	rts	
+5853 fabd0               L7053:
+5854                     ; 640     if (prio == OS_PRIO_SELF) {                                 /* See if a task is requesting to ...  */
+5856 fabd0 04a117        	ibne	b,L3153
+5857                     ; 641         OS_ENTER_CRITICAL();                                    /* ... this task to delete itself      */
+5859 fabd3 164b4f        	jsr	_OS_CPU_SR_Save
+5861 fabd6 6b80          	stab	OFST-4,s
+5862                     ; 642         stat = OSTCBCur->OSTCBDelReq;                           /* Return request status to caller     */
+5864 fabd8 fd1588        	ldy	_OSTCBCur
+5865 fabdb e6e829        	ldab	41,y
+5866 fabde 6b83          	stab	OFST-1,s
+5867                     ; 643         OS_EXIT_CRITICAL();
+5869 fabe0 e680          	ldab	OFST-4,s
+5870 fabe2 87            	clra	
+5871 fabe3 164b54        	jsr	_OS_CPU_SR_Restore
+5873                     ; 644         return (stat);
+5875 fabe6 e683          	ldab	OFST-1,s
+5877 fabe8 20e3          	bra	L24
+5878 fabea               L3153:
+5879                     ; 646     OS_ENTER_CRITICAL();
+5881 fabea 164b4f        	jsr	_OS_CPU_SR_Save
+5883 fabed 6b80          	stab	OFST-4,s
+5884                     ; 647     ptcb = OSTCBPrioTbl[prio];
+5886 fabef e685          	ldab	OFST+1,s
+5887 fabf1 87            	clra	
+5888 fabf2 59            	lsld	
+5889 fabf3 b746          	tfr	d,y
+5890 fabf5 ecea1502      	ldd	_OSTCBPrioTbl,y
+5891 fabf9 6c81          	std	OFST-3,s
+5892                     ; 648     if (ptcb == (OS_TCB *)0) {                                  /* Task to delete must exist           */
+5894 fabfb 2609          	bne	L5153
+5895                     ; 649         OS_EXIT_CRITICAL();
+5897 fabfd e680          	ldab	OFST-4,s
+5898 fabff 164b54        	jsr	_OS_CPU_SR_Restore
+5900                     ; 650         return (OS_ERR_TASK_NOT_EXIST);                         /* Task must already be deleted        */
+5902 fac02 c643          	ldab	#67
+5904 fac04 20c7          	bra	L24
+5905 fac06               L5153:
+5906                     ; 652     if (ptcb == OS_TCB_RESERVED) {                              /* Must NOT be assigned to a Mutex     */
+5908 fac06 042409        	dbne	d,L7153
+5909                     ; 653         OS_EXIT_CRITICAL();
+5911 fac09 e680          	ldab	OFST-4,s
+5912 fac0b 164b54        	jsr	_OS_CPU_SR_Restore
+5914                     ; 654         return (OS_ERR_TASK_DEL);
+5916 fac0e c63d          	ldab	#61
+5918 fac10 20bb          	bra	L24
+5919 fac12               L7153:
+5920                     ; 656     ptcb->OSTCBDelReq = OS_ERR_TASK_DEL_REQ;                    /* Set flag indicating task to be DEL. */
+5922 fac12 c63f          	ldab	#63
+5923 fac14 ee81          	ldx	OFST-3,s
+5924 fac16 6be029        	stab	41,x
+5925                     ; 657     OS_EXIT_CRITICAL();
+5927 fac19 e680          	ldab	OFST-4,s
+5928 fac1b 87            	clra	
+5929 fac1c 164b54        	jsr	_OS_CPU_SR_Restore
+5931                     ; 658     return (OS_ERR_NONE);
+5933 fac1f c7            	clrb	
+5935 fac20 20ab          	bra	L24
+6019                     ; 688 _NEAR INT8U  OSTaskNameGet (INT8U    prio,
+6019                     ; 689                            INT8U  **pname,
+6019                     ; 690                            INT8U   *perr)
+6019                     ; 691 {
+6020                     	switch	.text
+6021 fac22               _OSTaskNameGet:
+6023 fac22 3b            	pshd	
+6024 fac23 1b9c          	leas	-4,s
+6025       00000004      OFST:	set	4
+6028                     ; 695     OS_CPU_SR  cpu_sr = 0u;
+6030                     ; 708     if (prio > OS_LOWEST_PRIO) {                         /* Task priority valid ?                      */
+6032 fac25 c13f          	cmpb	#63
+6033 fac27 2307          	bls	L7553
+6034                     ; 709         if (prio != OS_PRIO_SELF) {
+6036 fac29 048104        	ibeq	b,L7553
+6037                     ; 710             *perr = OS_ERR_PRIO_INVALID;                 /* No                                         */
+6039 fac2c c62a          	ldab	#42
+6040                     ; 711             return (0u);
+6043 fac2e 2006          	bra	LC002
+6044 fac30               L7553:
+6045                     ; 714     if (pname == (INT8U **)0) {                          /* Is 'pname' a NULL pointer?                 */
+6047 fac30 ec88          	ldd	OFST+4,s
+6048 fac32 260a          	bne	L3653
+6049                     ; 715         *perr = OS_ERR_PNAME_NULL;                       /* Yes                                        */
+6051 fac34 c60c          	ldab	#12
+6052                     ; 716         return (0u);
+6054 fac36               LC002:
+6055 fac36 6bf3000a      	stab	[OFST+6,s]
+6056 fac3a c7            	clrb	
+6058 fac3b               L64:
+6060 fac3b 1b86          	leas	6,s
+6061 fac3d 3d            	rts	
+6062 fac3e               L3653:
+6063                     ; 719     if (OSIntNesting > 0u) {                              /* See if trying to call from an ISR          */
+6065 fac3e f6163c        	ldab	_OSIntNesting
+6066 fac41 2704          	beq	L5653
+6067                     ; 720         *perr = OS_ERR_NAME_GET_ISR;
+6069 fac43 c611          	ldab	#17
+6070                     ; 721         return (0u);
+6073 fac45 20ef          	bra	LC002
+6074 fac47               L5653:
+6075                     ; 723     OS_ENTER_CRITICAL();
+6077 fac47 164b4f        	jsr	_OS_CPU_SR_Save
+6079 fac4a 6b80          	stab	OFST-4,s
+6080                     ; 724     if (prio == OS_PRIO_SELF) {                          /* See if caller desires it's own name        */
+6082 fac4c e685          	ldab	OFST+1,s
+6083 fac4e c1ff          	cmpb	#255
+6084 fac50 2608          	bne	L7653
+6085                     ; 725         prio = OSTCBCur->OSTCBPrio;
+6087 fac52 fd1588        	ldy	_OSTCBCur
+6088 fac55 e6e824        	ldab	36,y
+6089 fac58 6b85          	stab	OFST+1,s
+6090 fac5a               L7653:
+6091                     ; 727     ptcb = OSTCBPrioTbl[prio];
+6093 fac5a 87            	clra	
+6094 fac5b 59            	lsld	
+6095 fac5c b746          	tfr	d,y
+6096 fac5e ecea1502      	ldd	_OSTCBPrioTbl,y
+6097 fac62 6c81          	std	OFST-3,s
+6098                     ; 728     if (ptcb == (OS_TCB *)0) {                           /* Does task exist?                           */
+6100 fac64 260a          	bne	L1753
+6101                     ; 729         OS_EXIT_CRITICAL();                              /* No                                         */
+6104                     ; 730         *perr = OS_ERR_TASK_NOT_EXIST;
+6106 fac66               LC003:
+6107 fac66 e680          	ldab	OFST-4,s
+6108 fac68 87            	clra	
+6109 fac69 164b54        	jsr	_OS_CPU_SR_Restore
+6110 fac6c c643          	ldab	#67
+6111                     ; 731         return (0u);
+6114 fac6e 20c6          	bra	LC002
+6115 fac70               L1753:
+6116                     ; 733     if (ptcb == OS_TCB_RESERVED) {                       /* Task assigned to a Mutex?                  */
+6118 fac70 8c0001        	cpd	#1
+6119                     ; 734         OS_EXIT_CRITICAL();                              /* Yes                                        */
+6122                     ; 735         *perr = OS_ERR_TASK_NOT_EXIST;
+6124                     ; 736         return (0u);
+6127 fac73 27f1          	beq	LC003
+6128                     ; 738     *pname = ptcb->OSTCBTaskName;
+6130 fac75 b746          	tfr	d,y
+6131 fac77 ece83c        	ldd	60,y
+6132 fac7a ee88          	ldx	OFST+4,s
+6133 fac7c 6c00          	std	0,x
+6134                     ; 739     len    = OS_StrLen(*pname);
+6136 fac7e 1649af        	jsr	_OS_StrLen
+6138 fac81 6b83          	stab	OFST-1,s
+6139                     ; 740     OS_EXIT_CRITICAL();
+6141 fac83 e680          	ldab	OFST-4,s
+6142 fac85 87            	clra	
+6143 fac86 164b54        	jsr	_OS_CPU_SR_Restore
+6145                     ; 741     *perr  = OS_ERR_NONE;
+6147 fac89 69f3000a      	clr	[OFST+6,s]
+6148                     ; 742     return (len);
+6150 fac8d e683          	ldab	OFST-1,s
+6152 fac8f 20aa          	bra	L64
+6227                     ; 770 _NEAR void  OSTaskNameSet (INT8U   prio,
+6227                     ; 771                           INT8U  *pname,
+6227                     ; 772                           INT8U  *perr)
+6227                     ; 773 {
+6228                     	switch	.text
+6229 fac91               _OSTaskNameSet:
+6231 fac91 3b            	pshd	
+6232 fac92 1b9d          	leas	-3,s
+6233       00000003      OFST:	set	3
+6236                     ; 776     OS_CPU_SR  cpu_sr = 0u;
+6238                     ; 789     if (prio > OS_LOWEST_PRIO) {                     /* Task priority valid ?                          */
+6240 fac94 c13f          	cmpb	#63
+6241 fac96 2307          	bls	L1363
+6242                     ; 790         if (prio != OS_PRIO_SELF) {
+6244 fac98 048104        	ibeq	b,L1363
+6245                     ; 791             *perr = OS_ERR_PRIO_INVALID;             /* No                                             */
+6247 fac9b c62a          	ldab	#42
+6248                     ; 792             return;
+6250 fac9d 2006          	bra	LC004
+6251 fac9f               L1363:
+6252                     ; 795     if (pname == (INT8U *)0) {                       /* Is 'pname' a NULL pointer?                     */
+6254 fac9f ec87          	ldd	OFST+4,s
+6255 faca1 2609          	bne	L5363
+6256                     ; 796         *perr = OS_ERR_PNAME_NULL;                   /* Yes                                            */
+6258 faca3 c60c          	ldab	#12
+6259 faca5               LC004:
+6260 faca5 6bf30009      	stab	[OFST+6,s]
+6261                     ; 797         return;
+6262 faca9               L25:
+6265 faca9 1b85          	leas	5,s
+6266 facab 3d            	rts	
+6267 facac               L5363:
+6268                     ; 800     if (OSIntNesting > 0u) {                         /* See if trying to call from an ISR              */
+6270 facac f6163c        	ldab	_OSIntNesting
+6271 facaf 2704          	beq	L7363
+6272                     ; 801         *perr = OS_ERR_NAME_SET_ISR;
+6274 facb1 c612          	ldab	#18
+6275                     ; 802         return;
+6277 facb3 20f0          	bra	LC004
+6278 facb5               L7363:
+6279                     ; 804     OS_ENTER_CRITICAL();
+6281 facb5 164b4f        	jsr	_OS_CPU_SR_Save
+6283 facb8 6b80          	stab	OFST-3,s
+6284                     ; 805     if (prio == OS_PRIO_SELF) {                      /* See if caller desires to set it's own name     */
+6286 facba e684          	ldab	OFST+1,s
+6287 facbc c1ff          	cmpb	#255
+6288 facbe 2608          	bne	L1463
+6289                     ; 806         prio = OSTCBCur->OSTCBPrio;
+6291 facc0 fd1588        	ldy	_OSTCBCur
+6292 facc3 e6e824        	ldab	36,y
+6293 facc6 6b84          	stab	OFST+1,s
+6294 facc8               L1463:
+6295                     ; 808     ptcb = OSTCBPrioTbl[prio];
+6297 facc8 87            	clra	
+6298 facc9 59            	lsld	
+6299 facca b746          	tfr	d,y
+6300 faccc ecea1502      	ldd	_OSTCBPrioTbl,y
+6301 facd0 6c81          	std	OFST-2,s
+6302                     ; 809     if (ptcb == (OS_TCB *)0) {                       /* Does task exist?                               */
+6304 facd2 260a          	bne	L3463
+6305                     ; 810         OS_EXIT_CRITICAL();                          /* No                                             */
+6308                     ; 811         *perr = OS_ERR_TASK_NOT_EXIST;
+6310 facd4               LC005:
+6311 facd4 e680          	ldab	OFST-3,s
+6312 facd6 87            	clra	
+6313 facd7 164b54        	jsr	_OS_CPU_SR_Restore
+6314 facda c643          	ldab	#67
+6315                     ; 812         return;
+6317 facdc 20c7          	bra	LC004
+6318 facde               L3463:
+6319                     ; 814     if (ptcb == OS_TCB_RESERVED) {                   /* Task assigned to a Mutex?                      */
+6321 facde 8c0001        	cpd	#1
+6322                     ; 815         OS_EXIT_CRITICAL();                          /* Yes                                            */
+6325                     ; 816         *perr = OS_ERR_TASK_NOT_EXIST;
+6327                     ; 817         return;
+6329 face1 27f1          	beq	LC005
+6330                     ; 819     ptcb->OSTCBTaskName = pname;
+6332 face3 ec87          	ldd	OFST+4,s
+6333 face5 ee81          	ldx	OFST-2,s
+6334 face7 6ce03c        	std	60,x
+6335                     ; 821     OS_EXIT_CRITICAL();
+6338 facea e680          	ldab	OFST-3,s
+6339 facec 87            	clra	
+6340 faced 164b54        	jsr	_OS_CPU_SR_Restore
+6342                     ; 822     *perr               = OS_ERR_NONE;
+6344 facf0 69f30009      	clr	[OFST+6,s]
+6345                     ; 823 }
+6347 facf4 20b3          	bra	L25
+6404                     ; 846 _NEAR INT8U  OSTaskResume (INT8U prio)
+6404                     ; 847 {
+6405                     	switch	.text
+6406 facf6               _OSTaskResume:
+6408 facf6 3b            	pshd	
+6409 facf7 1b9d          	leas	-3,s
+6410       00000003      OFST:	set	3
+6413                     ; 850     OS_CPU_SR  cpu_sr = 0u;
+6415                     ; 856     if (prio >= OS_LOWEST_PRIO) {                             /* Make sure task priority is valid      */
+6417 facf9 c13f          	cmpb	#63
+6418 facfb 2504          	blo	L3763
+6419                     ; 857         return (OS_ERR_PRIO_INVALID);
+6421 facfd c62a          	ldab	#42
+6423 facff 201a          	bra	L06
+6424 fad01               L3763:
+6425                     ; 860     OS_ENTER_CRITICAL();
+6427 fad01 164b4f        	jsr	_OS_CPU_SR_Save
+6429 fad04 6b82          	stab	OFST-1,s
+6430                     ; 861     ptcb = OSTCBPrioTbl[prio];
+6432 fad06 e684          	ldab	OFST+1,s
+6433 fad08 87            	clra	
+6434 fad09 59            	lsld	
+6435 fad0a b746          	tfr	d,y
+6436 fad0c ecea1502      	ldd	_OSTCBPrioTbl,y
+6437 fad10 6c80          	std	OFST-3,s
+6438                     ; 862     if (ptcb == (OS_TCB *)0) {                                /* Task to suspend must exist            */
+6440 fad12 260a          	bne	L5763
+6441                     ; 863         OS_EXIT_CRITICAL();
+6443 fad14 e682          	ldab	OFST-1,s
+6444 fad16 164b54        	jsr	_OS_CPU_SR_Restore
+6446                     ; 864         return (OS_ERR_TASK_RESUME_PRIO);
+6448 fad19 c646          	ldab	#70
+6450 fad1b               L06:
+6452 fad1b 1b85          	leas	5,s
+6453 fad1d 3d            	rts	
+6454 fad1e               L5763:
+6455                     ; 866     if (ptcb == OS_TCB_RESERVED) {                            /* See if assigned to Mutex              */
+6457 fad1e 8c0001        	cpd	#1
+6458 fad21 260a          	bne	L7763
+6459                     ; 867         OS_EXIT_CRITICAL();
+6461 fad23 e682          	ldab	OFST-1,s
+6462 fad25 87            	clra	
+6463 fad26 164b54        	jsr	_OS_CPU_SR_Restore
+6465                     ; 868         return (OS_ERR_TASK_NOT_EXIST);
+6467 fad29 c643          	ldab	#67
+6469 fad2b 20ee          	bra	L06
+6470 fad2d               L7763:
+6471                     ; 870     if ((ptcb->OSTCBStat & OS_STAT_SUSPEND) != OS_STAT_RDY) { /* Task must be suspended                */
+6473 fad2d b746          	tfr	d,y
+6474 fad2f 0fe8220849    	brclr	34,y,8,L1073
+6475                     ; 871         ptcb->OSTCBStat &= (INT8U)~(INT8U)OS_STAT_SUSPEND;    /* Remove suspension                     */
+6477 fad34 0de82208      	bclr	34,y,8
+6478                     ; 872         if ((ptcb->OSTCBStat & OS_STAT_PEND_ANY) == OS_STAT_RDY) { /* See if task is now ready         */
+6480 fad38 e6e822        	ldab	34,y
+6481 fad3b c537          	bitb	#55
+6482 fad3d 2635          	bne	L5073
+6483                     ; 873             if (ptcb->OSTCBDly == 0u) {
+6485 fad3f ece81e        	ldd	30,y
+6486 fad42 2630          	bne	L5073
+6487 fad44 ece820        	ldd	32,y
+6488 fad47 262b          	bne	L5073
+6489                     ; 874                 OSRdyGrp               |= ptcb->OSTCBBitY;    /* Yes, Make task ready to run           */
+6491 fad49 e6e828        	ldab	40,y
+6492 fad4c fa1638        	orab	_OSRdyGrp
+6493 fad4f 7b1638        	stab	_OSRdyGrp
+6494                     ; 875                 OSRdyTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
+6496 fad52 e6e826        	ldab	38,y
+6497 fad55 b746          	tfr	d,y
+6498 fad57 ee80          	ldx	OFST-3,s
+6499 fad59 e6e027        	ldab	39,x
+6500 fad5c eaea1630      	orab	_OSRdyTbl,y
+6501 fad60 6bea1630      	stab	_OSRdyTbl,y
+6502                     ; 877                 OS_EXIT_CRITICAL();
+6505 fad64 e682          	ldab	OFST-1,s
+6506 fad66 164b54        	jsr	_OS_CPU_SR_Restore
+6508                     ; 878                 if (OSRunning == OS_TRUE) {
+6510 fad69 f6162f        	ldab	_OSRunning
+6511 fad6c 04210b        	dbne	b,L3173
+6512                     ; 880                     OS_Sched();                               /* Find new highest priority task        */
+6515 fad6f 164933        	jsr	_OS_Sched
+6517 fad72 2006          	bra	L3173
+6518 fad74               L5073:
+6519                     ; 883                 OS_EXIT_CRITICAL();
+6522                     ; 886             OS_EXIT_CRITICAL();
+6524 fad74 e682          	ldab	OFST-1,s
+6525 fad76 87            	clra	
+6526 fad77 164b54        	jsr	_OS_CPU_SR_Restore
+6528 fad7a               L3173:
+6529                     ; 888         return (OS_ERR_NONE);
+6531 fad7a c7            	clrb	
+6533 fad7b 2008          	bra	L26
+6534 fad7d               L1073:
+6535                     ; 890     OS_EXIT_CRITICAL();
+6537 fad7d e682          	ldab	OFST-1,s
+6538 fad7f 87            	clra	
+6539 fad80 164b54        	jsr	_OS_CPU_SR_Restore
+6541                     ; 891     return (OS_ERR_TASK_NOT_SUSPENDED);
+6543 fad83 c644          	ldab	#68
+6545 fad85               L26:
+6547 fad85 1b85          	leas	5,s
+6548 fad87 3d            	rts	
+6659                     ; 916 _NEAR INT8U  OSTaskStkChk (INT8U         prio,
+6659                     ; 917                           OS_STK_DATA  *p_stk_data)
+6659                     ; 918 {
+6660                     	switch	.text
+6661 fad88               _OSTaskStkChk:
+6663 fad88 3b            	pshd	
+6664 fad89 1b95          	leas	-11,s
+6665       0000000b      OFST:	set	11
+6668                     ; 924     OS_CPU_SR  cpu_sr = 0u;
+6670                     ; 930     if (prio > OS_LOWEST_PRIO) {                       /* Make sure task priority is valid             */
+6672 fad8b c13f          	cmpb	#63
+6673 fad8d 2307          	bls	L7673
+6674                     ; 931         if (prio != OS_PRIO_SELF) {
+6676 fad8f 048104        	ibeq	b,L7673
+6677                     ; 932             return (OS_ERR_PRIO_INVALID);
+6679 fad92 c62a          	ldab	#42
+6681 fad94 2006          	bra	L07
+6682 fad96               L7673:
+6683                     ; 935     if (p_stk_data == (OS_STK_DATA *)0) {              /* Validate 'p_stk_data'                        */
+6685 fad96 ed8f          	ldy	OFST+4,s
+6686 fad98 2605          	bne	L3773
+6687                     ; 936         return (OS_ERR_PDATA_NULL);
+6689 fad9a c609          	ldab	#9
+6691 fad9c               L07:
+6693 fad9c 1b8d          	leas	13,s
+6694 fad9e 3d            	rts	
+6695 fad9f               L3773:
+6696                     ; 939     p_stk_data->OSFree = 0u;                           /* Assume failure, set to 0 size                */
+6698 fad9f 87            	clra	
+6699 fada0 c7            	clrb	
+6700 fada1 6c42          	std	2,y
+6701 fada3 6c40          	std	0,y
+6702                     ; 940     p_stk_data->OSUsed = 0u;
+6704 fada5 6c46          	std	6,y
+6705 fada7 6c44          	std	4,y
+6706                     ; 941     OS_ENTER_CRITICAL();
+6708 fada9 164b4f        	jsr	_OS_CPU_SR_Save
+6710 fadac 6b86          	stab	OFST-5,s
+6711                     ; 942     if (prio == OS_PRIO_SELF) {                        /* See if check for SELF                        */
+6713 fadae e68c          	ldab	OFST+1,s
+6714 fadb0 c1ff          	cmpb	#255
+6715 fadb2 2608          	bne	L5773
+6716                     ; 943         prio = OSTCBCur->OSTCBPrio;
+6718 fadb4 fd1588        	ldy	_OSTCBCur
+6719 fadb7 e6e824        	ldab	36,y
+6720 fadba 6b8c          	stab	OFST+1,s
+6721 fadbc               L5773:
+6722                     ; 945     ptcb = OSTCBPrioTbl[prio];
+6724 fadbc 87            	clra	
+6725 fadbd 59            	lsld	
+6726 fadbe b746          	tfr	d,y
+6727 fadc0 ecea1502      	ldd	_OSTCBPrioTbl,y
+6728 fadc4 6c80          	std	OFST-11,s
+6729                     ; 946     if (ptcb == (OS_TCB *)0) {                         /* Make sure task exist                         */
+6731 fadc6 2609          	bne	L7773
+6732                     ; 947         OS_EXIT_CRITICAL();
+6734 fadc8 e686          	ldab	OFST-5,s
+6735 fadca 164b54        	jsr	_OS_CPU_SR_Restore
+6737                     ; 948         return (OS_ERR_TASK_NOT_EXIST);
+6739 fadcd c643          	ldab	#67
+6741 fadcf 20cb          	bra	L07
+6742 fadd1               L7773:
+6743                     ; 950     if (ptcb == OS_TCB_RESERVED) {
+6745 fadd1 8c0001        	cpd	#1
+6746 fadd4 260a          	bne	L1004
+6747                     ; 951         OS_EXIT_CRITICAL();
+6749 fadd6 e686          	ldab	OFST-5,s
+6750 fadd8 87            	clra	
+6751 fadd9 164b54        	jsr	_OS_CPU_SR_Restore
+6753                     ; 952         return (OS_ERR_TASK_NOT_EXIST);
+6755 faddc c643          	ldab	#67
+6757 fadde 20bc          	bra	L07
+6758 fade0               L1004:
+6759                     ; 954     if ((ptcb->OSTCBOpt & OS_TASK_OPT_STK_CHK) == 0u) { /* Make sure stack checking option is set      */
+6761 fade0 b746          	tfr	d,y
+6762 fade2 0e4b010a      	brset	11,y,1,L3004
+6763                     ; 955         OS_EXIT_CRITICAL();
+6765 fade6 e686          	ldab	OFST-5,s
+6766 fade8 87            	clra	
+6767 fade9 164b54        	jsr	_OS_CPU_SR_Restore
+6769                     ; 956         return (OS_ERR_TASK_OPT);
+6771 fadec c645          	ldab	#69
+6773 fadee 20ac          	bra	L07
+6774 fadf0               L3004:
+6775                     ; 958     nfree = 0u;
+6777 fadf0 87            	clra	
+6778 fadf1 c7            	clrb	
+6779 fadf2 6c84          	std	OFST-7,s
+6780 fadf4 6c82          	std	OFST-9,s
+6781                     ; 959     size  = ptcb->OSTCBStkSize;
+6783 fadf6 18024889      	movw	8,y,OFST-2,s
+6784 fadfa 18024687      	movw	6,y,OFST-4,s
+6785                     ; 960     pchk  = ptcb->OSTCBStkBottom;
+6787 fadfe 18024480      	movw	4,y,OFST-11,s
+6788                     ; 961     OS_EXIT_CRITICAL();
+6790 fae02 e686          	ldab	OFST-5,s
+6791 fae04 164b54        	jsr	_OS_CPU_SR_Restore
+6794 fae07 ed80          	ldy	OFST-11,s
+6795 fae09 200f          	bra	L66
+6796 fae0b               L5004:
+6797                     ; 964         nfree++;
+6799 fae0b ec84          	ldd	OFST-7,s
+6800 fae0d c30001        	addd	#1
+6801 fae10 6c84          	std	OFST-7,s
+6802 fae12 2406          	bcc	L66
+6803 fae14 6283          	inc	OFST-8,s
+6804 fae16 2602          	bne	L66
+6805 fae18 6282          	inc	OFST-9,s
+6806 fae1a               L66:
+6807                     ; 963     while (*pchk++ == (OS_STK)0) {                    /* Compute the number of zero entries on the stk */
+6809 fae1a e670          	ldab	1,y+
+6810 fae1c 6d80          	sty	OFST-11,s
+6811 fae1e 0451ea        	tbeq	b,L5004
+6812                     ; 971     p_stk_data->OSFree = nfree;                       /* Store   number of free entries on the stk     */
+6814 fae21 ed8f          	ldy	OFST+4,s
+6815 fae23 18028442      	movw	OFST-7,s,2,y
+6816 fae27 18028240      	movw	OFST-9,s,0,y
+6817                     ; 972     p_stk_data->OSUsed = size - nfree;                /* Compute number of entries used on the stk     */
+6819 fae2b ec89          	ldd	OFST-2,s
+6820 fae2d ee87          	ldx	OFST-4,s
+6821 fae2f 1982          	leay	OFST-9,s
+6822 fae31 16c0fe        	jsr	c_lsub
+6824 fae34 ed8f          	ldy	OFST+4,s
+6825 fae36 6c46          	std	6,y
+6826 fae38 6e44          	stx	4,y
+6827                     ; 973     return (OS_ERR_NONE);
+6829 fae3a c7            	clrb	
+6832 fae3b 1b8d          	leas	13,s
+6833 fae3d 3d            	rts	
+6904                     ; 1002 _NEAR INT8U  OSTaskSuspend (INT8U prio)
+6904                     ; 1003 {
+6905                     	switch	.text
+6906 fae3e               _OSTaskSuspend:
+6908 fae3e 3b            	pshd	
+6909 fae3f 1b9b          	leas	-5,s
+6910       00000005      OFST:	set	5
+6913                     ; 1008     OS_CPU_SR  cpu_sr = 0u;
+6915                     ; 1014     if (prio == OS_TASK_IDLE_PRIO) {                            /* Not allowed to suspend idle task    */
+6917 fae41 c13f          	cmpb	#63
+6918 fae43 2604          	bne	L3404
+6919                     ; 1015         return (OS_ERR_TASK_SUSPEND_IDLE);
+6921 fae45 c647          	ldab	#71
+6923 fae47 200b          	bra	L47
+6924 fae49               L3404:
+6925                     ; 1017     if (prio >= OS_LOWEST_PRIO) {                               /* Task priority valid ?               */
+6927 fae49 e686          	ldab	OFST+1,s
+6928 fae4b c13f          	cmpb	#63
+6929 fae4d 2508          	blo	L5404
+6930                     ; 1018         if (prio != OS_PRIO_SELF) {
+6932 fae4f 048105        	ibeq	b,L5404
+6933                     ; 1019             return (OS_ERR_PRIO_INVALID);
+6935 fae52 c62a          	ldab	#42
+6937 fae54               L47:
+6939 fae54 1b87          	leas	7,s
+6940 fae56 3d            	rts	
+6941 fae57               L5404:
+6942                     ; 1023     OS_ENTER_CRITICAL();
+6944 fae57 164b4f        	jsr	_OS_CPU_SR_Save
+6946 fae5a 6b82          	stab	OFST-3,s
+6947                     ; 1024     if (prio == OS_PRIO_SELF) {                                 /* See if suspend SELF                 */
+6949 fae5c e686          	ldab	OFST+1,s
+6950 fae5e c1ff          	cmpb	#255
+6951 fae60 260a          	bne	L1504
+6952                     ; 1025         prio = OSTCBCur->OSTCBPrio;
+6954 fae62 fd1588        	ldy	_OSTCBCur
+6955 fae65 e6e824        	ldab	36,y
+6956 fae68 6b86          	stab	OFST+1,s
+6957                     ; 1026         self = OS_TRUE;
+6960 fae6a 2008          	bra	LC007
+6961 fae6c               L1504:
+6962                     ; 1027     } else if (prio == OSTCBCur->OSTCBPrio) {                   /* See if suspending self              */
+6964 fae6c fd1588        	ldy	_OSTCBCur
+6965 fae6f e1e824        	cmpb	36,y
+6966 fae72 2608          	bne	L5504
+6967                     ; 1028         self = OS_TRUE;
+6969 fae74               LC007:
+6970 fae74 c601          	ldab	#1
+6971 fae76 6b83          	stab	OFST-2,s
+6973 fae78 e686          	ldab	OFST+1,s
+6974 fae7a 2002          	bra	L3504
+6975 fae7c               L5504:
+6976                     ; 1030         self = OS_FALSE;                                        /* No suspending another task          */
+6978 fae7c 6983          	clr	OFST-2,s
+6979 fae7e               L3504:
+6980                     ; 1032     ptcb = OSTCBPrioTbl[prio];
+6982 fae7e 87            	clra	
+6983 fae7f 59            	lsld	
+6984 fae80 b746          	tfr	d,y
+6985 fae82 ecea1502      	ldd	_OSTCBPrioTbl,y
+6986 fae86 6c80          	std	OFST-5,s
+6987                     ; 1033     if (ptcb == (OS_TCB *)0) {                                  /* Task to suspend must exist          */
+6989 fae88 2609          	bne	L1604
+6990                     ; 1034         OS_EXIT_CRITICAL();
+6992 fae8a e682          	ldab	OFST-3,s
+6993 fae8c 164b54        	jsr	_OS_CPU_SR_Restore
+6995                     ; 1035         return (OS_ERR_TASK_SUSPEND_PRIO);
+6997 fae8f c648          	ldab	#72
+6999 fae91 20c1          	bra	L47
+7000 fae93               L1604:
+7001                     ; 1037     if (ptcb == OS_TCB_RESERVED) {                              /* See if assigned to Mutex            */
+7003 fae93 8c0001        	cpd	#1
+7004 fae96 260a          	bne	L3604
+7005                     ; 1038         OS_EXIT_CRITICAL();
+7007 fae98 e682          	ldab	OFST-3,s
+7008 fae9a 87            	clra	
+7009 fae9b 164b54        	jsr	_OS_CPU_SR_Restore
+7011                     ; 1039         return (OS_ERR_TASK_NOT_EXIST);
+7013 fae9e c643          	ldab	#67
+7015 faea0 20b2          	bra	L47
+7016 faea2               L3604:
+7017                     ; 1041     y            = ptcb->OSTCBY;
+7019 faea2 b746          	tfr	d,y
+7020 faea4 e6e826        	ldab	38,y
+7021 faea7 6b84          	stab	OFST-1,s
+7022                     ; 1042     OSRdyTbl[y] &= (OS_PRIO)~ptcb->OSTCBBitX;                   /* Make task not ready                 */
+7024 faea9 b796          	exg	b,y
+7025 faeab ee80          	ldx	OFST-5,s
+7026 faead e6e027        	ldab	39,x
+7027 faeb0 51            	comb	
+7028 faeb1 e4ea1630      	andb	_OSRdyTbl,y
+7029 faeb5 6bea1630      	stab	_OSRdyTbl,y
+7030                     ; 1043     if (OSRdyTbl[y] == 0u) {
+7032 faeb9 260c          	bne	L5604
+7033                     ; 1044         OSRdyGrp &= (OS_PRIO)~ptcb->OSTCBBitY;
+7035 faebb b756          	tfr	x,y
+7036 faebd e6e828        	ldab	40,y
+7037 faec0 51            	comb	
+7038 faec1 f41638        	andb	_OSRdyGrp
+7039 faec4 7b1638        	stab	_OSRdyGrp
+7040 faec7               L5604:
+7041                     ; 1046     ptcb->OSTCBStat |= OS_STAT_SUSPEND;                         /* Status of task is 'SUSPENDED'       */
+7043 faec7 b756          	tfr	x,y
+7044 faec9 0ce82208      	bset	34,y,8
+7045                     ; 1047     OS_EXIT_CRITICAL();
+7047 faecd e682          	ldab	OFST-3,s
+7048 faecf 87            	clra	
+7049 faed0 164b54        	jsr	_OS_CPU_SR_Restore
+7051                     ; 1050     if (self == OS_TRUE) {                                      /* Context switch only if SELF         */
+7055 faed3 e683          	ldab	OFST-2,s
+7056 faed5 042103        	dbne	b,L7604
+7057                     ; 1051         OS_Sched();                                             /* Find new highest priority task      */
+7059 faed8 164933        	jsr	_OS_Sched
+7061 faedb               L7604:
+7062                     ; 1053     return (OS_ERR_NONE);
+7064 faedb c7            	clrb	
+7067 faedc 1b87          	leas	7,s
+7068 faede 3d            	rts	
+7135                     ; 1078 _NEAR INT8U  OSTaskQuery (INT8U    prio,
+7135                     ; 1079                          OS_TCB  *p_task_data)
+7135                     ; 1080 {
+7136                     	switch	.text
+7137 faedf               _OSTaskQuery:
+7139 faedf 3b            	pshd	
+7140 faee0 1b9d          	leas	-3,s
+7141       00000003      OFST:	set	3
+7144                     ; 1083     OS_CPU_SR  cpu_sr = 0u;
+7146                     ; 1089     if (prio > OS_LOWEST_PRIO) {                 /* Task priority valid ?                              */
+7148 faee2 c13f          	cmpb	#63
+7149 faee4 2307          	bls	L3214
+7150                     ; 1090         if (prio != OS_PRIO_SELF) {
+7152 faee6 048104        	ibeq	b,L3214
+7153                     ; 1091             return (OS_ERR_PRIO_INVALID);
+7155 faee9 c62a          	ldab	#42
+7157 faeeb 2006          	bra	L001
+7158 faeed               L3214:
+7159                     ; 1094     if (p_task_data == (OS_TCB *)0) {            /* Validate 'p_task_data'                             */
+7161 faeed ec87          	ldd	OFST+4,s
+7162 faeef 2605          	bne	L7214
+7163                     ; 1095         return (OS_ERR_PDATA_NULL);
+7165 faef1 c609          	ldab	#9
+7167 faef3               L001:
+7169 faef3 1b85          	leas	5,s
+7170 faef5 3d            	rts	
+7171 faef6               L7214:
+7172                     ; 1098     OS_ENTER_CRITICAL();
+7174 faef6 164b4f        	jsr	_OS_CPU_SR_Save
+7176 faef9 6b80          	stab	OFST-3,s
+7177                     ; 1099     if (prio == OS_PRIO_SELF) {                  /* See if suspend SELF                                */
+7179 faefb e684          	ldab	OFST+1,s
+7180 faefd c1ff          	cmpb	#255
+7181 faeff 2608          	bne	L1314
+7182                     ; 1100         prio = OSTCBCur->OSTCBPrio;
+7184 faf01 fd1588        	ldy	_OSTCBCur
+7185 faf04 e6e824        	ldab	36,y
+7186 faf07 6b84          	stab	OFST+1,s
+7187 faf09               L1314:
+7188                     ; 1102     ptcb = OSTCBPrioTbl[prio];
+7190 faf09 87            	clra	
+7191 faf0a 59            	lsld	
+7192 faf0b b746          	tfr	d,y
+7193 faf0d ecea1502      	ldd	_OSTCBPrioTbl,y
+7194 faf11 6c81          	std	OFST-2,s
+7195                     ; 1103     if (ptcb == (OS_TCB *)0) {                   /* Task to query must exist                           */
+7197 faf13 2609          	bne	L3314
+7198                     ; 1104         OS_EXIT_CRITICAL();
+7200 faf15 e680          	ldab	OFST-3,s
+7201 faf17 164b54        	jsr	_OS_CPU_SR_Restore
+7203                     ; 1105         return (OS_ERR_PRIO);
+7205 faf1a c629          	ldab	#41
+7207 faf1c 20d5          	bra	L001
+7208 faf1e               L3314:
+7209                     ; 1107     if (ptcb == OS_TCB_RESERVED) {               /* Task to query must not be assigned to a Mutex      */
+7211 faf1e 042409        	dbne	d,L5314
+7212                     ; 1108         OS_EXIT_CRITICAL();
+7214 faf21 e680          	ldab	OFST-3,s
+7215 faf23 164b54        	jsr	_OS_CPU_SR_Restore
+7217                     ; 1109         return (OS_ERR_TASK_NOT_EXIST);
+7219 faf26 c643          	ldab	#67
+7221 faf28 20c9          	bra	L001
+7222 faf2a               L5314:
+7223                     ; 1112     OS_MemCopy((INT8U *)p_task_data, (INT8U *)ptcb, sizeof(OS_TCB));
+7225 faf2a cc003e        	ldd	#62
+7226 faf2d 3b            	pshd	
+7227 faf2e ec83          	ldd	OFST+0,s
+7228 faf30 3b            	pshd	
+7229 faf31 ec8b          	ldd	OFST+8,s
+7230 faf33 16491b        	jsr	_OS_MemCopy
+7232 faf36 1b84          	leas	4,s
+7233                     ; 1113     OS_EXIT_CRITICAL();
+7235 faf38 e680          	ldab	OFST-3,s
+7236 faf3a 87            	clra	
+7237 faf3b 164b54        	jsr	_OS_CPU_SR_Restore
+7239                     ; 1114     return (OS_ERR_NONE);
+7241 faf3e c7            	clrb	
+7243 faf3f 20b2          	bra	L001
+7268                     ; 1327 _NEAR void  OS_TaskReturn (void)
+7268                     ; 1328 {
+7269                     	switch	.text
+7270 faf41               _OS_TaskReturn:
+7274                     ; 1329     OSTaskReturnHook(OSTCBCur);                   /* Call hook to let user decide on what to do        */
+7276 faf41 fc1588        	ldd	_OSTCBCur
+7277 faf44 164bc3        	jsr	_OSTaskReturnHook
+7279                     ; 1332     (void)OSTaskDel(OS_PRIO_SELF);                /* Delete task if it accidentally returns!           */
+7281 faf47 cc00ff        	ldd	#255
+7282 faf4a 166a89        	jsr	_OSTaskDel
+7284                     ; 1338 }
+7287 faf4d 3d            	rts	
+7335                     ; 1364 _NEAR void  OS_TaskStkClr (OS_STK  *pbos,
+7335                     ; 1365                      INT32U   size,
+7335                     ; 1366                      INT16U   opt)
+7335                     ; 1367 {
+7336                     	switch	.text
+7337 faf4e               _OS_TaskStkClr:
+7339 faf4e 3b            	pshd	
+7340       00000000      OFST:	set	0
+7343                     ; 1368     if ((opt & OS_TASK_OPT_STK_CHK) != 0x0000u) {      /* See if stack checking has been enabled       */
+7345 faf4f e689          	ldab	OFST+9,s
+7346 faf51 c501          	bitb	#1
+7347 faf53 2723          	beq	L1714
+7348                     ; 1369         if ((opt & OS_TASK_OPT_STK_CLR) != 0x0000u) {  /* See if stack needs to be cleared             */
+7350 faf55 c502          	bitb	#2
+7351 faf57 271f          	beq	L1714
+7353 faf59 2015          	bra	L7714
+7354 faf5b               L5714:
+7355                     ; 1372                 size--;
+7357 faf5b ec86          	ldd	OFST+6,s
+7358 faf5d 830001        	subd	#1
+7359 faf60 6c86          	std	OFST+6,s
+7360 faf62 ec84          	ldd	OFST+4,s
+7361 faf64 c200          	sbcb	#0
+7362 faf66 8200          	sbca	#0
+7363 faf68 6c84          	std	OFST+4,s
+7364                     ; 1373                 *pbos++ = (OS_STK)0;                   /* Clear from bottom of stack and up!           */
+7366 faf6a ed80          	ldy	OFST+0,s
+7367 faf6c 6970          	clr	1,y+
+7368 faf6e 6d80          	sty	OFST+0,s
+7369 faf70               L7714:
+7370                     ; 1371             while (size > 0u) {                        /* Stack grows from HIGH to LOW memory          */
+7372 faf70 ec84          	ldd	OFST+4,s
+7373 faf72 26e7          	bne	L5714
+7374 faf74 ec86          	ldd	OFST+6,s
+7375 faf76 26e3          	bne	L5714
+7376 faf78               L1714:
+7377                     ; 1383 }
+7380 faf78 31            	puly	
+7381 faf79 3d            	rts	
+7393                     	xref	_OSTaskStkInit
+7394                     	xref	_OSTaskReturnHook
+7395                     	xref	_OSTaskDelHook
+7396                     	xref	_OS_TCBInit
+7397                     	xdef	_OS_TaskStkClr
+7398                     	xdef	_OS_TaskReturn
+7399                     	xref	_OS_StrLen
+7400                     	xref	_OS_Sched
+7401                     	xref	_OS_MemCopy
+7402                     	xref	_OS_FlagUnlink
+7403                     	xref	_OS_EventTaskRemoveMulti
+7404                     	xref	_OS_EventTaskRemove
+7405                     	xref	_OS_Dummy
+7406                     	xdef	_OSTaskQuery
+7407                     	xdef	_OSTaskStkChk
+7408                     	xdef	_OSTaskSuspend
+7409                     	xdef	_OSTaskResume
+7410                     	xdef	_OSTaskNameSet
+7411                     	xdef	_OSTaskNameGet
+7412                     	xdef	_OSTaskDelReq
+7413                     	xdef	_OSTaskDel
+7414                     	xdef	_OSTaskCreateExt
+7415                     	xdef	_OSTaskCreate
+7416                     	xdef	_OSTaskChangePrio
+7417                     	xref	_OSTCBPrioTbl
+7418                     	xref	_OSTCBList
+7419                     	xref	_OSTCBFreeList
+7420                     	xref	_OSTCBCur
+7421                     	xref	_OSTaskCtr
+7422                     	xref	_OSRunning
+7423                     	xref	_OSRdyTbl
+7424                     	xref	_OSRdyGrp
+7425                     	xref	_OSLockNesting
+7426                     	xref	_OSIntNesting
+7427                     	xref	_OS_CPU_SR_Restore
+7428                     	xref	_OS_CPU_SR_Save
+7429                     .const:	section	.data
+7430 fb743               L3543:
+7431 fb743 3f00          	dc.b	"?",0
+7452                     	xref	c_lsub
+7453                     	end

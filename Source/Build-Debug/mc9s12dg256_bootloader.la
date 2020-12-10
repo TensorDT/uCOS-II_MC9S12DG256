@@ -1,0 +1,789 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+   5                     	pic	on
+4057                     ; 143 _NEAR void BootLoaderToRunFromRAM(void)
+4057                     ; 144 {
+4058                     	switch	.text
+4059 ff800               _BootLoaderToRunFromRAM:
+4061 ff800 3b            	pshd	
+4062       00000002      OFST:	set	2
+4065                     ; 148     ECLKDIV = 0x1A;          // ECLK = OSC/(26+1) = 4915200/27 = 182044 Hz
+4067 ff801 c61a          	ldab	#26
+4068 ff803 7b0110        	stab	_ECLKDIV
+4069                     ; 150     ECNFG   = 0x00;          // Disable both CBEIE and CCIE
+4071 ff806 790113        	clr	_ECNFG
+4072                     ; 151     EPROT   = 0xFF;          // This value is loaded from an EEPROM byte at 0x4FFD at startup
+4074 ff809 c6ff          	ldab	#255
+4075 ff80b 7b0114        	stab	_EPROT
+4076                     ; 152     ESTAT  |= (ESTAT_PVIOL | // Clear PVIOL and ACCERR flags
+4076                     ; 153                ESTAT_ACCERR); 
+4078 ff80e 1c011530      	bset	_ESTAT,48
+4079                     ; 156     FCLKDIV = 0x1A;          // ECLK = OSC/(26+1) = 4915200/27 = 182044 Hz
+4081 ff812 c61a          	ldab	#26
+4082 ff814 7b0100        	stab	_FCLKDIV
+4083                     ; 158     FCNFG   = 0x00;          // Disable related interrupts and security key writing
+4085 ff817 790103        	clr	_FCNFG
+4086                     ; 159     FPROT   = 0xFF;          // No flash protection
+4088 ff81a c6ff          	ldab	#255
+4089 ff81c 7b0104        	stab	_FPROT
+4090                     ; 160     FSTAT  |= (FSTAT_PVIOL | // Clear PVIOL and ACCERR flags
+4090                     ; 161                FSTAT_ACCERR);
+4092 ff81f 1c010530      	bset	_FSTAT,48
+4093                     ; 163     PPAGE   = 0;             // Reset to page 0 (default)
+4095 ff823 c7            	clrb	
+4096 ff824 5b30          	stab	_PPAGE
+4097                     ; 166     BuffRx[0] = 0;
+4099 ff826 793900        	clr	_BuffRx
+4100                     ; 167     Index = 0;
+4102 ff829 7939f1        	clr	_Index
+4103                     ; 168     WasBTCmdRcvd = BFALSE;
+4105 ff82c 7939f2        	clr	_WasBTCmdRcvd
+4106                     ; 169     CntrBytes = 0;
+4108 ff82f 7939f6        	clr	_CntrBytes
+4110 ff832 182000f3      	lbra	L1762
+4111 ff836               L5662:
+4112                     ; 173         if (SCI0SR1 & 0x20) {     // received a byte?
+4114 ff836 4fcc204b      	brclr	_SCI0SR1,32,L5762
+4115                     ; 175             BuffRx[Index] = SCI0DRL;
+4117 ff83a f639f1        	ldab	_Index
+4118 ff83d 87            	clra	
+4119 ff83e b746          	tfr	d,y
+4120 ff840 d6cf          	ldab	_SCI0DRL
+4121 ff842 6bea3900      	stab	_BuffRx,y
+4122                     ; 177             if (Index == IDX_FRAMING_BYTE) {
+4124 ff846 f739f1        	tst	_Index
+4125 ff849 261f          	bne	L7762
+4126                     ; 184                 if ((BuffRx[IDX_FRAMING_BYTE] != STX) &&
+4126                     ; 185                     (BuffRx[IDX_FRAMING_BYTE] != ETB)) {
+4128 ff84b f63900        	ldab	_BuffRx
+4129 ff84e c102          	cmpb	#2
+4130 ff850 2713          	beq	L1072
+4132 ff852 c117          	cmpb	#23
+4133 ff854 270f          	beq	L1072
+4134                     ; 187                     if (CntrBytes < UINT8_MAX) {
+4136 ff856 f639f6        	ldab	_CntrBytes
+4137 ff859 c1ff          	cmpb	#255
+4138 ff85b 2405          	bhs	L3072
+4139                     ; 190                         CntrBytes++;
+4141 ff85d 7239f6        	inc	_CntrBytes
+4143 ff860 2020          	bra	L1172
+4144 ff862               L3072:
+4145                     ; 196                             jmp $4000
+4148 ff862 064000        	jmp	$4000
+4150 ff865               L1072:
+4151                     ; 203                     CntrBytes = 0;
+4153 ff865 7939f6        	clr	_CntrBytes
+4154 ff868 2018          	bra	L1172
+4155 ff86a               L7762:
+4156                     ; 206             else if (Index >= CMD_NUM_BYTES_MIN) {
+4158 ff86a f639f1        	ldab	_Index
+4159 ff86d c103          	cmpb	#3
+4160 ff86f 2511          	blo	L1172
+4161                     ; 209                 if ((Index-1) == BuffRx[IDX_MSG_LEN_BYTE]) {
+4163 ff871 b746          	tfr	d,y
+4164 ff873 03            	dey	
+4165 ff874 6d80          	sty	OFST-2,s
+4166 ff876 f63901        	ldab	_BuffRx+1
+4167 ff879 ac80          	cpd	OFST-2,s
+4168 ff87b 2605          	bne	L1172
+4169                     ; 211                     WasBTCmdRcvd = BTRUE;
+4171 ff87d c601          	ldab	#1
+4172 ff87f 7b39f2        	stab	_WasBTCmdRcvd
+4173 ff882               L1172:
+4174                     ; 214             Index++;
+4176 ff882 7239f1        	inc	_Index
+4177 ff885               L5762:
+4178                     ; 217         if (WasBTCmdRcvd) {
+4180 ff885 f739f2        	tst	_WasBTCmdRcvd
+4181 ff888 27a8          	beq	L1762
+4182                     ; 225             Checksum = 0;
+4184 ff88a 7939f4        	clr	_Checksum
+4185                     ; 226             Index = BuffRx[IDX_MSG_LEN_BYTE]+1; // Get the checksum byte index.
+4187 ff88d f63901        	ldab	_BuffRx+1
+4188 ff890 52            	incb	
+4189 ff891 7b39f1        	stab	_Index
+4190                     ; 227             for (TempUINT8=IDX_MSG_LEN_BYTE;
+4192 ff894 c601          	ldab	#1
+4193 ff896 7b39f0        	stab	_TempUINT8
+4195 ff899 2012          	bra	L5272
+4196 ff89b               L1272:
+4197                     ; 230                 Checksum += BuffRx[TempUINT8];
+4199 ff89b b796          	exg	b,y
+4200 ff89d f639f4        	ldab	_Checksum
+4201 ff8a0 ebea3900      	addb	_BuffRx,y
+4202 ff8a4 7b39f4        	stab	_Checksum
+4203                     ; 228                  TempUINT8 < Index;
+4203                     ; 229                  TempUINT8++) {
+4205 ff8a7 7239f0        	inc	_TempUINT8
+4206 ff8aa f639f0        	ldab	_TempUINT8
+4207 ff8ad               L5272:
+4208                     ; 227             for (TempUINT8=IDX_MSG_LEN_BYTE;
+4208                     ; 228                  TempUINT8 < Index;
+4210 ff8ad f139f1        	cmpb	_Index
+4211 ff8b0 25e9          	blo	L1272
+4212                     ; 232             Checksum = 0xFF - Checksum;     // One's complement
+4214 ff8b2 c6ff          	ldab	#255
+4215 ff8b4 f039f4        	subb	_Checksum
+4216 ff8b7 7b39f4        	stab	_Checksum
+4217                     ; 234             if (Checksum == BuffRx[Index]) {
+4219 ff8ba f639f1        	ldab	_Index
+4220 ff8bd 87            	clra	
+4221 ff8be b746          	tfr	d,y
+4222 ff8c0 e6ea3900      	ldab	_BuffRx,y
+4223 ff8c4 f139f4        	cmpb	_Checksum
+4224 ff8c7 2606          	bne	L1372
+4225                     ; 237                 processCommand();
+4227 ff8c9 15fa038f      	lbsr	L5462_processCommand
+4230 ff8cd 2005          	bra	L3372
+4231 ff8cf               L1372:
+4232                     ; 241                 ErrorNum = CHECKSUM_ERR;
+4234 ff8cf c6ff          	ldab	#255
+4235 ff8d1 7b39f3        	stab	_ErrorNum
+4236 ff8d4               L3372:
+4237                     ; 244             TX_MODE();             // Switch to transmit mode
+4239 ff8d4 1d025002      	bclr	_PTM,2
+4242 ff8d8 c608          	ldab	#8
+4243 ff8da 5bcb          	stab	_SCI0CR2
+4244                     ; 249             delayMilliseconds(20); // Delay 20ms before sending an ACK or NACK.
+4247 ff8dc cc0014        	ldd	#20
+4248 ff8df 0754          	lbsr	L3462_delayMilliseconds
+4250                     ; 252             if (ErrorNum == NO_ERROR) {
+4252 ff8e1 f739f3        	tst	_ErrorNum
+4253 ff8e4 2622          	bne	L5372
+4254                     ; 256                 SCI0DRL = ACK;
+4256 ff8e6 c606          	ldab	#6
+4257 ff8e8 5bcf          	stab	_SCI0DRL
+4259 ff8ea               L3472:
+4260                     ; 257                 while (!(SCI0SR1 & SCISCR1_SCISWAI)) {;}
+4262 ff8ea 4fcc40fc      	brclr	_SCI0SR1,64,L3472
+4263                     ; 261                 RX_MODE();
+4265 ff8ee 1c025002      	bset	_PTM,2
+4268 ff8f2 c604          	ldab	#4
+4269 ff8f4 5bcb          	stab	_SCI0CR2
+4270                     ; 262                 TempUINT8 = SCI0SR1;
+4273 ff8f6 d6cc          	ldab	_SCI0SR1
+4274                     ; 263                 TempUINT8 = SCI0DRL;
+4276 ff8f8 d6cf          	ldab	_SCI0DRL
+4277 ff8fa 7b39f0        	stab	_TempUINT8
+4279 ff8fd               L7472:
+4280                     ; 289             BuffRx[0] = 0;
+4282 ff8fd 793900        	clr	_BuffRx
+4283                     ; 290             Index = 0;
+4285 ff900 7939f1        	clr	_Index
+4286                     ; 291             WasBTCmdRcvd = BFALSE;
+4288 ff903 7939f2        	clr	_WasBTCmdRcvd
+4289 ff906 2021          	bra	L1762
+4290 ff908               L5372:
+4291                     ; 270                 SCI0DRL = NAK;
+4293 ff908 c615          	ldab	#21
+4294 ff90a 5bcf          	stab	_SCI0DRL
+4296 ff90c               L5572:
+4297                     ; 271                 while (!(SCI0SR1 & SCISCR1_SCISWAI)) {;}
+4299 ff90c 4fcc40fc      	brclr	_SCI0SR1,64,L5572
+4300                     ; 275                 RX_MODE();
+4302 ff910 1c025002      	bset	_PTM,2
+4305 ff914 c604          	ldab	#4
+4306 ff916 5bcb          	stab	_SCI0CR2
+4307                     ; 276                 TempUINT8 = SCI0SR1;
+4310 ff918 d6cc          	ldab	_SCI0SR1
+4311                     ; 277                 TempUINT8 = SCI0DRL;
+4313 ff91a d6cf          	ldab	_SCI0DRL
+4314 ff91c 7b39f0        	stab	_TempUINT8
+4315                     ; 281                 if (ErrorNum != CHECKSUM_ERR) {
+4317 ff91f f639f3        	ldab	_ErrorNum
+4318 ff922 c1ff          	cmpb	#255
+4319 ff924 27d7          	beq	L7472
+4320                     ; 283                         jmp $4000
+4323 ff926 064000        	jmp	$4000
+4325 ff929               L1762:
+4326                     ; 171     while (BuffRx[IDX_FRAMING_BYTE] != ETB) {
+4328 ff929 f63900        	ldab	_BuffRx
+4329 ff92c c117          	cmpb	#23
+4330 ff92e 1826ff04      	bne	L5662
+4331                     ; 297         jmp $4000
+4334 ff932 064000        	jmp	$4000
+4336                     ; 300     return;
+4384                     ; 313 _NEAR static void delayMilliseconds(
+4384                     ; 314     UINT16 delay_ms)         // software delay in milliseconds
+4384                     ; 315 {
+4385                     	switch	.text
+4386 ff935               L3462_delayMilliseconds:
+4388 ff935 3b            	pshd	
+4389 ff936 1b9d          	leas	-3,s
+4390       00000003      OFST:	set	3
+4393                     ; 319     for (cntr_ms = 0;
+4395 ff938 87            	clra	
+4396 ff939 c7            	clrb	
+4398 ff93a 2010          	bra	L7003
+4399 ff93c               L3003:
+4400                     ; 323         for (cntr1msLp = 0; cntr1msLp < 221; cntr1msLp++) {
+4402 ff93c 6980          	clr	OFST-3,s
+4403 ff93e               L3103:
+4404                     ; 324             NOP();
+4407 ff93e a7            	nop	
+4409                     ; 323         for (cntr1msLp = 0; cntr1msLp < 221; cntr1msLp++) {
+4411 ff93f 6280          	inc	OFST-3,s
+4414 ff941 e680          	ldab	OFST-3,s
+4415 ff943 c1dd          	cmpb	#221
+4416 ff945 25f7          	blo	L3103
+4417                     ; 320          cntr_ms < delay_ms;
+4417                     ; 321          cntr_ms++) {
+4419 ff947 ec81          	ldd	OFST-2,s
+4420 ff949 c30001        	addd	#1
+4421 ff94c               L7003:
+4422 ff94c 6c81          	std	OFST-2,s
+4423                     ; 319     for (cntr_ms = 0;
+4423                     ; 320          cntr_ms < delay_ms;
+4425 ff94e ac83          	cpd	OFST+0,s
+4426 ff950 25ea          	blo	L3003
+4427                     ; 328     return;
+4430 ff952 1b85          	leas	5,s
+4431 ff954 3d            	rts	
+4460                     ; 414 _NEAR static UINT8 eraseFlash(void)
+4460                     ; 415 {
+4461                     	switch	.text
+4462 ff955               L1203_eraseFlash:
+4466                     ; 419     FSTAT |= (FSTAT_PVIOL | FSTAT_ACCERR);
+4468 ff955 1c010530      	bset	_FSTAT,48
+4470 ff959               L5303:
+4471                     ; 422     while (!(FSTAT & FSTAT_CBEIF)) {;}
+4473 ff959 1f010580fb    	brclr	_FSTAT,128,L5303
+4474                     ; 425     for (TempUINT8=1; TempUINT8 <= 3; TempUINT8++) {
+4476 ff95e c601          	ldab	#1
+4477 ff960 7b39f0        	stab	_TempUINT8
+4478 ff963               L1403:
+4479                     ; 429         FCNFG = TempUINT8;
+4481 ff963 7b0103        	stab	_FCNFG
+4482                     ; 433         PPAGE = CALC_BLK_START_PG(TempUINT8);
+4484 ff966 58            	lslb	
+4485 ff967 58            	lslb	
+4486 ff968 c03c          	subb	#60
+4487 ff96a 50            	negb	
+4488 ff96b 5b30          	stab	_PPAGE
+4489                     ; 436         if ((FSTAT & FSTAT_CBEIF) == 0) {
+4491 ff96d 1e01058003    	brset	_FSTAT,128,L7403
+4492                     ; 437             return (ERASE_MEM_BUFF_NOT_EMPTY);
+4494 ff972 c602          	ldab	#2
+4497 ff974 3d            	rts	
+4498 ff975               L7403:
+4499                     ; 444         *((volatile UINT16 *)FLASH_PAGE_START_ADDR) = 0xFFFF;
+4501 ff975 ccffff        	ldd	#-1
+4502 ff978 7c8000        	std	32768
+4503                     ; 445         FCMD  = FLASH_MASS_ERASE;
+4505 ff97b c641          	ldab	#65
+4506 ff97d 7b0106        	stab	_FCMD
+4507                     ; 446         FSTAT|= FSTAT_CBEIF;
+4509 ff980 1c010580      	bset	_FSTAT,128
+4510                     ; 449         NOP();
+4513 ff984 a7            	nop	
+4515                     ; 450         NOP();
+4518 ff985 a7            	nop	
+4520                     ; 454         if (FSTAT & (FSTAT_PVIOL | FSTAT_ACCERR)) {
+4522 ff986 1f01053015    	brclr	_FSTAT,48,L1603
+4523                     ; 455             if (FSTAT & FSTAT_PVIOL)  { FSTAT |= FSTAT_PVIOL;  }
+4525 ff98b 1f01052004    	brclr	_FSTAT,32,L3503
+4528 ff990 1c010520      	bset	_FSTAT,32
+4529 ff994               L3503:
+4530                     ; 456             if (FSTAT & FSTAT_ACCERR) { FSTAT |= FSTAT_ACCERR; }
+4532 ff994 1f01051004    	brclr	_FSTAT,16,L5503
+4535 ff999 1c010510      	bset	_FSTAT,16
+4536 ff99d               L5503:
+4537                     ; 457             return (ERASE_MEM_PVIOL_ACCERR_ERR);
+4539 ff99d c601          	ldab	#1
+4542 ff99f 3d            	rts	
+4543 ff9a0               L1603:
+4544                     ; 462         while (!(FSTAT & FSTAT_CBEIF));
+4546 ff9a0 1f010580fb    	brclr	_FSTAT,128,L1603
+4547                     ; 425     for (TempUINT8=1; TempUINT8 <= 3; TempUINT8++) {
+4549 ff9a5 7239f0        	inc	_TempUINT8
+4552 ff9a8 f639f0        	ldab	_TempUINT8
+4553 ff9ab c103          	cmpb	#3
+4554 ff9ad 23b4          	bls	L1403
+4555                     ; 469     for (PageFlash = 0x3C; PageFlash <= 0x3F; PageFlash++) {
+4557 ff9af c63c          	ldab	#60
+4558 ff9b1 7b39f5        	stab	_PageFlash
+4559 ff9b4               L5603:
+4560                     ; 473         FCNFG = 0;
+4562 ff9b4 790103        	clr	_FCNFG
+4563                     ; 476         PPAGE = PageFlash;
+4565 ff9b7 5b30          	stab	_PPAGE
+4566                     ; 479         if ((FSTAT & FSTAT_CBEIF) == 0) {
+4568 ff9b9 1e01058003    	brset	_FSTAT,128,L3703
+4569                     ; 480             return (ERASE_MEM_BUFF_NOT_EMPTY);
+4571 ff9be c602          	ldab	#2
+4574 ff9c0 3d            	rts	
+4575 ff9c1               L3703:
+4576                     ; 490         for (Addr1 = FLASH_PAGE_START_ADDR;
+4578 ff9c1 cc8000        	ldd	#-32768
+4579 ff9c4 7c39fa        	std	_Addr1
+4580 ff9c7               L5703:
+4581                     ; 495             if ((PageFlash == 0x3F) && (Addr1 >= BT_PAGE_ST_ADDR_BNKD)) {
+4583 ff9c7 f639f5        	ldab	_PageFlash
+4584 ff9ca c13f          	cmpb	#63
+4585 ff9cc 2608          	bne	L3013
+4587 ff9ce fc39fa        	ldd	_Addr1
+4588 ff9d1 8cb600        	cpd	#-18944
+4589 ff9d4 2440          	bhs	L1013
+4590                     ; 496                 break;
+4592 ff9d6               L3013:
+4593                     ; 503             *((volatile UINT16 *)Addr1) = 0xFFFF;
+4595 ff9d6 ccffff        	ldd	#-1
+4596 ff9d9 fd39fa        	ldy	_Addr1
+4597 ff9dc 6c40          	std	0,y
+4598                     ; 504             FCMD   = FLASH_SECTOR_ERASE;
+4600 ff9de c640          	ldab	#64
+4601 ff9e0 7b0106        	stab	_FCMD
+4602                     ; 505             FSTAT |= FSTAT_CBEIF;
+4604 ff9e3 1c010580      	bset	_FSTAT,128
+4605                     ; 508             NOP();
+4608 ff9e7 a7            	nop	
+4610                     ; 509             NOP();
+4613 ff9e8 a7            	nop	
+4615                     ; 513             if (FSTAT & (FSTAT_PVIOL | FSTAT_ACCERR)) {
+4617 ff9e9 1f01053015    	brclr	_FSTAT,48,L5113
+4618                     ; 514                 if (FSTAT & FSTAT_PVIOL)  { FSTAT |= FSTAT_PVIOL;  }
+4620 ff9ee 1f01052004    	brclr	_FSTAT,32,L7013
+4623 ff9f3 1c010520      	bset	_FSTAT,32
+4624 ff9f7               L7013:
+4625                     ; 515                 if (FSTAT & FSTAT_ACCERR) { FSTAT |= FSTAT_ACCERR; }
+4627 ff9f7 1f01051004    	brclr	_FSTAT,16,L1113
+4630 ff9fc 1c010510      	bset	_FSTAT,16
+4631 ffa00               L1113:
+4632                     ; 516                 return (ERASE_MEM_PVIOL_ACCERR_ERR);
+4634 ffa00 c601          	ldab	#1
+4637 ffa02 3d            	rts	
+4638 ffa03               L5113:
+4639                     ; 521             while (!(FSTAT & FSTAT_CBEIF)) {;}
+4641 ffa03 1f010580fb    	brclr	_FSTAT,128,L5113
+4642                     ; 491              Addr1 < FLASH_PAGE_END_ADDR;
+4642                     ; 492              Addr1 += NUM_FLASH_BYTES_PER_SECTOR) {
+4644 ffa08 fc39fa        	ldd	_Addr1
+4645 ffa0b c30200        	addd	#512
+4646 ffa0e 7c39fa        	std	_Addr1
+4647                     ; 490         for (Addr1 = FLASH_PAGE_START_ADDR;
+4647                     ; 491              Addr1 < FLASH_PAGE_END_ADDR;
+4649 ffa11 8cbfff        	cpd	#-16385
+4650 ffa14 25b1          	blo	L5703
+4651 ffa16               L1013:
+4652                     ; 469     for (PageFlash = 0x3C; PageFlash <= 0x3F; PageFlash++) {
+4654 ffa16 7239f5        	inc	_PageFlash
+4657 ffa19 f639f5        	ldab	_PageFlash
+4658 ffa1c c13f          	cmpb	#63
+4659 ffa1e 2394          	bls	L5603
+4661 ffa20               L3213:
+4662                     ; 526     while (!(FSTAT & FSTAT_CCIF));
+4664 ffa20 1f010540fb    	brclr	_FSTAT,64,L3213
+4665                     ; 528     return (ERASE_MEM_NO_ERROR);
+4667 ffa25 c7            	clrb	
+4670 ffa26 3d            	rts	
+4694                     ; 544 _NEAR static UINT8 eraseEEPROM(void)
+4694                     ; 545 {
+4695                     	switch	.text
+4696 ffa27               L7213_eraseEEPROM:
+4700                     ; 547     ESTAT |= (ESTAT_PVIOL | ESTAT_ACCERR);
+4702 ffa27 1c011530      	bset	_ESTAT,48
+4704 ffa2b               L3413:
+4705                     ; 550     while (!(ESTAT & ESTAT_CBEIF)) {;}
+4707 ffa2b 1f011580fb    	brclr	_ESTAT,128,L3413
+4708                     ; 556     *((volatile UINT16 *)EE_START_ADDR) = 0xFFFF;
+4710 ffa30 ccffff        	ldd	#-1
+4711 ffa33 7c0400        	std	1024
+4712                     ; 557     ECMD   = EE_MASS_ERASE;
+4714 ffa36 c641          	ldab	#65
+4715 ffa38 7b0116        	stab	_ECMD
+4716                     ; 558     ESTAT |= ESTAT_CBEIF;
+4718 ffa3b 1c011580      	bset	_ESTAT,128
+4719                     ; 561     NOP();
+4722 ffa3f a7            	nop	
+4724                     ; 562     NOP();
+4727 ffa40 a7            	nop	
+4729                     ; 566     if (ESTAT & (ESTAT_PVIOL | ESTAT_ACCERR)) {
+4731 ffa41 1f01153015    	brclr	_ESTAT,48,L7513
+4732                     ; 567         if (ESTAT & ESTAT_PVIOL)  { ESTAT |= ESTAT_PVIOL;  }
+4734 ffa46 1f01152004    	brclr	_ESTAT,32,L1513
+4737 ffa4b 1c011520      	bset	_ESTAT,32
+4738 ffa4f               L1513:
+4739                     ; 568         if (ESTAT & ESTAT_ACCERR) { ESTAT |= ESTAT_ACCERR; }
+4741 ffa4f 1f01151004    	brclr	_ESTAT,16,L3513
+4744 ffa54 1c011510      	bset	_ESTAT,16
+4745 ffa58               L3513:
+4746                     ; 569         return (ERASE_MEM_PVIOL_ACCERR_ERR);
+4748 ffa58 c601          	ldab	#1
+4751 ffa5a 3d            	rts	
+4752 ffa5b               L7513:
+4753                     ; 573     while (!(ESTAT & ESTAT_CCIF));
+4755 ffa5b 1f011540fb    	brclr	_ESTAT,64,L7513
+4756                     ; 575     return (ERASE_MEM_NO_ERROR);
+4758 ffa60 c7            	clrb	
+4761 ffa61 3d            	rts	
+4793                     ; 590 _NEAR static UINT8 programThenVerifyFlash(void)
+4793                     ; 591 {
+4794                     	switch	.text
+4795 ffa62               L3613_programThenVerifyFlash:
+4799                     ; 594 	TempUINT16 =
+4799                     ; 595         ((UINT16)BuffRx[IDX_ADDR_START_BYTE_2] << 8) +
+4799                     ; 596         BuffRx[IDX_ADDR_START_BYTE_1];
+4801 ffa62 b63903        	ldaa	_BuffRx+3
+4802 ffa65 f63904        	ldab	_BuffRx+4
+4803 ffa68 7c39f8        	std	_TempUINT16
+4804                     ; 597     TempUINT8 = (UINT8)(TempUINT16 >> 6);
+4806 ffa6b 49            	lsrd	
+4807 ffa6c 49            	lsrd	
+4808 ffa6d 49            	lsrd	
+4809 ffa6e 49            	lsrd	
+4810 ffa6f 49            	lsrd	
+4811 ffa70 49            	lsrd	
+4812 ffa71 7b39f0        	stab	_TempUINT8
+4813                     ; 600     if ((TempUINT8 < 0x30) || (TempUINT8 > 0x3F)) {
+4815 ffa74 c130          	cmpb	#48
+4816 ffa76 2504          	blo	L7713
+4818 ffa78 c13f          	cmpb	#63
+4819 ffa7a 2303          	bls	L5713
+4820 ffa7c               L7713:
+4821                     ; 601         return(WRITE_MEM_RANGE_ERR);
+4823 ffa7c c603          	ldab	#3
+4826 ffa7e 3d            	rts	
+4827 ffa7f               L5713:
+4828                     ; 612 	BuffRx[IDX_ADDR_START_BYTE_1] &= 0x3F;
+4830 ffa7f 1d3904c0      	bclr	_BuffRx+4,192
+4831                     ; 613 	Addr1 = *((UINT16 *)&BuffRx[IDX_ADDR_START_BYTE_1]) + 0x8000; 
+4833 ffa83 fc3904        	ldd	_BuffRx+4
+4834 ffa86 c38000        	addd	#-32768
+4835 ffa89 7c39fa        	std	_Addr1
+4836                     ; 620     Addr2 = Addr1 + BuffRx[IDX_MSG_LEN_BYTE] - NUM_MSG_HDR_BYTES_FLASH;
+4838 ffa8c f63901        	ldab	_BuffRx+1
+4839 ffa8f 87            	clra	
+4840 ffa90 f339fa        	addd	_Addr1
+4841 ffa93 c3fffa        	addd	#-6
+4842 ffa96 7c39fc        	std	_Addr2
+4843                     ; 623 	if ((Addr1 < FLASH_PAGE_START_ADDR) ||
+4843                     ; 624 		(Addr2 > FLASH_PAGE_END_ADDR)) {
+4845 ffa99 fc39fa        	ldd	_Addr1
+4846 ffa9c 8c8000        	cpd	#-32768
+4847 ffa9f 2508          	blo	L3023
+4849 ffaa1 fc39fc        	ldd	_Addr2
+4850 ffaa4 8cbfff        	cpd	#-16385
+4851 ffaa7 2303          	bls	L1023
+4852 ffaa9               L3023:
+4853                     ; 625         return(WRITE_MEM_RANGE_ERR);
+4855 ffaa9 c603          	ldab	#3
+4858 ffaab 3d            	rts	
+4859 ffaac               L1023:
+4860                     ; 630     if ((TempUINT8 == 0x3F) && (Addr2 >= BT_PAGE_ST_ADDR_BNKD)) {
+4862 ffaac f639f0        	ldab	_TempUINT8
+4863 ffaaf c13f          	cmpb	#63
+4864 ffab1 260a          	bne	L5023
+4866 ffab3 fc39fc        	ldd	_Addr2
+4867 ffab6 8cb600        	cpd	#-18944
+4868 ffab9 2502          	blo	L5023
+4869                     ; 631         return (WRITE_MEM_NO_ERROR);
+4871 ffabb c7            	clrb	
+4874 ffabc 3d            	rts	
+4875 ffabd               L5023:
+4876                     ; 637     if      (TempUINT8 < 0x34) { FCNFG = 3; } // flash block 3
+4878 ffabd f639f0        	ldab	_TempUINT8
+4879 ffac0 c134          	cmpb	#52
+4880 ffac2 2404          	bhs	L7023
+4883 ffac4 c603          	ldab	#3
+4885 ffac6 200e          	bra	LC001
+4886 ffac8               L7023:
+4887                     ; 638     else if (TempUINT8 < 0x38) { FCNFG = 2; } // flash block 2
+4889 ffac8 c138          	cmpb	#56
+4890 ffaca 2404          	bhs	L3123
+4893 ffacc c602          	ldab	#2
+4895 fface 2006          	bra	LC001
+4896 ffad0               L3123:
+4897                     ; 639     else if (TempUINT8 < 0x3C) { FCNFG = 1; } // flash block 1
+4899 ffad0 c13c          	cmpb	#60
+4900 ffad2 240a          	bhs	L7123
+4903 ffad4 c601          	ldab	#1
+4904 ffad6               LC001:
+4905 ffad6 7b0103        	stab	_FCNFG
+4907 ffad9 f639f0        	ldab	_TempUINT8
+4908 ffadc 2003          	bra	L1123
+4909 ffade               L7123:
+4910                     ; 640     else                       { FCNFG = 0; } // flash block 0
+4912 ffade 790103        	clr	_FCNFG
+4913 ffae1               L1123:
+4914                     ; 645     PPAGE = TempUINT8;
+4916 ffae1 5b30          	stab	_PPAGE
+4917                     ; 656     if (Addr1 & 0x0001) {
+4919 ffae3 1f39fb0116    	brclr	_Addr1+1,1,L3223
+4920                     ; 657         TempUINT8 = NUM_MSG_HDR_BYTES_FLASH - 1;
+4922 ffae8 c605          	ldab	#5
+4923 ffaea 7b39f0        	stab	_TempUINT8
+4924                     ; 658         Addr1--;
+4926 ffaed fd39fa        	ldy	_Addr1
+4927 ffaf0 03            	dey	
+4928 ffaf1 7d39fa        	sty	_Addr1
+4929                     ; 659         BuffRx[TempUINT8] = *((volatile UINT8 *)Addr1);
+4931 ffaf4 fd39fa        	ldy	_Addr1
+4932 ffaf7 e640          	ldab	0,y
+4933 ffaf9 7b3905        	stab	_BuffRx+5
+4935 ffafc 2005          	bra	L5223
+4936 ffafe               L3223:
+4937                     ; 662         TempUINT8 = NUM_MSG_HDR_BYTES_FLASH;
+4939 ffafe c606          	ldab	#6
+4940 ffb00 7b39f0        	stab	_TempUINT8
+4941 ffb03               L5223:
+4942                     ; 670     if (!(Addr2 & 0x0001)) {
+4944 ffb03 fc39fc        	ldd	_Addr2
+4945 ffb06 c501          	bitb	#1
+4946 ffb08 2614          	bne	L3323
+4947                     ; 671         Addr2++;
+4949 ffb0a b746          	tfr	d,y
+4950 ffb0c 02            	iny	
+4951 ffb0d 7d39fc        	sty	_Addr2
+4952                     ; 672         BuffRx[BuffRx[IDX_MSG_LEN_BYTE]+1] = *((volatile UINT8*)Addr2);
+4954 ffb10 f63901        	ldab	_BuffRx+1
+4955 ffb13 b796          	exg	b,y
+4956 ffb15 fe39fc        	ldx	_Addr2
+4957 ffb18 e600          	ldab	0,x
+4958 ffb1a 6bea3901      	stab	_BuffRx+1,y
+4959 ffb1e               L3323:
+4960                     ; 676     while (!(FSTAT & FSTAT_CCIF));
+4962 ffb1e 1f010540fb    	brclr	_FSTAT,64,L3323
+4964 ffb23 205c          	bra	L1423
+4965 ffb25               L7323:
+4966                     ; 683 		TempUINT16 = ((UINT16)BuffRx[TempUINT8] << 8) + BuffRx[TempUINT8+1];
+4968 ffb25 f639f0        	ldab	_TempUINT8
+4969 ffb28 87            	clra	
+4970 ffb29 b746          	tfr	d,y
+4971 ffb2b b745          	tfr	d,x
+4972 ffb2d a6e23900      	ldaa	_BuffRx,x
+4973 ffb31 e6ea3901      	ldab	_BuffRx+1,y
+4974 ffb35 7c39f8        	std	_TempUINT16
+4975                     ; 689         *((volatile UINT16 *)Addr1) = TempUINT16;
+4977 ffb38 fd39fa        	ldy	_Addr1
+4978 ffb3b 6c40          	std	0,y
+4979                     ; 690         FCMD   = FLASH_PROGRAM_WORD; // start command
+4981 ffb3d c620          	ldab	#32
+4982 ffb3f 7b0106        	stab	_FCMD
+4983                     ; 691         FSTAT |= FSTAT_CBEIF;        // Launch command by setting CBEIF
+4985 ffb42 1c010580      	bset	_FSTAT,128
+4986                     ; 694         NOP();
+4989 ffb46 a7            	nop	
+4991                     ; 695         NOP();
+4994 ffb47 a7            	nop	
+4996                     ; 699         if (FSTAT & (FSTAT_PVIOL | FSTAT_ACCERR)) {
+4998 ffb48 1f01053015    	brclr	_FSTAT,48,L5523
+4999                     ; 700             if (FSTAT & FSTAT_PVIOL)  { FSTAT |= FSTAT_PVIOL;  }
+5001 ffb4d 1f01052004    	brclr	_FSTAT,32,L7423
+5004 ffb52 1c010520      	bset	_FSTAT,32
+5005 ffb56               L7423:
+5006                     ; 701             if (FSTAT & FSTAT_ACCERR) { FSTAT |= FSTAT_ACCERR; }
+5008 ffb56 1f01051004    	brclr	_FSTAT,16,L1523
+5011 ffb5b 1c010510      	bset	_FSTAT,16
+5012 ffb5f               L1523:
+5013                     ; 702             return (ERASE_MEM_PVIOL_ACCERR_ERR);
+5015 ffb5f c601          	ldab	#1
+5018 ffb61 3d            	rts	
+5019 ffb62               L5523:
+5020                     ; 706         while (!(FSTAT & FSTAT_CCIF));
+5022 ffb62 1f010540fb    	brclr	_FSTAT,64,L5523
+5023                     ; 709         if (*((volatile UINT16*)Addr1) != TempUINT16) {
+5025 ffb67 fd39fa        	ldy	_Addr1
+5026 ffb6a ec40          	ldd	0,y
+5027 ffb6c bc39f8        	cpd	_TempUINT16
+5028 ffb6f 2703          	beq	L1623
+5029                     ; 710             return (WRITE_MEM_VERIFY_ERR);
+5031 ffb71 c604          	ldab	#4
+5034 ffb73 3d            	rts	
+5035 ffb74               L1623:
+5036                     ; 714         TempUINT8 += BYTES_PER_WORD;
+5038 ffb74 f639f0        	ldab	_TempUINT8
+5039 ffb77 cb02          	addb	#2
+5040 ffb79 7b39f0        	stab	_TempUINT8
+5041                     ; 715         Addr1     += BYTES_PER_WORD;
+5043 ffb7c 1942          	leay	2,y
+5044 ffb7e 7d39fa        	sty	_Addr1
+5045 ffb81               L1423:
+5046                     ; 680     while (Addr1 < Addr2) {
+5048 ffb81 fc39fa        	ldd	_Addr1
+5049 ffb84 bc39fc        	cpd	_Addr2
+5050 ffb87 259c          	blo	L7323
+5051                     ; 719     return (WRITE_MEM_NO_ERROR);
+5053 ffb89 c7            	clrb	
+5056 ffb8a 3d            	rts	
+5086                     ; 734 _NEAR static UINT8 programThenVerifyEEPROM(void)
+5086                     ; 735 {
+5087                     	switch	.text
+5088 ffb8b               L3623_programThenVerifyEEPROM:
+5092                     ; 738     Addr1 = ((UINT16)BuffRx[IDX_ADDR_START_BYTE_2] << 8) +
+5092                     ; 739             BuffRx[IDX_ADDR_START_BYTE_1];
+5094 ffb8b b63903        	ldaa	_BuffRx+3
+5095 ffb8e f63904        	ldab	_BuffRx+4
+5096 ffb91 7c39fa        	std	_Addr1
+5097                     ; 742     Addr2 = Addr1 + BuffRx[IDX_MSG_LEN_BYTE] - NUM_MSG_HDR_BYTES_EEPROM;
+5099 ffb94 f63901        	ldab	_BuffRx+1
+5100 ffb97 87            	clra	
+5101 ffb98 f339fa        	addd	_Addr1
+5102 ffb9b c3fffb        	addd	#-5
+5103 ffb9e 7c39fc        	std	_Addr2
+5104                     ; 745     if ((Addr1 < EE_START_ADDR) ||
+5104                     ; 746         (Addr2 > EE_END_ADDR)) {
+5106 ffba1 fc39fa        	ldd	_Addr1
+5107 ffba4 8c0400        	cpd	#1024
+5108 ffba7 2508          	blo	L7723
+5110 ffba9 fc39fc        	ldd	_Addr2
+5111 ffbac 8c0fef        	cpd	#4079
+5112 ffbaf 2303          	bls	L5723
+5113 ffbb1               L7723:
+5114                     ; 747         return (WRITE_MEM_RANGE_ERR);
+5116 ffbb1 c603          	ldab	#3
+5119 ffbb3 3d            	rts	
+5120 ffbb4               L5723:
+5121                     ; 759     if (Addr1 & 0x0001) {
+5123 ffbb4 1f39fb0116    	brclr	_Addr1+1,1,L1033
+5124                     ; 760         TempUINT8 = NUM_MSG_HDR_BYTES_EEPROM - 1;
+5126 ffbb9 c604          	ldab	#4
+5127 ffbbb 7b39f0        	stab	_TempUINT8
+5128                     ; 761         Addr1--;
+5130 ffbbe fd39fa        	ldy	_Addr1
+5131 ffbc1 03            	dey	
+5132 ffbc2 7d39fa        	sty	_Addr1
+5133                     ; 762         BuffRx[TempUINT8] = *((volatile UINT8*)Addr1);
+5135 ffbc5 fd39fa        	ldy	_Addr1
+5136 ffbc8 e640          	ldab	0,y
+5137 ffbca 7b3904        	stab	_BuffRx+4
+5139 ffbcd 2005          	bra	L3033
+5140 ffbcf               L1033:
+5141                     ; 765         TempUINT8 = NUM_MSG_HDR_BYTES_EEPROM;
+5143 ffbcf c605          	ldab	#5
+5144 ffbd1 7b39f0        	stab	_TempUINT8
+5145 ffbd4               L3033:
+5146                     ; 773     if (!(Addr2 & 0x0001)) {
+5148 ffbd4 fc39fc        	ldd	_Addr2
+5149 ffbd7 c501          	bitb	#1
+5150 ffbd9 2614          	bne	L1133
+5151                     ; 774         Addr2++;
+5153 ffbdb b746          	tfr	d,y
+5154 ffbdd 02            	iny	
+5155 ffbde 7d39fc        	sty	_Addr2
+5156                     ; 775         BuffRx[BuffRx[IDX_MSG_LEN_BYTE]+1] = *((volatile UINT8*)Addr2);
+5158 ffbe1 f63901        	ldab	_BuffRx+1
+5159 ffbe4 b796          	exg	b,y
+5160 ffbe6 fe39fc        	ldx	_Addr2
+5161 ffbe9 e600          	ldab	0,x
+5162 ffbeb 6bea3901      	stab	_BuffRx+1,y
+5163 ffbef               L1133:
+5164                     ; 779     while (!(ESTAT & ESTAT_CCIF));
+5166 ffbef 1f011540fb    	brclr	_ESTAT,64,L1133
+5168 ffbf4 205c          	bra	L7133
+5169 ffbf6               L5133:
+5170                     ; 786         TempUINT16 = ((UINT16)BuffRx[TempUINT8] << 8) + BuffRx[TempUINT8+1];
+5172 ffbf6 f639f0        	ldab	_TempUINT8
+5173 ffbf9 87            	clra	
+5174 ffbfa b746          	tfr	d,y
+5175 ffbfc b745          	tfr	d,x
+5176 ffbfe a6e23900      	ldaa	_BuffRx,x
+5177 ffc02 e6ea3901      	ldab	_BuffRx+1,y
+5178 ffc06 7c39f8        	std	_TempUINT16
+5179                     ; 792         *((volatile UINT16*)Addr1) = TempUINT16;
+5181 ffc09 fd39fa        	ldy	_Addr1
+5182 ffc0c 6c40          	std	0,y
+5183                     ; 793         ECMD   = EE_PROGRAM_WORD;
+5185 ffc0e c620          	ldab	#32
+5186 ffc10 7b0116        	stab	_ECMD
+5187                     ; 794         ESTAT |= ESTAT_CBEIF;
+5189 ffc13 1c011580      	bset	_ESTAT,128
+5190                     ; 797         NOP();
+5193 ffc17 a7            	nop	
+5195                     ; 798         NOP();
+5198 ffc18 a7            	nop	
+5200                     ; 802         if (ESTAT & (ESTAT_PVIOL | ESTAT_ACCERR)) {
+5202 ffc19 1f01153015    	brclr	_ESTAT,48,L3333
+5203                     ; 803             if (ESTAT & ESTAT_PVIOL)  { ESTAT |= ESTAT_PVIOL;  }
+5205 ffc1e 1f01152004    	brclr	_ESTAT,32,L5233
+5208 ffc23 1c011520      	bset	_ESTAT,32
+5209 ffc27               L5233:
+5210                     ; 804             if (ESTAT & ESTAT_ACCERR) { ESTAT |= ESTAT_ACCERR; }
+5212 ffc27 1f01151004    	brclr	_ESTAT,16,L7233
+5215 ffc2c 1c011510      	bset	_ESTAT,16
+5216 ffc30               L7233:
+5217                     ; 805             return (ERASE_MEM_PVIOL_ACCERR_ERR);
+5219 ffc30 c601          	ldab	#1
+5222 ffc32 3d            	rts	
+5223 ffc33               L3333:
+5224                     ; 809         while (!(ESTAT & ESTAT_CCIF));
+5226 ffc33 1f011540fb    	brclr	_ESTAT,64,L3333
+5227                     ; 812         if (*((volatile UINT16*)Addr1) != TempUINT16) {
+5229 ffc38 fd39fa        	ldy	_Addr1
+5230 ffc3b ec40          	ldd	0,y
+5231 ffc3d bc39f8        	cpd	_TempUINT16
+5232 ffc40 2703          	beq	L7333
+5233                     ; 813             return (WRITE_MEM_VERIFY_ERR);
+5235 ffc42 c604          	ldab	#4
+5238 ffc44 3d            	rts	
+5239 ffc45               L7333:
+5240                     ; 817         TempUINT8 += BYTES_PER_WORD;
+5242 ffc45 f639f0        	ldab	_TempUINT8
+5243 ffc48 cb02          	addb	#2
+5244 ffc4a 7b39f0        	stab	_TempUINT8
+5245                     ; 818         Addr1     += BYTES_PER_WORD;
+5247 ffc4d 1942          	leay	2,y
+5248 ffc4f 7d39fa        	sty	_Addr1
+5249 ffc52               L7133:
+5250                     ; 783     while (Addr1 < Addr2) {
+5252 ffc52 fc39fa        	ldd	_Addr1
+5253 ffc55 bc39fc        	cpd	_Addr2
+5254 ffc58 259c          	blo	L5133
+5255                     ; 821     return (WRITE_MEM_NO_ERROR);
+5257 ffc5a c7            	clrb	
+5260 ffc5b 3d            	rts	
+5290                     ; 830 _NEAR static void processCommand(void)
+5290                     ; 831 {
+5291                     	switch	.text
+5292 ffc5c               L5462_processCommand:
+5296                     ; 832     switch (BuffRx[IDX_CMD_BYTE]) {
+5298 ffc5c f63902        	ldab	_BuffRx+2
+5300 ffc5f c055          	subb	#85
+5301 ffc61 2710          	beq	L1433
+5302 ffc63 c011          	subb	#17
+5303 ffc65 2718          	beq	L5433
+5304 ffc67 c033          	subb	#51
+5305 ffc69 271a          	beq	L7433
+5306 ffc6b c011          	subb	#17
+5307 ffc6d 270a          	beq	L3433
+5308                     ; 849         default: // wrong command received
+5308                     ; 850              ErrorNum = 1;
+5310 ffc6f c601          	ldab	#1
+5311                     ; 851              break;
+5313 ffc71 2015          	bra	L5633
+5314 ffc73               L1433:
+5315                     ; 833         case BT_CMD_FLASH_ERASE:
+5315                     ; 834              ErrorNum = eraseFlash();
+5317 ffc73 15fafcde      	lbsr	L1203_eraseFlash
+5319                     ; 835              break;
+5321 ffc77 200f          	bra	L5633
+5322 ffc79               L3433:
+5323                     ; 837         case BT_CMD_EEPROM_ERASE:
+5323                     ; 838              ErrorNum = eraseEEPROM();
+5325 ffc79 15fafdaa      	lbsr	L7213_eraseEEPROM
+5327                     ; 839              break;
+5329 ffc7d 2009          	bra	L5633
+5330 ffc7f               L5433:
+5331                     ; 841         case BT_CMD_FLASH_PGM_VER:
+5331                     ; 842              ErrorNum = programThenVerifyFlash();
+5333 ffc7f 15fafddf      	lbsr	L3613_programThenVerifyFlash
+5335                     ; 843              break;
+5337 ffc83 2003          	bra	L5633
+5338 ffc85               L7433:
+5339                     ; 845         case BT_CMD_EEPROM_PGM_VER:
+5339                     ; 846              ErrorNum = programThenVerifyEEPROM();
+5341 ffc85 15f903        	lbsr	L3623_programThenVerifyEEPROM
+5343                     ; 847              break;
+5345 ffc88               L5633:
+5346 ffc88 7b39f3        	stab	_ErrorNum
+5347                     ; 854     PPAGE = 0; // reset to page 0 (default)
+5349 ffc8b c7            	clrb	
+5350 ffc8c 5b30          	stab	_PPAGE
+5351                     ; 855     FCNFG = 0; // reset to block 0
+5353 ffc8e 790103        	clr	_FCNFG
+5354                     ; 857     return;
+5357 ffc91 3d            	rts	
+5441                     	xdef	_BootLoaderToRunFromRAM
+5442                     	xref	_BuffRx
+5462                     	end

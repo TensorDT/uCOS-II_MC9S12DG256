@@ -4,7 +4,7 @@
 //
 //  Purpose:    uCOS-II meta header file
 //
-//  Target:     CPU 2.0
+//  Target:     MC9S12DG256-based board
 //
 //  Revisions:
 //   ##  dd mmm yyyy  who  description
@@ -44,7 +44,9 @@
 // none
 
 //------------------------------- Macros ------------------------------
-// none
+#define DISABLE_INTS()       _asm("SEI")    // disable interrupts
+#define ENABLE_INTS()        _asm("CLI")    // enable interrupts
+
 
 //-------------------------- Module Variables -------------------------
 // none

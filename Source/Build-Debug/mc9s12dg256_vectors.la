@@ -1,0 +1,73 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+  15                     .const:	section	.data
+  16 fff80               __Vect:
+  17 fff80 f500          	dc.w	-2816
+  18 fff82 f503          	dc.w	-2813
+  19 fff84 f506          	dc.w	-2810
+  20 fff86 f509          	dc.w	-2807
+  21 fff88 f50c          	dc.w	-2804
+  22 fff8a f50f          	dc.w	-2801
+  23 fff8c f512          	dc.w	-2798
+  24 fff8e f515          	dc.w	-2795
+  25 fff90 f518          	dc.w	-2792
+  26 fff92 f51b          	dc.w	-2789
+  27 fff94 f51e          	dc.w	-2786
+  28 fff96 f521          	dc.w	-2783
+  29 fff98 f524          	dc.w	-2780
+  30 fff9a f527          	dc.w	-2777
+  31 fff9c f52a          	dc.w	-2774
+  32 fff9e f52d          	dc.w	-2771
+  33 fffa0 f530          	dc.w	-2768
+  34 fffa2 f533          	dc.w	-2765
+  35 fffa4 f536          	dc.w	-2762
+  36 fffa6 f539          	dc.w	-2759
+  37 fffa8 f53c          	dc.w	-2756
+  38 fffaa f53f          	dc.w	-2753
+  39 fffac f542          	dc.w	-2750
+  40 fffae f545          	dc.w	-2747
+  41 fffb0 f548          	dc.w	-2744
+  42 fffb2 f54b          	dc.w	-2741
+  43 fffb4 f54e          	dc.w	-2738
+  44 fffb6 f551          	dc.w	-2735
+  45 fffb8 f554          	dc.w	-2732
+  46 fffba f557          	dc.w	-2729
+  47 fffbc f55a          	dc.w	-2726
+  48 fffbe f55d          	dc.w	-2723
+  49 fffc0 f560          	dc.w	-2720
+  50 fffc2 f563          	dc.w	-2717
+  51 fffc4 f566          	dc.w	-2714
+  52 fffc6 f569          	dc.w	-2711
+  53 fffc8 f56c          	dc.w	-2708
+  54 fffca f56f          	dc.w	-2705
+  55 fffcc f572          	dc.w	-2702
+  56 fffce f575          	dc.w	-2699
+  57 fffd0 f578          	dc.w	-2696
+  58 fffd2 f57b          	dc.w	-2693
+  59 fffd4 f57e          	dc.w	-2690
+  60 fffd6 f581          	dc.w	-2687
+  61 fffd8 f584          	dc.w	-2684
+  62 fffda f587          	dc.w	-2681
+  63 fffdc f58a          	dc.w	-2678
+  64 fffde f58d          	dc.w	-2675
+  65 fffe0 f590          	dc.w	-2672
+  66 fffe2 f593          	dc.w	-2669
+  67 fffe4 f596          	dc.w	-2666
+  68 fffe6 f599          	dc.w	-2663
+  69 fffe8 f59c          	dc.w	-2660
+  70 fffea f59f          	dc.w	-2657
+  71 fffec f5a2          	dc.w	-2654
+  72 fffee f5a5          	dc.w	-2651
+  73 ffff0 f5a8          	dc.w	-2648
+  74 ffff2 f5ab          	dc.w	-2645
+  75 ffff4 f5ae          	dc.w	-2642
+  76 ffff6 f5b1          	dc.w	-2639
+  77 ffff8 f5b4          	dc.w	-2636
+  78 ffffa f5b7          	dc.w	-2633
+  79 ffffc f5ba          	dc.w	-2630
+  81 ffffe f600          	dc.w	__reset
+ 115                     	xdef	__Vect
+ 116                     	xref	__reset
+ 136                     	end

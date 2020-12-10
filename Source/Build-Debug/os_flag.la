@@ -2,1401 +2,1401 @@
    2                     ; Parser V4.11.9 - 08 Feb 2017
    3                     ; Generator V4.8.12 - 22 Feb 2017
    4                     ; Optimizer V4.7.11 - 22 Feb 2017
- 151                     ; 101 _NEAR OS_FLAGS  OSFlagAccept (OS_FLAG_GRP  *pgrp,
- 151                     ; 102                              OS_FLAGS      flags,
- 151                     ; 103                              INT8U         wait_type,
- 151                     ; 104                              INT8U        *perr)
- 151                     ; 105 {
- 152                     	switch	.text
- 153 f8b1d               _OSFlagAccept:
- 155 f8b1d 3b            	pshd	
- 156 f8b1e 1b9c          	leas	-4,s
- 157       00000004      OFST:	set	4
- 160                     ; 110     OS_CPU_SR     cpu_sr = 0u;
- 162                     ; 123     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                          */
- 164 f8b20 046404        	tbne	d,L701
- 165                     ; 124         *perr = OS_ERR_FLAG_INVALID_PGRP;
- 167 f8b23 c66e          	ldab	#110
- 168                     ; 125         return ((OS_FLAGS)0);
- 171 f8b25 200a          	bra	L6
- 172 f8b27               L701:
- 173                     ; 128     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event block type                */
- 175 f8b27 e6f30004      	ldab	[OFST+0,s]
- 176 f8b2b c105          	cmpb	#5
- 177 f8b2d 270b          	beq	L111
- 178                     ; 129         *perr = OS_ERR_EVENT_TYPE;
- 180 f8b2f c601          	ldab	#1
- 181                     ; 130         return ((OS_FLAGS)0);
- 184 f8b31               L6:
- 185 f8b31 6bf3000c      	stab	[OFST+8,s]
- 186 f8b35 87            	clra	
- 187 f8b36 c7            	clrb	
- 189 f8b37 1b86          	leas	6,s
- 190 f8b39 3d            	rts	
- 191 f8b3a               L111:
- 192                     ; 132     result = (INT8U)(wait_type & OS_FLAG_CONSUME);
- 194 f8b3a e68b          	ldab	OFST+7,s
- 195 f8b3c c480          	andb	#128
- 196 f8b3e 6b82          	stab	OFST-2,s
- 197                     ; 133     if (result != (INT8U)0) {                              /* See if we need to consume the flags      */
- 199 f8b40 2709          	beq	L311
- 200                     ; 134         wait_type &= ~OS_FLAG_CONSUME;
- 202 f8b42 0d8b80        	bclr	OFST+7,s,128
- 203                     ; 135         consume    = OS_TRUE;
- 205 f8b45 c601          	ldab	#1
- 206 f8b47 6b82          	stab	OFST-2,s
- 208 f8b49 2002          	bra	L511
- 209 f8b4b               L311:
- 210                     ; 137         consume    = OS_FALSE;
- 212 f8b4b 6982          	clr	OFST-2,s
- 213 f8b4d               L511:
- 214                     ; 140     *perr = OS_ERR_NONE;                                   /* Assume NO error until proven otherwise.  */
- 216 f8b4d 69f3000c      	clr	[OFST+8,s]
- 217                     ; 141     OS_ENTER_CRITICAL();
- 219 f8b51 167522        	jsr	_OS_CPU_SR_Save
- 221 f8b54 6b83          	stab	OFST-1,s
- 222                     ; 142     switch (wait_type) {
- 224 f8b56 e68b          	ldab	OFST+7,s
- 226 f8b58 2748          	beq	L31
- 227 f8b5a 53            	decb	
- 228 f8b5b 2762          	beq	L51
- 229 f8b5d 040115        	dbeq	b,L7
- 230 f8b60 040131        	dbeq	b,L11
- 231                     ; 193         default:
- 231                     ; 194              OS_EXIT_CRITICAL();
- 233 f8b63 e683          	ldab	OFST-1,s
- 234 f8b65 87            	clra	
- 235 f8b66 167527        	jsr	_OS_CPU_SR_Restore
- 237                     ; 195              flags_rdy = (OS_FLAGS)0;
- 239 f8b69 87            	clra	
- 240 f8b6a c7            	clrb	
- 241 f8b6b 6c80          	std	OFST-4,s
- 242                     ; 196              *perr     = OS_ERR_FLAG_WAIT_TYPE;
- 244 f8b6d c66f          	ldab	#111
- 245 f8b6f 6bf3000c      	stab	[OFST+8,s]
- 246                     ; 197              break;
- 248 f8b73 206b          	bra	L121
- 249 f8b75               L7:
- 250                     ; 143         case OS_FLAG_WAIT_SET_ALL:                         /* See if all required flags are set        */
- 250                     ; 144              flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & flags);     /* Extract only the bits we want   */
- 252 f8b75 ed84          	ldy	OFST+0,s
- 253 f8b77 ec43          	ldd	3,y
- 254 f8b79 e489          	andb	OFST+5,s
- 255 f8b7b a488          	anda	OFST+4,s
- 256 f8b7d 6c80          	std	OFST-4,s
- 257                     ; 145              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want     */
- 259 f8b7f ac88          	cpd	OFST+4,s
- 260 f8b81 2651          	bne	L541
- 261                     ; 146                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
- 263                     ; 147                      pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;     /* Clear ONLY the flags we wanted  */
- 265 f8b83               LC004:
- 266 f8b83 e682          	ldab	OFST-2,s
- 267 f8b85 53            	decb	
- 268 f8b86 2652          	bne	L151
- 269 f8b88 ec80          	ldd	OFST-4,s
- 270 f8b8a 51            	comb	
- 271 f8b8b 41            	coma	
- 272 f8b8c e444          	andb	4,y
- 273 f8b8e a443          	anda	3,y
- 274 f8b90               LC003:
- 275 f8b90 6c43          	std	3,y
- 276 f8b92 2046          	bra	L151
- 277                     ; 150                  *perr = OS_ERR_FLAG_NOT_RDY;
- 279                     ; 152              OS_EXIT_CRITICAL();
- 282                     ; 153              break;
- 284 f8b94               L11:
- 285                     ; 155         case OS_FLAG_WAIT_SET_ANY:
- 285                     ; 156              flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & flags);     /* Extract only the bits we want   */
- 287 f8b94 ed84          	ldy	OFST+0,s
- 288 f8b96 ec43          	ldd	3,y
- 289 f8b98 e489          	andb	OFST+5,s
- 290 f8b9a a488          	anda	OFST+4,s
- 291 f8b9c 6c80          	std	OFST-4,s
- 292                     ; 157              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag set                      */
- 294 f8b9e 2734          	beq	L541
- 295                     ; 158                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
- 297                     ; 159                      pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;     /* Clear ONLY the flags we got     */
- 299 f8ba0 20e1          	bra	LC004
- 300                     ; 162                  *perr = OS_ERR_FLAG_NOT_RDY;
- 302                     ; 164              OS_EXIT_CRITICAL();
- 305                     ; 165              break;
- 307 f8ba2               L31:
- 308                     ; 168         case OS_FLAG_WAIT_CLR_ALL:                         /* See if all required flags are cleared    */
- 308                     ; 169              flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & flags;    /* Extract only the bits we want     */
- 310 f8ba2 ed84          	ldy	OFST+0,s
- 311 f8ba4 ec43          	ldd	3,y
- 312 f8ba6 51            	comb	
- 313 f8ba7 41            	coma	
- 314 f8ba8 e489          	andb	OFST+5,s
- 315 f8baa a488          	anda	OFST+4,s
- 316 f8bac 6c80          	std	OFST-4,s
- 317                     ; 170              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want     */
- 319 f8bae ac88          	cpd	OFST+4,s
- 320 f8bb0 2622          	bne	L541
- 321                     ; 171                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
- 323 f8bb2 e682          	ldab	OFST-2,s
- 324 f8bb4 53            	decb	
- 325 f8bb5 2623          	bne	L151
- 326                     ; 172                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we wanted        */
- 328 f8bb7               LC005:
- 329 f8bb7 ec43          	ldd	3,y
- 330 f8bb9 ea81          	orab	OFST-3,s
- 331 f8bbb aa80          	oraa	OFST-4,s
- 332 f8bbd 20d1          	bra	LC003
- 333                     ; 175                  *perr = OS_ERR_FLAG_NOT_RDY;
- 335                     ; 177              OS_EXIT_CRITICAL();
- 338                     ; 178              break;
- 340 f8bbf               L51:
- 341                     ; 180         case OS_FLAG_WAIT_CLR_ANY:
- 341                     ; 181              flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & flags;   /* Extract only the bits we want      */
- 343 f8bbf ed84          	ldy	OFST+0,s
- 344 f8bc1 ec43          	ldd	3,y
- 345 f8bc3 51            	comb	
- 346 f8bc4 41            	coma	
- 347 f8bc5 e489          	andb	OFST+5,s
- 348 f8bc7 a488          	anda	OFST+4,s
- 349 f8bc9 6c80          	std	OFST-4,s
- 350                     ; 182              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag cleared                  */
- 352 f8bcb 2707          	beq	L541
- 353                     ; 183                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
- 355 f8bcd e682          	ldab	OFST-2,s
- 356 f8bcf 042108        	dbne	b,L151
- 357                     ; 184                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we got           */
- 359 f8bd2 20e3          	bra	LC005
- 360 f8bd4               L541:
- 361                     ; 187                  *perr = OS_ERR_FLAG_NOT_RDY;
- 363 f8bd4 c670          	ldab	#112
- 364 f8bd6 6bf3000c      	stab	[OFST+8,s]
- 365 f8bda               L151:
- 366                     ; 189              OS_EXIT_CRITICAL();
- 368 f8bda e683          	ldab	OFST-1,s
- 369 f8bdc 87            	clra	
- 370 f8bdd 167527        	jsr	_OS_CPU_SR_Restore
- 372                     ; 190              break;
- 374 f8be0               L121:
- 375                     ; 199     return (flags_rdy);
- 377 f8be0 ec80          	ldd	OFST-4,s
- 380 f8be2 1b86          	leas	6,s
- 381 f8be4 3d            	rts	
- 448                     ; 226 _NEAR OS_FLAG_GRP  *OSFlagCreate (OS_FLAGS  flags,
- 448                     ; 227                                  INT8U    *perr)
- 448                     ; 228 {
- 449                     	switch	.text
- 450 f8be5               _OSFlagCreate:
- 452 f8be5 3b            	pshd	
- 453 f8be6 1b9d          	leas	-3,s
- 454       00000003      OFST:	set	3
- 457                     ; 231     OS_CPU_SR    cpu_sr = 0u;
- 459                     ; 251     if (OSIntNesting > 0u) {                        /* See if called from ISR ...                      */
- 461 f8be8 f61631        	ldab	_OSIntNesting
- 462 f8beb 270a          	beq	L502
- 463                     ; 252         *perr = OS_ERR_CREATE_ISR;                  /* ... can't CREATE from an ISR                    */
- 465 f8bed c610          	ldab	#16
- 466 f8bef 6bf30007      	stab	[OFST+4,s]
- 467                     ; 253         return ((OS_FLAG_GRP *)0);
- 469 f8bf3 87            	clra	
- 470 f8bf4 c7            	clrb	
- 472 f8bf5 203c          	bra	L21
- 473 f8bf7               L502:
- 474                     ; 255     OS_ENTER_CRITICAL();
- 476 f8bf7 167522        	jsr	_OS_CPU_SR_Save
- 478 f8bfa 6b82          	stab	OFST-1,s
- 479                     ; 256     pgrp = OSFlagFreeList;                          /* Get next free event flag                        */
- 481 f8bfc fd1632        	ldy	_OSFlagFreeList
- 482 f8bff 6d80          	sty	OFST-3,s
- 483                     ; 257     if (pgrp != (OS_FLAG_GRP *)0) {                 /* See if we have event flag groups available      */
- 485 f8c01 ee80          	ldx	OFST-3,s
- 486 f8c03 2722          	beq	L702
- 487                     ; 259         OSFlagFreeList       = (OS_FLAG_GRP *)OSFlagFreeList->OSFlagWaitList;
- 489 f8c05 1805411632    	movw	1,y,_OSFlagFreeList
- 490                     ; 260         pgrp->OSFlagType     = OS_EVENT_TYPE_FLAG;  /* Set to event flag group type                    */
- 492 f8c0a c605          	ldab	#5
- 493 f8c0c 6b00          	stab	0,x
- 494                     ; 261         pgrp->OSFlagFlags    = flags;               /* Set to desired initial value                    */
- 496 f8c0e 18028343      	movw	OFST+0,s,3,y
- 497                     ; 262         pgrp->OSFlagWaitList = (void *)0;           /* Clear list of tasks waiting on flags            */
- 499 f8c12 87            	clra	
- 500 f8c13 c7            	clrb	
- 501 f8c14 6c41          	std	1,y
- 502                     ; 264         pgrp->OSFlagName     = (INT8U *)(void *)"?";
- 504 f8c16 cc770d        	ldd	#L112
- 505 f8c19 6c45          	std	5,y
- 506                     ; 267         OS_EXIT_CRITICAL();
- 509 f8c1b e682          	ldab	OFST-1,s
- 510 f8c1d 87            	clra	
- 511 f8c1e 167527        	jsr	_OS_CPU_SR_Restore
- 513                     ; 268         *perr                = OS_ERR_NONE;
- 515 f8c21 69f30007      	clr	[OFST+4,s]
- 517 f8c25 200a          	bra	L312
- 518 f8c27               L702:
- 519                     ; 270         OS_EXIT_CRITICAL();
- 521 f8c27 87            	clra	
- 522 f8c28 167527        	jsr	_OS_CPU_SR_Restore
- 524                     ; 271         *perr                = OS_ERR_FLAG_GRP_DEPLETED;
- 526 f8c2b c672          	ldab	#114
- 527 f8c2d 6bf30007      	stab	[OFST+4,s]
- 528 f8c31               L312:
- 529                     ; 273     return (pgrp);                                  /* Return pointer to event flag group              */
- 531 f8c31 ec80          	ldd	OFST-3,s
- 533 f8c33               L21:
- 535 f8c33 1b85          	leas	5,s
- 536 f8c35 3d            	rts	
- 697                     ; 318 _NEAR OS_FLAG_GRP  *OSFlagDel (OS_FLAG_GRP  *pgrp,
- 697                     ; 319                               INT8U         opt,
- 697                     ; 320                               INT8U        *perr)
- 697                     ; 321 {
- 698                     	switch	.text
- 699 f8c36               _OSFlagDel:
- 701 f8c36 3b            	pshd	
- 702 f8c37 1b9c          	leas	-4,s
- 703       00000004      OFST:	set	4
- 706                     ; 326     OS_CPU_SR     cpu_sr = 0u;
- 708                     ; 346     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                          */
- 710 f8c39 046404        	tbne	d,L323
- 711                     ; 347         *perr = OS_ERR_FLAG_INVALID_PGRP;
- 713 f8c3c c66e          	ldab	#110
- 714                     ; 348         return (pgrp);
- 717 f8c3e 2007          	bra	L61
- 718 f8c40               L323:
- 719                     ; 354     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
- 722 f8c40 f61631        	ldab	_OSIntNesting
- 723 f8c43 270b          	beq	L523
- 724                     ; 355         *perr = OS_ERR_DEL_ISR;                            /* ... can't DELETE from an ISR             */
- 726 f8c45 c60f          	ldab	#15
- 727                     ; 357         return (pgrp);
- 731 f8c47               L61:
- 732 f8c47 6bf3000a      	stab	[OFST+6,s]
- 733 f8c4b ec84          	ldd	OFST+0,s
- 735 f8c4d 1b86          	leas	6,s
- 736 f8c4f 3d            	rts	
- 737 f8c50               L523:
- 738                     ; 359     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event group type                */
- 740 f8c50 e6f30004      	ldab	[OFST+0,s]
- 741 f8c54 c105          	cmpb	#5
- 742 f8c56 2704          	beq	L723
- 743                     ; 360         *perr = OS_ERR_EVENT_TYPE;
- 745 f8c58 c601          	ldab	#1
- 746                     ; 362         return (pgrp);
- 750 f8c5a 20eb          	bra	L61
- 751 f8c5c               L723:
- 752                     ; 364     OS_ENTER_CRITICAL();
- 754 f8c5c 167522        	jsr	_OS_CPU_SR_Save
- 756 f8c5f 6b82          	stab	OFST-2,s
- 757                     ; 365     if (pgrp->OSFlagWaitList != (void *)0) {               /* See if any tasks waiting on event flags  */
- 759 f8c61 ed84          	ldy	OFST+0,s
- 760 f8c63 ec41          	ldd	1,y
- 761 f8c65 2706          	beq	L133
- 762                     ; 366         tasks_waiting = OS_TRUE;                           /* Yes                                      */
- 764 f8c67 c601          	ldab	#1
- 765 f8c69 6b83          	stab	OFST-1,s
- 767 f8c6b 2002          	bra	L333
- 768 f8c6d               L133:
- 769                     ; 368         tasks_waiting = OS_FALSE;                          /* No                                       */
- 771 f8c6d 6983          	clr	OFST-1,s
- 772 f8c6f               L333:
- 773                     ; 370     switch (opt) {
- 775 f8c6f e689          	ldab	OFST+5,s
- 777 f8c71 270d          	beq	L512
- 778 f8c73 040142        	dbeq	b,L712
- 779                     ; 411         default:
- 779                     ; 412              OS_EXIT_CRITICAL();
- 781 f8c76 e682          	ldab	OFST-2,s
- 782 f8c78 87            	clra	
- 783 f8c79 167527        	jsr	_OS_CPU_SR_Restore
- 785                     ; 413              *perr                = OS_ERR_INVALID_OPT;
- 787 f8c7c c607          	ldab	#7
- 788                     ; 414              pgrp_return          = pgrp;
- 790                     ; 415              break;
- 792 f8c7e 202e          	bra	LC007
- 793 f8c80               L512:
- 794                     ; 371         case OS_DEL_NO_PEND:                               /* Delete group if no task waiting          */
- 794                     ; 372              if (tasks_waiting == OS_FALSE) {
- 796 f8c80 e683          	ldab	OFST-1,s
- 797 f8c82 2622          	bne	L143
- 798                     ; 374                  pgrp->OSFlagName     = (INT8U *)(void *)"?";
- 800 f8c84 cc770d        	ldd	#L112
- 801 f8c87 6c45          	std	5,y
- 802                     ; 376                  pgrp->OSFlagType     = OS_EVENT_TYPE_UNUSED;
- 804 f8c89 87            	clra	
- 805 f8c8a 6a40          	staa	0,y
- 806                     ; 377                  pgrp->OSFlagWaitList = (void *)OSFlagFreeList; /* Return group to free list           */
- 808 f8c8c 1801411632    	movw	_OSFlagFreeList,1,y
- 809                     ; 378                  pgrp->OSFlagFlags    = (OS_FLAGS)0;
- 811 f8c91 c7            	clrb	
- 812 f8c92 6c43          	std	3,y
- 813                     ; 379                  OSFlagFreeList       = pgrp;
- 815 f8c94 1805841632    	movw	OFST+0,s,_OSFlagFreeList
- 816                     ; 380                  OS_EXIT_CRITICAL();
- 818 f8c99 e682          	ldab	OFST-2,s
- 819 f8c9b 167527        	jsr	_OS_CPU_SR_Restore
- 821                     ; 381                  *perr                = OS_ERR_NONE;
- 823 f8c9e 87            	clra	
- 824 f8c9f 6af3000a      	staa	[OFST+6,s]
- 825                     ; 382                  pgrp_return          = (OS_FLAG_GRP *)0;  /* Event Flag Group has been deleted        */
- 827 f8ca3 c7            	clrb	
- 829 f8ca4 200e          	bra	LC006
- 830 f8ca6               L143:
- 831                     ; 384                  OS_EXIT_CRITICAL();
- 833 f8ca6 e682          	ldab	OFST-2,s
- 834 f8ca8 87            	clra	
- 835 f8ca9 167527        	jsr	_OS_CPU_SR_Restore
- 837                     ; 385                  *perr                = OS_ERR_TASK_WAITING;
- 839 f8cac c649          	ldab	#73
- 840                     ; 386                  pgrp_return          = pgrp;
- 842 f8cae               LC007:
- 843 f8cae 6bf3000a      	stab	[OFST+6,s]
- 844 f8cb2 ec84          	ldd	OFST+0,s
- 845 f8cb4               LC006:
- 846 f8cb4 6c80          	std	OFST-4,s
- 847 f8cb6 2041          	bra	L733
- 848 f8cb8               L712:
- 849                     ; 390         case OS_DEL_ALWAYS:                                /* Always delete the event flag group       */
- 849                     ; 391              pnode = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
- 851 f8cb8 ec41          	ldd	1,y
- 853 f8cba 2011          	bra	L153
- 854 f8cbc               L543:
- 855                     ; 393                  (void)OS_FlagTaskRdy(pnode, (OS_FLAGS)0, OS_STAT_PEND_ABORT);
- 857 f8cbc cc0002        	ldd	#2
- 858 f8cbf 3b            	pshd	
- 859 f8cc0 c7            	clrb	
- 860 f8cc1 3b            	pshd	
- 861 f8cc2 ec84          	ldd	OFST+0,s
- 862 f8cc4 16512e        	jsr	L5_OS_FlagTaskRdy
- 864 f8cc7 1b84          	leas	4,s
- 865                     ; 394                  pnode = (OS_FLAG_NODE *)pnode->OSFlagNodeNext;
- 867 f8cc9 ecf30000      	ldd	[OFST-4,s]
- 868 f8ccd               L153:
- 869 f8ccd 6c80          	std	OFST-4,s
- 870                     ; 392              while (pnode != (OS_FLAG_NODE *)0) {          /* Ready ALL tasks waiting for flags        */
- 872 f8ccf 26eb          	bne	L543
- 873                     ; 397              pgrp->OSFlagName     = (INT8U *)(void *)"?";
- 875 f8cd1 cc770d        	ldd	#L112
- 876 f8cd4 ed84          	ldy	OFST+0,s
- 877 f8cd6 6c45          	std	5,y
- 878                     ; 399              pgrp->OSFlagType     = OS_EVENT_TYPE_UNUSED;
- 880 f8cd8 87            	clra	
- 881 f8cd9 6a40          	staa	0,y
- 882                     ; 400              pgrp->OSFlagWaitList = (void *)OSFlagFreeList;/* Return group to free list                */
- 884 f8cdb 1801411632    	movw	_OSFlagFreeList,1,y
- 885                     ; 401              pgrp->OSFlagFlags    = (OS_FLAGS)0;
- 887 f8ce0 c7            	clrb	
- 888 f8ce1 6c43          	std	3,y
- 889                     ; 402              OSFlagFreeList       = pgrp;
- 891 f8ce3 7d1632        	sty	_OSFlagFreeList
- 892                     ; 403              OS_EXIT_CRITICAL();
- 894 f8ce6 e682          	ldab	OFST-2,s
- 895 f8ce8 167527        	jsr	_OS_CPU_SR_Restore
- 897                     ; 404              if (tasks_waiting == OS_TRUE) {               /* Reschedule only if task(s) were waiting  */
- 899 f8ceb e683          	ldab	OFST-1,s
- 900 f8ced 042103        	dbne	b,L553
- 901                     ; 405                  OS_Sched();                               /* Find highest priority task ready to run  */
- 903 f8cf0 16488b        	jsr	_OS_Sched
- 905 f8cf3               L553:
- 906                     ; 407              *perr = OS_ERR_NONE;
- 908 f8cf3 87            	clra	
- 909 f8cf4 6af3000a      	staa	[OFST+6,s]
- 910                     ; 408              pgrp_return          = (OS_FLAG_GRP *)0;      /* Event Flag Group has been deleted        */
- 912 f8cf8 c7            	clrb	
- 913                     ; 409              break;
- 915 f8cf9               L733:
- 916                     ; 420     return (pgrp_return);
- 921 f8cf9 1b86          	leas	6,s
- 922 f8cfb 3d            	rts	
- 997                     ; 449 _NEAR INT8U  OSFlagNameGet (OS_FLAG_GRP   *pgrp,
- 997                     ; 450                            INT8U        **pname,
- 997                     ; 451                            INT8U         *perr)
- 997                     ; 452 {
- 998                     	switch	.text
- 999 f8cfc               _OSFlagNameGet:
-1001 f8cfc 3b            	pshd	
-1002       00000002      OFST:	set	2
-1005                     ; 455     OS_CPU_SR  cpu_sr = 0u;
-1007                     ; 468     if (pgrp == (OS_FLAG_GRP *)0) {              /* Is 'pgrp' a NULL pointer?                          */
-1009 f8cfd 6cae          	std	2,-s
-1010 f8cff 2604          	bne	L314
-1011                     ; 469         *perr = OS_ERR_FLAG_INVALID_PGRP;
-1013 f8d01 c66e          	ldab	#110
-1014                     ; 470         return (0u);
-1017 f8d03 2006          	bra	LC008
-1018 f8d05               L314:
-1019                     ; 472     if (pname == (INT8U **)0) {                   /* Is 'pname' a NULL pointer?                         */
-1021 f8d05 ec86          	ldd	OFST+4,s
-1022 f8d07 260a          	bne	L514
-1023                     ; 473         *perr = OS_ERR_PNAME_NULL;
-1025 f8d09 c60c          	ldab	#12
-1026                     ; 474         return (0u);
-1028 f8d0b               LC008:
-1029 f8d0b 6bf30008      	stab	[OFST+6,s]
-1030 f8d0f c7            	clrb	
-1032 f8d10               L22:
-1034 f8d10 1b84          	leas	4,s
-1035 f8d12 3d            	rts	
-1036 f8d13               L514:
-1037                     ; 477     if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
-1039 f8d13 f61631        	ldab	_OSIntNesting
-1040 f8d16 2704          	beq	L714
-1041                     ; 478         *perr = OS_ERR_NAME_GET_ISR;
-1043 f8d18 c611          	ldab	#17
-1044                     ; 479         return (0u);
-1047 f8d1a 20ef          	bra	LC008
-1048 f8d1c               L714:
-1049                     ; 481     OS_ENTER_CRITICAL();
-1051 f8d1c 167522        	jsr	_OS_CPU_SR_Save
-1053 f8d1f 6b80          	stab	OFST-2,s
-1054                     ; 482     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {
-1056 f8d21 ed82          	ldy	OFST+0,s
-1057 f8d23 e640          	ldab	0,y
-1058 f8d25 c105          	cmpb	#5
-1059 f8d27 270a          	beq	L124
-1060                     ; 483         OS_EXIT_CRITICAL();
-1062 f8d29 e680          	ldab	OFST-2,s
-1063 f8d2b 87            	clra	
-1064 f8d2c 167527        	jsr	_OS_CPU_SR_Restore
-1066                     ; 484         *perr = OS_ERR_EVENT_TYPE;
-1068 f8d2f c601          	ldab	#1
-1069                     ; 485         return (0u);
-1072 f8d31 20d8          	bra	LC008
-1073 f8d33               L124:
-1074                     ; 487     *pname = pgrp->OSFlagName;
-1076 f8d33 ec45          	ldd	5,y
-1077 f8d35 ee86          	ldx	OFST+4,s
-1078 f8d37 6c00          	std	0,x
-1079                     ; 488     len    = OS_StrLen(*pname);
-1081 f8d39 164907        	jsr	_OS_StrLen
-1083 f8d3c 6b81          	stab	OFST-1,s
-1084                     ; 489     OS_EXIT_CRITICAL();
-1086 f8d3e e680          	ldab	OFST-2,s
-1087 f8d40 87            	clra	
-1088 f8d41 167527        	jsr	_OS_CPU_SR_Restore
-1090                     ; 490     *perr  = OS_ERR_NONE;
-1092 f8d44 69f30008      	clr	[OFST+6,s]
-1093                     ; 491     return (len);
-1095 f8d48 e681          	ldab	OFST-1,s
-1097 f8d4a 20c4          	bra	L22
-1163                     ; 520 _NEAR void  OSFlagNameSet (OS_FLAG_GRP  *pgrp,
-1163                     ; 521                           INT8U        *pname,
-1163                     ; 522                           INT8U        *perr)
-1163                     ; 523 {
-1164                     	switch	.text
-1165 f8d4c               _OSFlagNameSet:
-1167 f8d4c 3b            	pshd	
-1168 f8d4d 37            	pshb	
-1169       00000001      OFST:	set	1
-1172                     ; 525     OS_CPU_SR  cpu_sr = 0u;
-1174                     ; 538     if (pgrp == (OS_FLAG_GRP *)0) {              /* Is 'pgrp' a NULL pointer?                          */
-1176 f8d4e 046404        	tbne	d,L554
-1177                     ; 539         *perr = OS_ERR_FLAG_INVALID_PGRP;
-1179 f8d51 c66e          	ldab	#110
-1180                     ; 540         return;
-1182 f8d53 2006          	bra	LC009
-1183 f8d55               L554:
-1184                     ; 542     if (pname == (INT8U *)0) {                   /* Is 'pname' a NULL pointer?                         */
-1186 f8d55 ec85          	ldd	OFST+4,s
-1187 f8d57 2609          	bne	L754
-1188                     ; 543         *perr = OS_ERR_PNAME_NULL;
-1190 f8d59 c60c          	ldab	#12
-1191 f8d5b               LC009:
-1192 f8d5b 6bf30007      	stab	[OFST+6,s]
-1193                     ; 544         return;
-1194 f8d5f               L62:
-1197 f8d5f 1b83          	leas	3,s
-1198 f8d61 3d            	rts	
-1199 f8d62               L754:
-1200                     ; 547     if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
-1202 f8d62 f61631        	ldab	_OSIntNesting
-1203 f8d65 2704          	beq	L164
-1204                     ; 548         *perr = OS_ERR_NAME_SET_ISR;
-1206 f8d67 c612          	ldab	#18
-1207                     ; 549         return;
-1209 f8d69 20f0          	bra	LC009
-1210 f8d6b               L164:
-1211                     ; 551     OS_ENTER_CRITICAL();
-1213 f8d6b 167522        	jsr	_OS_CPU_SR_Save
-1215 f8d6e 6b80          	stab	OFST-1,s
-1216                     ; 552     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {
-1218 f8d70 ed81          	ldy	OFST+0,s
-1219 f8d72 e640          	ldab	0,y
-1220 f8d74 c105          	cmpb	#5
-1221 f8d76 270a          	beq	L364
-1222                     ; 553         OS_EXIT_CRITICAL();
-1224 f8d78 e680          	ldab	OFST-1,s
-1225 f8d7a 87            	clra	
-1226 f8d7b 167527        	jsr	_OS_CPU_SR_Restore
-1228                     ; 554         *perr = OS_ERR_EVENT_TYPE;
-1230 f8d7e c601          	ldab	#1
-1231                     ; 555         return;
-1233 f8d80 20d9          	bra	LC009
-1234 f8d82               L364:
-1235                     ; 557     pgrp->OSFlagName = pname;
-1237 f8d82 18028545      	movw	OFST+4,s,5,y
-1238                     ; 558     OS_EXIT_CRITICAL();
-1240 f8d86 e680          	ldab	OFST-1,s
-1241 f8d88 87            	clra	
-1242 f8d89 167527        	jsr	_OS_CPU_SR_Restore
-1244                     ; 560     *perr            = OS_ERR_NONE;
-1247 f8d8c 69f30007      	clr	[OFST+6,s]
-1248                     ; 561     return;
-1250 f8d90 20cd          	bra	L62
-1370                     ; 620 _NEAR OS_FLAGS  OSFlagPend (OS_FLAG_GRP  *pgrp,
-1370                     ; 621                            OS_FLAGS      flags,
-1370                     ; 622                            INT8U         wait_type,
-1370                     ; 623                            INT32U        timeout,
-1370                     ; 624                            INT8U        *perr)
-1370                     ; 625 {
-1371                     	switch	.text
-1372 f8d92               _OSFlagPend:
-1374 f8d92 3b            	pshd	
-1375 f8d93 1b91          	leas	-15,s
-1376       0000000f      OFST:	set	15
-1379                     ; 632     OS_CPU_SR     cpu_sr = 0u;
-1381                     ; 644     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                          */
-1383 f8d95 046404        	tbne	d,L165
-1384                     ; 645         *perr = OS_ERR_FLAG_INVALID_PGRP;
-1386 f8d98 c66e          	ldab	#110
-1387                     ; 646         return ((OS_FLAGS)0);
-1390 f8d9a 2007          	bra	LC010
-1391 f8d9c               L165:
-1392                     ; 652     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
-1395 f8d9c f61631        	ldab	_OSIntNesting
-1396 f8d9f 270c          	beq	L365
-1397                     ; 653         *perr = OS_ERR_PEND_ISR;                           /* ... can't PEND from an ISR               */
-1399 f8da1 c602          	ldab	#2
-1400                     ; 655         return ((OS_FLAGS)0);
-1403 f8da3               LC010:
-1404 f8da3 6bf3001b      	stab	[OFST+12,s]
-1405 f8da7 87            	clra	
-1406 f8da8 c7            	clrb	
-1408 f8da9               L23:
-1410 f8da9 1bf011        	leas	17,s
-1411 f8dac 3d            	rts	
-1412 f8dad               L365:
-1413                     ; 657     if (OSLockNesting > 0u) {                              /* See if called with scheduler locked ...  */
-1415 f8dad f61630        	ldab	_OSLockNesting
-1416 f8db0 2704          	beq	L565
-1417                     ; 658         *perr = OS_ERR_PEND_LOCKED;                        /* ... can't PEND when locked               */
-1419 f8db2 c60d          	ldab	#13
-1420                     ; 660         return ((OS_FLAGS)0);
-1424 f8db4 20ed          	bra	LC010
-1425 f8db6               L565:
-1426                     ; 662     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event block type                */
-1428 f8db6 e6f3000f      	ldab	[OFST+0,s]
-1429 f8dba c105          	cmpb	#5
-1430 f8dbc 2704          	beq	L765
-1431                     ; 663         *perr = OS_ERR_EVENT_TYPE;
-1433 f8dbe c601          	ldab	#1
-1434                     ; 665         return ((OS_FLAGS)0);
-1438 f8dc0 20e1          	bra	LC010
-1439 f8dc2               L765:
-1440                     ; 667     result = (INT8U)(wait_type & OS_FLAG_CONSUME);
-1442 f8dc2 e6f016        	ldab	OFST+7,s
-1443 f8dc5 c480          	andb	#128
-1444 f8dc7 6b83          	stab	OFST-12,s
-1445                     ; 668     if (result != (INT8U)0) {                              /* See if we need to consume the flags      */
-1447 f8dc9 270a          	beq	L175
-1448                     ; 669         wait_type &= (INT8U)~(INT8U)OS_FLAG_CONSUME;
-1450 f8dcb 0df01680      	bclr	OFST+7,s,128
-1451                     ; 670         consume    = OS_TRUE;
-1453 f8dcf c601          	ldab	#1
-1454 f8dd1 6b83          	stab	OFST-12,s
-1456 f8dd3 2002          	bra	L375
-1457 f8dd5               L175:
-1458                     ; 672         consume    = OS_FALSE;
-1460 f8dd5 6983          	clr	OFST-12,s
-1461 f8dd7               L375:
-1462                     ; 675     OS_ENTER_CRITICAL();
-1464 f8dd7 167522        	jsr	_OS_CPU_SR_Save
-1466 f8dda 6b82          	stab	OFST-13,s
-1467                     ; 676     switch (wait_type) {
-1469 f8ddc e6f016        	ldab	OFST+7,s
-1471 f8ddf 275f          	beq	L174
-1472 f8de1 53            	decb	
-1473 f8de2 277c          	beq	L374
-1474 f8de4 04010d        	dbeq	b,L564
-1475 f8de7 040122        	dbeq	b,L764
-1476                     ; 747         default:
-1476                     ; 748              OS_EXIT_CRITICAL();
-1479                     ; 749              flags_rdy = (OS_FLAGS)0;
-1481                     ; 750              *perr      = OS_ERR_FLAG_WAIT_TYPE;
-1483 f8dea               LC011:
-1484 f8dea e682          	ldab	OFST-13,s
-1485 f8dec 87            	clra	
-1486 f8ded 167527        	jsr	_OS_CPU_SR_Restore
-1487 f8df0 c66f          	ldab	#111
-1488                     ; 752              return (flags_rdy);
-1492 f8df2 20af          	bra	LC010
-1493 f8df4               L564:
-1494                     ; 677         case OS_FLAG_WAIT_SET_ALL:                         /* See if all required flags are set        */
-1494                     ; 678              flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & flags);   /* Extract only the bits we want     */
-1496 f8df4 ed8f          	ldy	OFST+0,s
-1497 f8df6 ec43          	ldd	3,y
-1498 f8df8 e4f014        	andb	OFST+5,s
-1499 f8dfb a4f013        	anda	OFST+4,s
-1500 f8dfe 6c80          	std	OFST-15,s
-1501                     ; 679              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want     */
-1503 f8e00 acf013        	cpd	OFST+4,s
-1504 f8e03 266b          	bne	L326
-1505                     ; 680                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
-1507 f8e05 e683          	ldab	OFST-12,s
-1508 f8e07 53            	decb	
-1509 f8e08 261f          	bne	L116
-1510                     ; 681                      pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;   /* Clear ONLY the flags we wanted    */
-1512                     ; 683                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready               */
-1514                     ; 684                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller     */
-1517                     ; 685                  *perr                   = OS_ERR_NONE;
-1519                     ; 687                  return (flags_rdy);
-1523 f8e0a 2013          	bra	LC017
-1524                     ; 689                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
-1527                     ; 690                  OS_EXIT_CRITICAL();
-1530 f8e0c               L764:
-1531                     ; 694         case OS_FLAG_WAIT_SET_ANY:
-1531                     ; 695              flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & flags);    /* Extract only the bits we want    */
-1533 f8e0c ed8f          	ldy	OFST+0,s
-1534 f8e0e ec43          	ldd	3,y
-1535 f8e10 e4f014        	andb	OFST+5,s
-1536 f8e13 a4f013        	anda	OFST+4,s
-1537 f8e16 6c80          	std	OFST-15,s
-1538                     ; 696              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag set                      */
-1540 f8e18 2756          	beq	L326
-1541                     ; 697                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
-1543 f8e1a e683          	ldab	OFST-12,s
-1544 f8e1c 04210a        	dbne	b,L116
-1545                     ; 698                      pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;    /* Clear ONLY the flags that we got */
-1547 f8e1f               LC017:
-1548 f8e1f ec80          	ldd	OFST-15,s
-1549 f8e21 51            	comb	
-1550 f8e22 41            	coma	
-1551 f8e23 e444          	andb	4,y
-1552 f8e25 a443          	anda	3,y
-1553 f8e27               LC016:
-1554 f8e27 6c43          	std	3,y
-1555 f8e29               L116:
-1556                     ; 700                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready               */
-1558 f8e29 ec80          	ldd	OFST-15,s
-1559 f8e2b fd157d        	ldy	_OSTCBCur
-1560 f8e2e 6ce81c        	std	28,y
-1561                     ; 701                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller     */
-1564                     ; 702                  *perr                   = OS_ERR_NONE;
-1566 f8e31               LC013:
-1567 f8e31 e682          	ldab	OFST-13,s
-1568 f8e33 87            	clra	
-1569 f8e34 167527        	jsr	_OS_CPU_SR_Restore
-1570 f8e37 69f3001b      	clr	[OFST+12,s]
-1571                     ; 704                  return (flags_rdy);
-1574 f8e3b               LC012:
-1575 f8e3b ec80          	ldd	OFST-15,s
-1577 f8e3d 064da9        	bra	L23
-1578                     ; 706                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
-1581                     ; 707                  OS_EXIT_CRITICAL();
-1584 f8e40               L174:
-1585                     ; 712         case OS_FLAG_WAIT_CLR_ALL:                         /* See if all required flags are cleared    */
-1585                     ; 713              flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & flags;    /* Extract only the bits we want     */
-1587 f8e40 ed8f          	ldy	OFST+0,s
-1588 f8e42 ec43          	ldd	3,y
-1589 f8e44 51            	comb	
-1590 f8e45 41            	coma	
-1591 f8e46 e4f014        	andb	OFST+5,s
-1592 f8e49 a4f013        	anda	OFST+4,s
-1593 f8e4c 6c80          	std	OFST-15,s
-1594                     ; 714              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want     */
-1596 f8e4e acf013        	cpd	OFST+4,s
-1597 f8e51 261d          	bne	L326
-1598                     ; 715                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
-1600                     ; 716                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we wanted        */
-1602 f8e53               LC018:
-1603 f8e53 e683          	ldab	OFST-12,s
-1604 f8e55 53            	decb	
-1605 f8e56 26d1          	bne	L116
-1606 f8e58 ec43          	ldd	3,y
-1607 f8e5a ea81          	orab	OFST-14,s
-1608 f8e5c aa80          	oraa	OFST-15,s
-1609                     ; 718                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready               */
-1611                     ; 719                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller     */
-1614                     ; 720                  *perr                   = OS_ERR_NONE;
-1616                     ; 722                  return (flags_rdy);
-1620 f8e5e 20c7          	bra	LC016
-1621                     ; 724                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
-1624                     ; 725                  OS_EXIT_CRITICAL();
-1627 f8e60               L374:
-1628                     ; 729         case OS_FLAG_WAIT_CLR_ANY:
-1628                     ; 730              flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & flags;   /* Extract only the bits we want      */
-1630 f8e60 ed8f          	ldy	OFST+0,s
-1631 f8e62 ec43          	ldd	3,y
-1632 f8e64 51            	comb	
-1633 f8e65 41            	coma	
-1634 f8e66 e4f014        	andb	OFST+5,s
-1635 f8e69 a4f013        	anda	OFST+4,s
-1636 f8e6c 6c80          	std	OFST-15,s
-1637                     ; 731              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag cleared                  */
-1639                     ; 732                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
-1641                     ; 733                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we got           */
-1643                     ; 735                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready               */
-1645                     ; 736                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller     */
-1648                     ; 737                  *perr                   = OS_ERR_NONE;
-1650                     ; 739                  return (flags_rdy);
-1654 f8e6e 26e3          	bne	LC018
-1655 f8e70               L326:
-1656                     ; 741                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
-1659                     ; 742                  OS_EXIT_CRITICAL();
-1662 f8e70 ecf019        	ldd	OFST+10,s
-1663 f8e73 3b            	pshd	
-1664 f8e74 ecf019        	ldd	OFST+10,s
-1665 f8e77 3b            	pshd	
-1666 f8e78 e6f01a        	ldab	OFST+11,s
-1667 f8e7b 87            	clra	
-1668 f8e7c 3b            	pshd	
-1669 f8e7d ecf019        	ldd	OFST+10,s
-1670 f8e80 3b            	pshd	
-1671 f8e81 1a8c          	leax	OFST-3,s
-1672 f8e83 34            	pshx	
-1673 f8e84 ecf019        	ldd	OFST+10,s
-1674 f8e87 165058        	jsr	L3_OS_FlagBlock
-1675 f8e8a 1b8a          	leas	10,s
-1676 f8e8c e682          	ldab	OFST-13,s
-1677 f8e8e 87            	clra	
-1678 f8e8f 167527        	jsr	_OS_CPU_SR_Restore
-1679                     ; 755     OS_Sched();                                            /* Find next HPT ready to run               */
-1681 f8e92 16488b        	jsr	_OS_Sched
-1683                     ; 756     OS_ENTER_CRITICAL();
-1685 f8e95 167522        	jsr	_OS_CPU_SR_Save
-1687 f8e98 6b82          	stab	OFST-13,s
-1688                     ; 757     if (OSTCBCur->OSTCBStatPend != OS_STAT_PEND_OK) {      /* Have we timed-out or aborted?            */
-1690 f8e9a fd157d        	ldy	_OSTCBCur
-1691 f8e9d e6e823        	ldab	35,y
-1692 f8ea0 2732          	beq	L136
-1693                     ; 758         pend_stat                = OSTCBCur->OSTCBStatPend;
-1695 f8ea2 6b83          	stab	OFST-12,s
-1696                     ; 759         OSTCBCur->OSTCBStatPend  = OS_STAT_PEND_OK;
-1698 f8ea4 69e823        	clr	35,y
-1699                     ; 760         OS_FlagUnlink(&node);
-1701 f8ea7 b774          	tfr	s,d
-1702 f8ea9 c30004        	addd	#-11+OFST
-1703 f8eac 16517e        	jsr	_OS_FlagUnlink
-1705                     ; 761         OSTCBCur->OSTCBStat      = OS_STAT_RDY;            /* Yes, make task ready-to-run              */
-1707 f8eaf fd157d        	ldy	_OSTCBCur
-1708 f8eb2 87            	clra	
-1709 f8eb3 6ae822        	staa	34,y
-1710                     ; 762         OS_EXIT_CRITICAL();
-1712 f8eb6 e682          	ldab	OFST-13,s
-1713 f8eb8 167527        	jsr	_OS_CPU_SR_Restore
-1715                     ; 763         flags_rdy                = (OS_FLAGS)0;
-1717 f8ebb 87            	clra	
-1718 f8ebc c7            	clrb	
-1719 f8ebd 6c80          	std	OFST-15,s
-1720                     ; 764         switch (pend_stat) {
-1722 f8ebf e683          	ldab	OFST-12,s
-1724 f8ec1 040107        	dbeq	b,L105
-1725 f8ec4 042104        	dbne	b,L105
-1726                     ; 765             case OS_STAT_PEND_ABORT:
-1726                     ; 766                  *perr = OS_ERR_PEND_ABORT;                /* Indicate that we aborted   waiting       */
-1728 f8ec7 c60e          	ldab	#14
-1729                     ; 767                  break;
-1731 f8ec9 2002          	bra	L536
-1732 f8ecb               L105:
-1733                     ; 769             case OS_STAT_PEND_TO:
-1733                     ; 770             default:
-1733                     ; 771                  *perr = OS_ERR_TIMEOUT;                   /* Indicate that we timed-out waiting       */
-1735 f8ecb c60a          	ldab	#10
-1736                     ; 772                  break;
-1738 f8ecd               L536:
-1739 f8ecd 6bf3001b      	stab	[OFST+12,s]
-1740                     ; 775         return (flags_rdy);
-1744 f8ed1 064e3b        	bra	LC012
-1745 f8ed4               L136:
-1746                     ; 777     flags_rdy = OSTCBCur->OSTCBFlagsRdy;
-1748 f8ed4 ece81c        	ldd	28,y
-1749 f8ed7 6c80          	std	OFST-15,s
-1750                     ; 778     if (consume == OS_TRUE) {                              /* See if we need to consume the flags      */
-1752 f8ed9 e683          	ldab	OFST-12,s
-1753 f8edb 53            	decb	
-1754 f8edc 1826ff51      	bne	LC013
-1755                     ; 779         switch (wait_type) {
-1757 f8ee0 e6f016        	ldab	OFST+7,s
-1759 f8ee3 2718          	beq	L505
-1760 f8ee5 040115        	dbeq	b,L505
-1761 f8ee8 040106        	dbeq	b,L305
-1762 f8eeb 040103        	dbeq	b,L305
-1763                     ; 791             default:
-1763                     ; 792                  OS_EXIT_CRITICAL();
-1766                     ; 793                  *perr = OS_ERR_FLAG_WAIT_TYPE;
-1768                     ; 795                  return ((OS_FLAGS)0);
-1772 f8eee 064dea        	bra	LC011
-1773 f8ef1               L305:
-1774                     ; 780             case OS_FLAG_WAIT_SET_ALL:
-1774                     ; 781             case OS_FLAG_WAIT_SET_ANY:                     /* Clear ONLY the flags we got              */
-1774                     ; 782                  pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;
-1776 f8ef1 ed8f          	ldy	OFST+0,s
-1777 f8ef3 ec80          	ldd	OFST-15,s
-1778 f8ef5 51            	comb	
-1779 f8ef6 41            	coma	
-1780 f8ef7 e444          	andb	4,y
-1781 f8ef9 a443          	anda	3,y
-1782                     ; 783                  break;
-1784 f8efb 2008          	bra	LC015
-1785 f8efd               L505:
-1786                     ; 786             case OS_FLAG_WAIT_CLR_ALL:
-1786                     ; 787             case OS_FLAG_WAIT_CLR_ANY:                     /* Set   ONLY the flags we got              */
-1786                     ; 788                  pgrp->OSFlagFlags |=  flags_rdy;
-1788 f8efd ed8f          	ldy	OFST+0,s
-1789 f8eff ec43          	ldd	3,y
-1790 f8f01 ea81          	orab	OFST-14,s
-1791 f8f03 aa80          	oraa	OFST-15,s
-1792 f8f05               LC015:
-1793 f8f05 6c43          	std	3,y
-1794                     ; 789                  break;
-1796                     ; 798     OS_EXIT_CRITICAL();
-1799                     ; 799     *perr = OS_ERR_NONE;                                   /* Event(s) must have occurred              */
-1801                     ; 801     return (flags_rdy);
-1805 f8f07 064e31        	bra	LC013
-1847                     ; 820 _NEAR OS_FLAGS  OSFlagPendGetFlagsRdy (void)
-1847                     ; 821 {
-1848                     	switch	.text
-1849 f8f0a               _OSFlagPendGetFlagsRdy:
-1851 f8f0a 1b9d          	leas	-3,s
-1852       00000003      OFST:	set	3
-1855                     ; 824     OS_CPU_SR     cpu_sr = 0u;
-1857                     ; 829     OS_ENTER_CRITICAL();
-1859 f8f0c 167522        	jsr	_OS_CPU_SR_Save
-1861 f8f0f 6b80          	stab	OFST-3,s
-1862                     ; 830     flags = OSTCBCur->OSTCBFlagsRdy;
-1864 f8f11 fd157d        	ldy	_OSTCBCur
-1865 f8f14 ece81c        	ldd	28,y
-1866 f8f17 6c81          	std	OFST-2,s
-1867                     ; 831     OS_EXIT_CRITICAL();
-1869 f8f19 e680          	ldab	OFST-3,s
-1870 f8f1b 87            	clra	
-1871 f8f1c 167527        	jsr	_OS_CPU_SR_Restore
-1873                     ; 832     return (flags);
-1875 f8f1f ec81          	ldd	OFST-2,s
-1878 f8f21 1b83          	leas	3,s
-1879 f8f23 3d            	rts	
-1990                     ; 877 _NEAR OS_FLAGS  OSFlagPost (OS_FLAG_GRP  *pgrp,
-1990                     ; 878                            OS_FLAGS      flags,
-1990                     ; 879                            INT8U         opt,
-1990                     ; 880                            INT8U        *perr)
-1990                     ; 881 {
-1991                     	switch	.text
-1992 f8f24               _OSFlagPost:
-1994 f8f24 3b            	pshd	
-1995 f8f25 1b99          	leas	-7,s
-1996       00000007      OFST:	set	7
-1999                     ; 888     OS_CPU_SR     cpu_sr = 0u;
-2001                     ; 900     if (pgrp == (OS_FLAG_GRP *)0) {                  /* Validate 'pgrp'                                */
-2003 f8f27 046404        	tbne	d,L357
-2004                     ; 901         *perr = OS_ERR_FLAG_INVALID_PGRP;
-2006 f8f2a c66e          	ldab	#110
-2007                     ; 902         return ((OS_FLAGS)0);
-2010 f8f2c 200a          	bra	L04
-2011 f8f2e               L357:
-2012                     ; 908     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {    /* Make sure we are pointing to an event flag grp */
-2015 f8f2e e6f30007      	ldab	[OFST+0,s]
-2016 f8f32 c105          	cmpb	#5
-2017 f8f34 270b          	beq	L557
-2018                     ; 909         *perr = OS_ERR_EVENT_TYPE;
-2020 f8f36 c601          	ldab	#1
-2021                     ; 911         return ((OS_FLAGS)0);
-2025 f8f38               L04:
-2026 f8f38 6bf3000f      	stab	[OFST+8,s]
-2027 f8f3c 87            	clra	
-2028 f8f3d c7            	clrb	
-2030 f8f3e 1b89          	leas	9,s
-2031 f8f40 3d            	rts	
-2032 f8f41               L557:
-2033                     ; 914     OS_ENTER_CRITICAL();
-2035 f8f41 167522        	jsr	_OS_CPU_SR_Save
-2037 f8f44 6b86          	stab	OFST-1,s
-2038                     ; 915     switch (opt) {
-2040 f8f46 e68e          	ldab	OFST+7,s
-2042 f8f48 270d          	beq	L366
-2043 f8f4a 040116        	dbeq	b,L566
-2044                     ; 924         default:
-2044                     ; 925              OS_EXIT_CRITICAL();                     /* INVALID option                                 */
-2046 f8f4d e686          	ldab	OFST-1,s
-2047 f8f4f 87            	clra	
-2048 f8f50 167527        	jsr	_OS_CPU_SR_Restore
-2050                     ; 926              *perr = OS_ERR_FLAG_INVALID_OPT;
-2052 f8f53 c671          	ldab	#113
-2053                     ; 928              return ((OS_FLAGS)0);
-2057 f8f55 20e1          	bra	L04
-2058 f8f57               L366:
-2059                     ; 916         case OS_FLAG_CLR:
-2059                     ; 917              pgrp->OSFlagFlags &= (OS_FLAGS)~flags;  /* Clear the flags specified in the group         */
-2061 f8f57 ed87          	ldy	OFST+0,s
-2062 f8f59 ec8b          	ldd	OFST+4,s
-2063 f8f5b 51            	comb	
-2064 f8f5c 41            	coma	
-2065 f8f5d e444          	andb	4,y
-2066 f8f5f a443          	anda	3,y
-2067                     ; 918              break;
-2069 f8f61 2008          	bra	L167
-2070 f8f63               L566:
-2071                     ; 920         case OS_FLAG_SET:
-2071                     ; 921              pgrp->OSFlagFlags |=  flags;            /* Set   the flags specified in the group         */
-2073 f8f63 ed87          	ldy	OFST+0,s
-2074 f8f65 ec43          	ldd	3,y
-2075 f8f67 ea8c          	orab	OFST+5,s
-2076 f8f69 aa8b          	oraa	OFST+4,s
-2077                     ; 922              break;
-2079 f8f6b               L167:
-2080 f8f6b 6c43          	std	3,y
-2081                     ; 930     sched = OS_FALSE;                                /* Indicate that we don't need rescheduling       */
-2083 f8f6d 6985          	clr	OFST-2,s
-2084                     ; 931     pnode = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
-2086 f8f6f ec41          	ldd	1,y
-2088 f8f71 064ff9        	bra	L567
-2089 f8f74               L367:
-2090                     ; 933         switch (pnode->OSFlagNodeWaitType) {
-2092 f8f74 b746          	tfr	d,y
-2093 f8f76 e64a          	ldab	10,y
-2095 f8f78 2741          	beq	L576
-2096 f8f7a 53            	decb	
-2097 f8f7b 2752          	beq	L776
-2098 f8f7d 04010d        	dbeq	b,L176
-2099 f8f80 04012e        	dbeq	b,L376
-2100                     ; 975             default:
-2100                     ; 976                  OS_EXIT_CRITICAL();
-2102 f8f83 e686          	ldab	OFST-1,s
-2103 f8f85 87            	clra	
-2104 f8f86 167527        	jsr	_OS_CPU_SR_Restore
-2106                     ; 977                  *perr = OS_ERR_FLAG_WAIT_TYPE;
-2108 f8f89 c66f          	ldab	#111
-2109                     ; 979                  return ((OS_FLAGS)0);
-2113 f8f8b 20ab          	bra	L04
-2114 f8f8d               L176:
-2115                     ; 934             case OS_FLAG_WAIT_SET_ALL:               /* See if all req. flags are set for current node */
-2115                     ; 935                  flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & pnode->OSFlagNodeFlags);
-2117 f8f8d ec48          	ldd	8,y
-2118 f8f8f ed87          	ldy	OFST+0,s
-2119 f8f91 e444          	andb	4,y
-2120 f8f93 a443          	anda	3,y
-2121 f8f95 6c82          	std	OFST-5,s
-2122                     ; 936                  if (flags_rdy == pnode->OSFlagNodeFlags) {   /* Make task RTR, event(s) Rx'd          */
-2124 f8f97 ed80          	ldy	OFST-7,s
-2125 f8f99 ac48          	cpd	8,y
-2126 f8f9b 2658          	bne	L377
-2127                     ; 937                      rdy = OS_FlagTaskRdy(pnode, flags_rdy, OS_STAT_PEND_OK);
-2129 f8f9d 87            	clra	
-2130 f8f9e c7            	clrb	
-2131 f8f9f 3b            	pshd	
-2132 f8fa0 ec84          	ldd	OFST-3,s
-2133 f8fa2 3b            	pshd	
-2134 f8fa3 b764          	tfr	y,d
-2135 f8fa5 16512e        	jsr	L5_OS_FlagTaskRdy
-2137 f8fa8 1b84          	leas	4,s
-2138 f8faa 6b84          	stab	OFST-3,s
-2139                     ; 938                      if (rdy == OS_TRUE) {
-2141 f8fac 53            	decb	
-2142 f8fad 2646          	bne	L377
-2143                     ; 939                          sched = OS_TRUE;                     /* When done we will reschedule          */
-2145 f8faf 2040          	bra	LC019
-2146 f8fb1               L376:
-2147                     ; 944             case OS_FLAG_WAIT_SET_ANY:               /* See if any flag set                            */
-2147                     ; 945                  flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & pnode->OSFlagNodeFlags);
-2149 f8fb1 ec48          	ldd	8,y
-2150 f8fb3 ed87          	ldy	OFST+0,s
-2151 f8fb5 e444          	andb	4,y
-2152 f8fb7 a443          	anda	3,y
-2153                     ; 946                  if (flags_rdy != (OS_FLAGS)0) {              /* Make task RTR, event(s) Rx'd          */
-2155                     ; 947                      rdy = OS_FlagTaskRdy(pnode, flags_rdy, OS_STAT_PEND_OK);
-2158                     ; 948                      if (rdy == OS_TRUE) {
-2160                     ; 949                          sched = OS_TRUE;                     /* When done we will reschedule          */
-2162 f8fb9 2020          	bra	LC021
-2163 f8fbb               L576:
-2164                     ; 955             case OS_FLAG_WAIT_CLR_ALL:               /* See if all req. flags are set for current node */
-2164                     ; 956                  flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & pnode->OSFlagNodeFlags;
-2166 f8fbb ed87          	ldy	OFST+0,s
-2167 f8fbd ec43          	ldd	3,y
-2168 f8fbf 51            	comb	
-2169 f8fc0 41            	coma	
-2170 f8fc1 ed80          	ldy	OFST-7,s
-2171 f8fc3 e449          	andb	9,y
-2172 f8fc5 a448          	anda	8,y
-2173 f8fc7 6c82          	std	OFST-5,s
-2174                     ; 957                  if (flags_rdy == pnode->OSFlagNodeFlags) {   /* Make task RTR, event(s) Rx'd          */
-2176 f8fc9 ac48          	cpd	8,y
-2177 f8fcb 2628          	bne	L377
-2178                     ; 958                      rdy = OS_FlagTaskRdy(pnode, flags_rdy, OS_STAT_PEND_OK);
-2181                     ; 959                      if (rdy == OS_TRUE) {
-2183                     ; 960                          sched = OS_TRUE;                     /* When done we will reschedule          */
-2185 f8fcd 2010          	bra	LC020
-2186 f8fcf               L776:
-2187                     ; 965             case OS_FLAG_WAIT_CLR_ANY:               /* See if any flag set                            */
-2187                     ; 966                  flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & pnode->OSFlagNodeFlags;
-2189 f8fcf ed87          	ldy	OFST+0,s
-2190 f8fd1 ec43          	ldd	3,y
-2191 f8fd3 51            	comb	
-2192 f8fd4 41            	coma	
-2193 f8fd5 ed80          	ldy	OFST-7,s
-2194 f8fd7 e449          	andb	9,y
-2195 f8fd9 a448          	anda	8,y
-2196                     ; 967                  if (flags_rdy != (OS_FLAGS)0) {              /* Make task RTR, event(s) Rx'd          */
-2198 f8fdb               LC021:
-2199 f8fdb 6c82          	std	OFST-5,s
-2200 f8fdd 2716          	beq	L377
-2201                     ; 968                      rdy = OS_FlagTaskRdy(pnode, flags_rdy, OS_STAT_PEND_OK);
-2204                     ; 969                      if (rdy == OS_TRUE) {
-2206 f8fdf               LC020:
-2207 f8fdf 87            	clra	
-2208 f8fe0 c7            	clrb	
-2209 f8fe1 3b            	pshd	
-2210 f8fe2 ec84          	ldd	OFST-3,s
-2211 f8fe4 3b            	pshd	
-2212 f8fe5 ec84          	ldd	OFST-3,s
-2213 f8fe7 16512e        	jsr	L5_OS_FlagTaskRdy
-2214 f8fea 1b84          	leas	4,s
-2215 f8fec 6b84          	stab	OFST-3,s
-2216 f8fee 042104        	dbne	b,L377
-2217                     ; 970                          sched = OS_TRUE;                     /* When done we will reschedule          */
-2219 f8ff1               LC019:
-2220 f8ff1 c601          	ldab	#1
-2221 f8ff3 6b85          	stab	OFST-2,s
-2222 f8ff5               L377:
-2223                     ; 981         pnode = (OS_FLAG_NODE *)pnode->OSFlagNodeNext; /* Point to next task waiting for event flag(s) */
-2225 f8ff5 ecf30000      	ldd	[OFST-7,s]
-2226 f8ff9               L567:
-2227 f8ff9 6c80          	std	OFST-7,s
-2228                     ; 932     while (pnode != (OS_FLAG_NODE *)0) {             /* Go through all tasks waiting on event flag(s)  */
-2230 f8ffb 1826ff75      	bne	L367
-2231                     ; 983     OS_EXIT_CRITICAL();
-2233 f8fff e686          	ldab	OFST-1,s
-2234 f9001 167527        	jsr	_OS_CPU_SR_Restore
-2236                     ; 984     if (sched == OS_TRUE) {
-2238 f9004 e685          	ldab	OFST-2,s
-2239 f9006 042103        	dbne	b,L5101
-2240                     ; 985         OS_Sched();
-2242 f9009 16488b        	jsr	_OS_Sched
-2244 f900c               L5101:
-2245                     ; 987     OS_ENTER_CRITICAL();
-2247 f900c 167522        	jsr	_OS_CPU_SR_Save
-2249 f900f 6b86          	stab	OFST-1,s
-2250                     ; 988     flags_cur = pgrp->OSFlagFlags;
-2252 f9011 ed87          	ldy	OFST+0,s
-2253 f9013 18024382      	movw	3,y,OFST-5,s
-2254                     ; 989     OS_EXIT_CRITICAL();
-2256 f9017 87            	clra	
-2257 f9018 167527        	jsr	_OS_CPU_SR_Restore
-2259                     ; 990     *perr     = OS_ERR_NONE;
-2261 f901b 69f3000f      	clr	[OFST+8,s]
-2262                     ; 993     return (flags_cur);
-2265 f901f ec82          	ldd	OFST-5,s
-2268 f9021 1b89          	leas	9,s
-2269 f9023 3d            	rts	
-2331                     ; 1017 _NEAR OS_FLAGS  OSFlagQuery (OS_FLAG_GRP  *pgrp,
-2331                     ; 1018                             INT8U        *perr)
-2331                     ; 1019 {
-2332                     	switch	.text
-2333 f9024               _OSFlagQuery:
-2335 f9024 3b            	pshd	
-2336 f9025 1b9d          	leas	-3,s
-2337       00000003      OFST:	set	3
-2340                     ; 1022     OS_CPU_SR  cpu_sr = 0u;
-2342                     ; 1035     if (pgrp == (OS_FLAG_GRP *)0) {               /* Validate 'pgrp'                                   */
-2344 f9027 046404        	tbne	d,L7401
-2345                     ; 1036         *perr = OS_ERR_FLAG_INVALID_PGRP;
-2347 f902a c66e          	ldab	#110
-2348                     ; 1037         return ((OS_FLAGS)0);
-2351 f902c 200a          	bra	LC022
-2352 f902e               L7401:
-2353                     ; 1040     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) { /* Validate event block type                         */
-2355 f902e e6f30003      	ldab	[OFST+0,s]
-2356 f9032 c105          	cmpb	#5
-2357 f9034 270b          	beq	L1501
-2358                     ; 1041         *perr = OS_ERR_EVENT_TYPE;
-2360 f9036 c601          	ldab	#1
-2361                     ; 1042         return ((OS_FLAGS)0);
-2363 f9038               LC022:
-2364 f9038 6bf30007      	stab	[OFST+4,s]
-2365 f903c 87            	clra	
-2366 f903d c7            	clrb	
-2368 f903e               L44:
-2370 f903e 1b85          	leas	5,s
-2371 f9040 3d            	rts	
-2372 f9041               L1501:
-2373                     ; 1044     OS_ENTER_CRITICAL();
-2375 f9041 167522        	jsr	_OS_CPU_SR_Save
-2377 f9044 6b80          	stab	OFST-3,s
-2378                     ; 1045     flags = pgrp->OSFlagFlags;
-2380 f9046 ed83          	ldy	OFST+0,s
-2381 f9048 18024381      	movw	3,y,OFST-2,s
-2382                     ; 1046     OS_EXIT_CRITICAL();
-2384 f904c 87            	clra	
-2385 f904d 167527        	jsr	_OS_CPU_SR_Restore
-2387                     ; 1047     *perr = OS_ERR_NONE;
-2389 f9050 69f30007      	clr	[OFST+4,s]
-2390                     ; 1048     return (flags);                               /* Return the current value of the event flags       */
-2392 f9054 ec81          	ldd	OFST-2,s
-2394 f9056 20e6          	bra	L44
-2485                     ; 1090 static  void  OS_FlagBlock (OS_FLAG_GRP  *pgrp,
-2485                     ; 1091                             OS_FLAG_NODE *pnode,
-2485                     ; 1092                             OS_FLAGS      flags,
-2485                     ; 1093                             INT8U         wait_type,
-2485                     ; 1094                             INT32U        timeout)
-2485                     ; 1095 {
-2486                     	switch	.text
-2487 f9058               L3_OS_FlagBlock:
-2489 f9058 3b            	pshd	
-2490 f9059 1b9d          	leas	-3,s
-2491       00000003      OFST:	set	3
-2494                     ; 1100     OSTCBCur->OSTCBStat      |= OS_STAT_FLAG;
-2496 f905b fd157d        	ldy	_OSTCBCur
-2497 f905e 0ce82220      	bset	34,y,32
-2498                     ; 1101     OSTCBCur->OSTCBStatPend   = OS_STAT_PEND_OK;
-2500 f9062 69e823        	clr	35,y
-2501                     ; 1102     OSTCBCur->OSTCBDly        = timeout;              /* Store timeout in task's TCB                   */
-2503 f9065 ec8f          	ldd	OFST+12,s
-2504 f9067 6ce820        	std	32,y
-2505 f906a ec8d          	ldd	OFST+10,s
-2506 f906c 6ce81e        	std	30,y
-2507                     ; 1104     OSTCBCur->OSTCBFlagNode   = pnode;                /* TCB to link to node                           */
-2509 f906f ec87          	ldd	OFST+4,s
-2510 f9071 6ce81a        	std	26,y
-2511                     ; 1106     pnode->OSFlagNodeFlags    = flags;                /* Save the flags that we need to wait for       */
-2513 f9074 b746          	tfr	d,y
-2514 f9076 18028948      	movw	OFST+6,s,8,y
-2515                     ; 1107     pnode->OSFlagNodeWaitType = wait_type;            /* Save the type of wait we are doing            */
-2517 f907a 180a8c4a      	movb	OFST+9,s,10,y
-2518                     ; 1108     pnode->OSFlagNodeTCB      = (void *)OSTCBCur;     /* Link to task's TCB                            */
-2520 f907e 180144157d    	movw	_OSTCBCur,4,y
-2521                     ; 1109     pnode->OSFlagNodeNext     = pgrp->OSFlagWaitList; /* Add node at beginning of event flag wait list */
-2523 f9083 ee83          	ldx	OFST+0,s
-2524 f9085 ed87          	ldy	OFST+4,s
-2525 f9087 18020140      	movw	1,x,0,y
-2526                     ; 1110     pnode->OSFlagNodePrev     = (void *)0;
-2528 f908b 87            	clra	
-2529 f908c c7            	clrb	
-2530 f908d 6c42          	std	2,y
-2531                     ; 1111     pnode->OSFlagNodeFlagGrp  = (void *)pgrp;         /* Link to Event Flag Group                      */
-2533 f908f 18028346      	movw	OFST+0,s,6,y
-2534                     ; 1112     pnode_next                = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
-2536 f9093 ed83          	ldy	OFST+0,s
-2537 f9095 ed41          	ldy	1,y
-2538 f9097 6d80          	sty	OFST-3,s
-2539                     ; 1113     if (pnode_next != (void *)0) {                    /* Is this the first NODE to insert?             */
-2541 f9099 2704          	beq	L7111
-2542                     ; 1114         pnode_next->OSFlagNodePrev = pnode;           /* No, link in doubly linked list                */
-2544 f909b 18028742      	movw	OFST+4,s,2,y
-2545 f909f               L7111:
-2546                     ; 1116     pgrp->OSFlagWaitList = (void *)pnode;
-2548 f909f ed83          	ldy	OFST+0,s
-2549 f90a1 18028741      	movw	OFST+4,s,1,y
-2550                     ; 1118     y            =  OSTCBCur->OSTCBY;                 /* Suspend current task until flag(s) received   */
-2552 f90a5 fd157d        	ldy	_OSTCBCur
-2553 f90a8 e6e826        	ldab	38,y
-2554                     ; 1119     OSRdyTbl[y] &= (OS_PRIO)~OSTCBCur->OSTCBBitX;
-2556 f90ab b796          	exg	b,y
-2557 f90ad fe157d        	ldx	_OSTCBCur
-2558 f90b0 e6e027        	ldab	39,x
-2559 f90b3 51            	comb	
-2560 f90b4 e4ea1625      	andb	_OSRdyTbl,y
-2561 f90b8 6bea1625      	stab	_OSRdyTbl,y
-2562                     ; 1121     if (OSRdyTbl[y] == 0x00u) {
-2565 f90bc 260c          	bne	L1211
-2566                     ; 1122         OSRdyGrp &= (OS_PRIO)~OSTCBCur->OSTCBBitY;
-2568 f90be b756          	tfr	x,y
-2569 f90c0 e6e828        	ldab	40,y
-2570 f90c3 51            	comb	
-2571 f90c4 f4162d        	andb	_OSRdyGrp
-2572 f90c7 7b162d        	stab	_OSRdyGrp
-2573 f90ca               L1211:
-2574                     ; 1124 }
-2577 f90ca 1b85          	leas	5,s
-2578 f90cc 3d            	rts	
-2643                     ; 1142 _NEAR void  OS_FlagInit (void)
-2643                     ; 1143 {
-2644                     	switch	.text
-2645 f90cd               _OS_FlagInit:
-2647 f90cd 1b9a          	leas	-6,s
-2648       00000006      OFST:	set	6
-2651                     ; 1161     OS_MemClr((INT8U *)&OSFlagTbl[0], sizeof(OSFlagTbl));           /* Clear the flag group table      */
-2653 f90cf cc0023        	ldd	#35
-2654 f90d2 3b            	pshd	
-2655 f90d3 cc1634        	ldd	#_OSFlagTbl
-2656 f90d6 16485f        	jsr	_OS_MemClr
-2658 f90d9 1b82          	leas	2,s
-2659                     ; 1162     for (ix = 0u; ix < (OS_MAX_FLAGS - 1u); ix++) {                 /* Init. list of free EVENT FLAGS  */
-2661 f90db 87            	clra	
-2662 f90dc c7            	clrb	
-2663 f90dd b746          	tfr	d,y
-2664 f90df 6d82          	sty	OFST-4,s
-2665 f90e1               L5511:
-2666                     ; 1163         ix_next = ix + 1u;
-2668 f90e1 02            	iny	
-2669 f90e2 6d84          	sty	OFST-2,s
-2670                     ; 1164         pgrp1 = &OSFlagTbl[ix];
-2672 f90e4 cd0007        	ldy	#7
-2673 f90e7 13            	emul	
-2674 f90e8 c31634        	addd	#_OSFlagTbl
-2675 f90eb 6c80          	std	OFST-6,s
-2676                     ; 1165         pgrp2 = &OSFlagTbl[ix_next];
-2678 f90ed ec84          	ldd	OFST-2,s
-2679 f90ef cd0007        	ldy	#7
-2680 f90f2 13            	emul	
-2681 f90f3 c31634        	addd	#_OSFlagTbl
-2682 f90f6 6c84          	std	OFST-2,s
-2683                     ; 1166         pgrp1->OSFlagType     = OS_EVENT_TYPE_UNUSED;
-2685 f90f8 ed80          	ldy	OFST-6,s
-2686 f90fa 6940          	clr	0,y
-2687                     ; 1167         pgrp1->OSFlagWaitList = (void *)pgrp2;
-2689 f90fc 6c41          	std	1,y
-2690                     ; 1169         pgrp1->OSFlagName     = (INT8U *)(void *)"?";               /* Unknown name                    */
-2692 f90fe cc770d        	ldd	#L112
-2693 f9101 6c45          	std	5,y
-2694                     ; 1162     for (ix = 0u; ix < (OS_MAX_FLAGS - 1u); ix++) {                 /* Init. list of free EVENT FLAGS  */
-2696 f9103 ed82          	ldy	OFST-4,s
-2697 f9105 02            	iny	
-2700 f9106 b764          	tfr	y,d
-2701 f9108 6c82          	std	OFST-4,s
-2702 f910a 8c0004        	cpd	#4
-2703 f910d 25d2          	blo	L5511
-2704                     ; 1172     pgrp1                 = &OSFlagTbl[ix];
-2706 f910f cd0007        	ldy	#7
-2707 f9112 13            	emul	
-2708 f9113 c31634        	addd	#_OSFlagTbl
-2709 f9116 6c80          	std	OFST-6,s
-2710                     ; 1173     pgrp1->OSFlagType     = OS_EVENT_TYPE_UNUSED;
-2712 f9118 87            	clra	
-2713 f9119 ed80          	ldy	OFST-6,s
-2714 f911b 6a40          	staa	0,y
-2715                     ; 1174     pgrp1->OSFlagWaitList = (void *)0;
-2717 f911d c7            	clrb	
-2718 f911e 6c41          	std	1,y
-2719                     ; 1176     pgrp1->OSFlagName     = (INT8U *)(void *)"?";                   /* Unknown name                    */
-2721 f9120 cc770d        	ldd	#L112
-2722 f9123 6c45          	std	5,y
-2723                     ; 1178     OSFlagFreeList        = &OSFlagTbl[0];
-2725 f9125 cc1634        	ldd	#_OSFlagTbl
-2726 f9128 7c1632        	std	_OSFlagFreeList
-2727                     ; 1180 }
-2730 f912b 1b86          	leas	6,s
-2731 f912d 3d            	rts	
-3120                     ; 1209 static  BOOLEAN  OS_FlagTaskRdy (OS_FLAG_NODE *pnode,
-3120                     ; 1210                                  OS_FLAGS      flags_rdy,
-3120                     ; 1211                                  INT8U         pend_stat)
-3120                     ; 1212 {
-3121                     	switch	.text
-3122 f912e               L5_OS_FlagTaskRdy:
-3124 f912e 3b            	pshd	
-3125 f912f 1b9d          	leas	-3,s
-3126       00000003      OFST:	set	3
-3129                     ; 1217     ptcb                 = (OS_TCB *)pnode->OSFlagNodeTCB; /* Point to TCB of waiting task             */
-3131 f9131 b746          	tfr	d,y
-3132 f9133 ed44          	ldy	4,y
-3133 f9135 6d80          	sty	OFST-3,s
-3134                     ; 1218     ptcb->OSTCBDly       = 0u;
-3136 f9137 87            	clra	
-3137 f9138 c7            	clrb	
-3138 f9139 6ce820        	std	32,y
-3139 f913c 6ce81e        	std	30,y
-3140                     ; 1219     ptcb->OSTCBFlagsRdy  = flags_rdy;
-3142 f913f ec87          	ldd	OFST+4,s
-3143 f9141 6ce81c        	std	28,y
-3144                     ; 1220     ptcb->OSTCBStat     &= (INT8U)~(INT8U)OS_STAT_FLAG;
-3146 f9144 0de82220      	bclr	34,y,32
-3147                     ; 1221     ptcb->OSTCBStatPend  = pend_stat;
-3149 f9148 e68a          	ldab	OFST+7,s
-3150 f914a 6be823        	stab	35,y
-3151                     ; 1222     if (ptcb->OSTCBStat == OS_STAT_RDY) {                  /* Task now ready?                          */
-3153 f914d e6e822        	ldab	34,y
-3154 f9150 2621          	bne	L7041
-3155                     ; 1223         OSRdyGrp               |= ptcb->OSTCBBitY;         /* Put task into ready list                 */
-3157 f9152 e6e828        	ldab	40,y
-3158 f9155 fa162d        	orab	_OSRdyGrp
-3159 f9158 7b162d        	stab	_OSRdyGrp
-3160                     ; 1224         OSRdyTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
-3162 f915b e6e826        	ldab	38,y
-3163 f915e b796          	exg	b,y
-3164 f9160 ee80          	ldx	OFST-3,s
-3165 f9162 e6e027        	ldab	39,x
-3166 f9165 eaea1625      	orab	_OSRdyTbl,y
-3167 f9169 6bea1625      	stab	_OSRdyTbl,y
-3168                     ; 1226         sched                   = OS_TRUE;
-3171 f916d c601          	ldab	#1
-3172 f916f 6b82          	stab	OFST-1,s
-3174 f9171 2002          	bra	L1141
-3175 f9173               L7041:
-3176                     ; 1228         sched                   = OS_FALSE;
-3178 f9173 6982          	clr	OFST-1,s
-3179 f9175               L1141:
-3180                     ; 1230     OS_FlagUnlink(pnode);
-3182 f9175 ec83          	ldd	OFST+0,s
-3183 f9177 0705          	jsr	_OS_FlagUnlink
-3185                     ; 1231     return (sched);
-3187 f9179 e682          	ldab	OFST-1,s
-3190 f917b 1b85          	leas	5,s
-3191 f917d 3d            	rts	
-3275                     ; 1256 _NEAR void  OS_FlagUnlink (OS_FLAG_NODE *pnode)
-3275                     ; 1257 {
-3276                     	switch	.text
-3277 f917e               _OS_FlagUnlink:
-3279 f917e 3b            	pshd	
-3280 f917f 1b9c          	leas	-4,s
-3281       00000004      OFST:	set	4
-3284                     ; 1266     pnode_prev = (OS_FLAG_NODE *)pnode->OSFlagNodePrev;
-3286 f9181 b746          	tfr	d,y
-3287 f9183 18024280      	movw	2,y,OFST-4,s
-3288                     ; 1267     pnode_next = (OS_FLAG_NODE *)pnode->OSFlagNodeNext;
-3290 f9187 ed84          	ldy	OFST+0,s
-3291 f9189 ec40          	ldd	0,y
-3292 f918b 6c82          	std	OFST-2,s
-3293                     ; 1268     if (pnode_prev == (OS_FLAG_NODE *)0) {                      /* Is it first node in wait list?      */
-3295 f918d ee80          	ldx	OFST-4,s
-3296 f918f 260e          	bne	L3641
-3297                     ; 1269         pgrp                 = (OS_FLAG_GRP *)pnode->OSFlagNodeFlagGrp;
-3299 f9191 ed46          	ldy	6,y
-3300 f9193 6d80          	sty	OFST-4,s
-3301                     ; 1270         pgrp->OSFlagWaitList = (void *)pnode_next;              /*      Update list for new 1st node   */
-3303 f9195 6c41          	std	1,y
-3304                     ; 1271         if (pnode_next != (OS_FLAG_NODE *)0) {
-3306 f9197 2710          	beq	L7641
-3307                     ; 1272             pnode_next->OSFlagNodePrev = (OS_FLAG_NODE *)0;     /*      Link new 1st node PREV to NULL */
-3309 f9199 87            	clra	
-3310 f919a c7            	clrb	
-3311 f919b ed82          	ldy	OFST-2,s
-3312 f919d 2008          	bra	LC023
-3313 f919f               L3641:
-3314                     ; 1275         pnode_prev->OSFlagNodeNext = pnode_next;                /*      Link around the node to unlink */
-3316 f919f b746          	tfr	d,y
-3317 f91a1 6d00          	sty	0,x
-3318                     ; 1276         if (pnode_next != (OS_FLAG_NODE *)0) {                  /*      Was this the LAST node?        */
-3320 f91a3 2704          	beq	L7641
-3321                     ; 1277             pnode_next->OSFlagNodePrev = pnode_prev;            /*      No, Link around current node   */
-3323 f91a5 b754          	tfr	x,d
-3324 f91a7               LC023:
-3325 f91a7 6c42          	std	2,y
-3326 f91a9               L7641:
-3327                     ; 1281     ptcb                = (OS_TCB *)pnode->OSFlagNodeTCB;
-3329 f91a9 ed84          	ldy	OFST+0,s
-3330 f91ab ed44          	ldy	4,y
-3331                     ; 1282     ptcb->OSTCBFlagNode = (OS_FLAG_NODE *)0;
-3333 f91ad 87            	clra	
-3334 f91ae c7            	clrb	
-3335 f91af 6ce81a        	std	26,y
-3336                     ; 1284 }
-3339 f91b2 1b86          	leas	6,s
-3340 f91b4 3d            	rts	
-3352                     	xref	_OS_StrLen
-3353                     	xref	_OS_Sched
-3354                     	xref	_OS_MemClr
-3355                     	xdef	_OS_FlagUnlink
-3356                     	xdef	_OS_FlagInit
-3357                     	xdef	_OSFlagQuery
-3358                     	xdef	_OSFlagPost
-3359                     	xdef	_OSFlagPendGetFlagsRdy
-3360                     	xdef	_OSFlagPend
-3361                     	xdef	_OSFlagNameSet
-3362                     	xdef	_OSFlagNameGet
-3363                     	xdef	_OSFlagDel
-3364                     	xdef	_OSFlagCreate
-3365                     	xdef	_OSFlagAccept
-3366                     	xref	_OSTCBCur
-3367                     	xref	_OSRdyTbl
-3368                     	xref	_OSRdyGrp
-3369                     	xref	_OSLockNesting
-3370                     	xref	_OSIntNesting
-3371                     	xref	_OSFlagFreeList
-3372                     	xref	_OSFlagTbl
-3373                     	xref	_OS_CPU_SR_Restore
-3374                     	xref	_OS_CPU_SR_Save
-3375                     .const:	section	.data
-3376 fb70d               L112:
-3377 fb70d 3f00          	dc.b	"?",0
-3398                     	end
+4118                     ; 101 _NEAR OS_FLAGS  OSFlagAccept (OS_FLAG_GRP  *pgrp,
+4118                     ; 102                              OS_FLAGS      flags,
+4118                     ; 103                              INT8U         wait_type,
+4118                     ; 104                              INT8U        *perr)
+4118                     ; 105 {
+4119                     	switch	.text
+4120 f8c2a               _OSFlagAccept:
+4122 f8c2a 3b            	pshd	
+4123 f8c2b 1b9c          	leas	-4,s
+4124       00000004      OFST:	set	4
+4127                     ; 110     OS_CPU_SR     cpu_sr = 0u;
+4129                     ; 123     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                          */
+4131 f8c2d 046404        	tbne	d,L7472
+4132                     ; 124         *perr = OS_ERR_FLAG_INVALID_PGRP;
+4134 f8c30 c66e          	ldab	#110
+4135                     ; 125         return ((OS_FLAGS)0);
+4138 f8c32 200a          	bra	L6
+4139 f8c34               L7472:
+4140                     ; 128     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event block type                */
+4142 f8c34 e6f30004      	ldab	[OFST+0,s]
+4143 f8c38 c105          	cmpb	#5
+4144 f8c3a 270b          	beq	L1572
+4145                     ; 129         *perr = OS_ERR_EVENT_TYPE;
+4147 f8c3c c601          	ldab	#1
+4148                     ; 130         return ((OS_FLAGS)0);
+4151 f8c3e               L6:
+4152 f8c3e 6bf3000c      	stab	[OFST+8,s]
+4153 f8c42 87            	clra	
+4154 f8c43 c7            	clrb	
+4156 f8c44 1b86          	leas	6,s
+4157 f8c46 3d            	rts	
+4158 f8c47               L1572:
+4159                     ; 132     result = (INT8U)(wait_type & OS_FLAG_CONSUME);
+4161 f8c47 e68b          	ldab	OFST+7,s
+4162 f8c49 c480          	andb	#128
+4163 f8c4b 6b82          	stab	OFST-2,s
+4164                     ; 133     if (result != (INT8U)0) {                              /* See if we need to consume the flags      */
+4166 f8c4d 2709          	beq	L3572
+4167                     ; 134         wait_type &= ~OS_FLAG_CONSUME;
+4169 f8c4f 0d8b80        	bclr	OFST+7,s,128
+4170                     ; 135         consume    = OS_TRUE;
+4172 f8c52 c601          	ldab	#1
+4173 f8c54 6b82          	stab	OFST-2,s
+4175 f8c56 2002          	bra	L5572
+4176 f8c58               L3572:
+4177                     ; 137         consume    = OS_FALSE;
+4179 f8c58 6982          	clr	OFST-2,s
+4180 f8c5a               L5572:
+4181                     ; 140     *perr = OS_ERR_NONE;                                   /* Assume NO error until proven otherwise.  */
+4183 f8c5a 69f3000c      	clr	[OFST+8,s]
+4184                     ; 141     OS_ENTER_CRITICAL();
+4186 f8c5e 164b4f        	jsr	_OS_CPU_SR_Save
+4188 f8c61 6b83          	stab	OFST-1,s
+4189                     ; 142     switch (wait_type) {
+4191 f8c63 e68b          	ldab	OFST+7,s
+4193 f8c65 2748          	beq	L3562
+4194 f8c67 53            	decb	
+4195 f8c68 2762          	beq	L5562
+4196 f8c6a 040115        	dbeq	b,L7462
+4197 f8c6d 040131        	dbeq	b,L1562
+4198                     ; 193         default:
+4198                     ; 194              OS_EXIT_CRITICAL();
+4200 f8c70 e683          	ldab	OFST-1,s
+4201 f8c72 87            	clra	
+4202 f8c73 164b54        	jsr	_OS_CPU_SR_Restore
+4204                     ; 195              flags_rdy = (OS_FLAGS)0;
+4206 f8c76 87            	clra	
+4207 f8c77 c7            	clrb	
+4208 f8c78 6c80          	std	OFST-4,s
+4209                     ; 196              *perr     = OS_ERR_FLAG_WAIT_TYPE;
+4211 f8c7a c66f          	ldab	#111
+4212 f8c7c 6bf3000c      	stab	[OFST+8,s]
+4213                     ; 197              break;
+4215 f8c80 206b          	bra	L1672
+4216 f8c82               L7462:
+4217                     ; 143         case OS_FLAG_WAIT_SET_ALL:                         /* See if all required flags are set        */
+4217                     ; 144              flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & flags);     /* Extract only the bits we want   */
+4219 f8c82 ed84          	ldy	OFST+0,s
+4220 f8c84 ec43          	ldd	3,y
+4221 f8c86 e489          	andb	OFST+5,s
+4222 f8c88 a488          	anda	OFST+4,s
+4223 f8c8a 6c80          	std	OFST-4,s
+4224                     ; 145              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want     */
+4226 f8c8c ac88          	cpd	OFST+4,s
+4227 f8c8e 2651          	bne	L5003
+4228                     ; 146                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
+4230                     ; 147                      pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;     /* Clear ONLY the flags we wanted  */
+4232 f8c90               LC004:
+4233 f8c90 e682          	ldab	OFST-2,s
+4234 f8c92 53            	decb	
+4235 f8c93 2652          	bne	L1103
+4236 f8c95 ec80          	ldd	OFST-4,s
+4237 f8c97 51            	comb	
+4238 f8c98 41            	coma	
+4239 f8c99 e444          	andb	4,y
+4240 f8c9b a443          	anda	3,y
+4241 f8c9d               LC003:
+4242 f8c9d 6c43          	std	3,y
+4243 f8c9f 2046          	bra	L1103
+4244                     ; 150                  *perr = OS_ERR_FLAG_NOT_RDY;
+4246                     ; 152              OS_EXIT_CRITICAL();
+4249                     ; 153              break;
+4251 f8ca1               L1562:
+4252                     ; 155         case OS_FLAG_WAIT_SET_ANY:
+4252                     ; 156              flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & flags);     /* Extract only the bits we want   */
+4254 f8ca1 ed84          	ldy	OFST+0,s
+4255 f8ca3 ec43          	ldd	3,y
+4256 f8ca5 e489          	andb	OFST+5,s
+4257 f8ca7 a488          	anda	OFST+4,s
+4258 f8ca9 6c80          	std	OFST-4,s
+4259                     ; 157              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag set                      */
+4261 f8cab 2734          	beq	L5003
+4262                     ; 158                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
+4264                     ; 159                      pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;     /* Clear ONLY the flags we got     */
+4266 f8cad 20e1          	bra	LC004
+4267                     ; 162                  *perr = OS_ERR_FLAG_NOT_RDY;
+4269                     ; 164              OS_EXIT_CRITICAL();
+4272                     ; 165              break;
+4274 f8caf               L3562:
+4275                     ; 168         case OS_FLAG_WAIT_CLR_ALL:                         /* See if all required flags are cleared    */
+4275                     ; 169              flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & flags;    /* Extract only the bits we want     */
+4277 f8caf ed84          	ldy	OFST+0,s
+4278 f8cb1 ec43          	ldd	3,y
+4279 f8cb3 51            	comb	
+4280 f8cb4 41            	coma	
+4281 f8cb5 e489          	andb	OFST+5,s
+4282 f8cb7 a488          	anda	OFST+4,s
+4283 f8cb9 6c80          	std	OFST-4,s
+4284                     ; 170              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want     */
+4286 f8cbb ac88          	cpd	OFST+4,s
+4287 f8cbd 2622          	bne	L5003
+4288                     ; 171                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
+4290 f8cbf e682          	ldab	OFST-2,s
+4291 f8cc1 53            	decb	
+4292 f8cc2 2623          	bne	L1103
+4293                     ; 172                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we wanted        */
+4295 f8cc4               LC005:
+4296 f8cc4 ec43          	ldd	3,y
+4297 f8cc6 ea81          	orab	OFST-3,s
+4298 f8cc8 aa80          	oraa	OFST-4,s
+4299 f8cca 20d1          	bra	LC003
+4300                     ; 175                  *perr = OS_ERR_FLAG_NOT_RDY;
+4302                     ; 177              OS_EXIT_CRITICAL();
+4305                     ; 178              break;
+4307 f8ccc               L5562:
+4308                     ; 180         case OS_FLAG_WAIT_CLR_ANY:
+4308                     ; 181              flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & flags;   /* Extract only the bits we want      */
+4310 f8ccc ed84          	ldy	OFST+0,s
+4311 f8cce ec43          	ldd	3,y
+4312 f8cd0 51            	comb	
+4313 f8cd1 41            	coma	
+4314 f8cd2 e489          	andb	OFST+5,s
+4315 f8cd4 a488          	anda	OFST+4,s
+4316 f8cd6 6c80          	std	OFST-4,s
+4317                     ; 182              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag cleared                  */
+4319 f8cd8 2707          	beq	L5003
+4320                     ; 183                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
+4322 f8cda e682          	ldab	OFST-2,s
+4323 f8cdc 042108        	dbne	b,L1103
+4324                     ; 184                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we got           */
+4326 f8cdf 20e3          	bra	LC005
+4327 f8ce1               L5003:
+4328                     ; 187                  *perr = OS_ERR_FLAG_NOT_RDY;
+4330 f8ce1 c670          	ldab	#112
+4331 f8ce3 6bf3000c      	stab	[OFST+8,s]
+4332 f8ce7               L1103:
+4333                     ; 189              OS_EXIT_CRITICAL();
+4335 f8ce7 e683          	ldab	OFST-1,s
+4336 f8ce9 87            	clra	
+4337 f8cea 164b54        	jsr	_OS_CPU_SR_Restore
+4339                     ; 190              break;
+4341 f8ced               L1672:
+4342                     ; 199     return (flags_rdy);
+4344 f8ced ec80          	ldd	OFST-4,s
+4347 f8cef 1b86          	leas	6,s
+4348 f8cf1 3d            	rts	
+4415                     ; 226 _NEAR OS_FLAG_GRP  *OSFlagCreate (OS_FLAGS  flags,
+4415                     ; 227                                  INT8U    *perr)
+4415                     ; 228 {
+4416                     	switch	.text
+4417 f8cf2               _OSFlagCreate:
+4419 f8cf2 3b            	pshd	
+4420 f8cf3 1b9d          	leas	-3,s
+4421       00000003      OFST:	set	3
+4424                     ; 231     OS_CPU_SR    cpu_sr = 0u;
+4426                     ; 251     if (OSIntNesting > 0u) {                        /* See if called from ISR ...                      */
+4428 f8cf5 f6163c        	ldab	_OSIntNesting
+4429 f8cf8 270a          	beq	L5403
+4430                     ; 252         *perr = OS_ERR_CREATE_ISR;                  /* ... can't CREATE from an ISR                    */
+4432 f8cfa c610          	ldab	#16
+4433 f8cfc 6bf30007      	stab	[OFST+4,s]
+4434                     ; 253         return ((OS_FLAG_GRP *)0);
+4436 f8d00 87            	clra	
+4437 f8d01 c7            	clrb	
+4439 f8d02 203c          	bra	L21
+4440 f8d04               L5403:
+4441                     ; 255     OS_ENTER_CRITICAL();
+4443 f8d04 164b4f        	jsr	_OS_CPU_SR_Save
+4445 f8d07 6b82          	stab	OFST-1,s
+4446                     ; 256     pgrp = OSFlagFreeList;                          /* Get next free event flag                        */
+4448 f8d09 fd163d        	ldy	_OSFlagFreeList
+4449 f8d0c 6d80          	sty	OFST-3,s
+4450                     ; 257     if (pgrp != (OS_FLAG_GRP *)0) {                 /* See if we have event flag groups available      */
+4452 f8d0e ee80          	ldx	OFST-3,s
+4453 f8d10 2722          	beq	L7403
+4454                     ; 259         OSFlagFreeList       = (OS_FLAG_GRP *)OSFlagFreeList->OSFlagWaitList;
+4456 f8d12 180541163d    	movw	1,y,_OSFlagFreeList
+4457                     ; 260         pgrp->OSFlagType     = OS_EVENT_TYPE_FLAG;  /* Set to event flag group type                    */
+4459 f8d17 c605          	ldab	#5
+4460 f8d19 6b00          	stab	0,x
+4461                     ; 261         pgrp->OSFlagFlags    = flags;               /* Set to desired initial value                    */
+4463 f8d1b 18028343      	movw	OFST+0,s,3,y
+4464                     ; 262         pgrp->OSFlagWaitList = (void *)0;           /* Clear list of tasks waiting on flags            */
+4466 f8d1f 87            	clra	
+4467 f8d20 c7            	clrb	
+4468 f8d21 6c41          	std	1,y
+4469                     ; 264         pgrp->OSFlagName     = (INT8U *)(void *)"?";
+4471 f8d23 cc7733        	ldd	#L1503
+4472 f8d26 6c45          	std	5,y
+4473                     ; 267         OS_EXIT_CRITICAL();
+4476 f8d28 e682          	ldab	OFST-1,s
+4477 f8d2a 87            	clra	
+4478 f8d2b 164b54        	jsr	_OS_CPU_SR_Restore
+4480                     ; 268         *perr                = OS_ERR_NONE;
+4482 f8d2e 69f30007      	clr	[OFST+4,s]
+4484 f8d32 200a          	bra	L3503
+4485 f8d34               L7403:
+4486                     ; 270         OS_EXIT_CRITICAL();
+4488 f8d34 87            	clra	
+4489 f8d35 164b54        	jsr	_OS_CPU_SR_Restore
+4491                     ; 271         *perr                = OS_ERR_FLAG_GRP_DEPLETED;
+4493 f8d38 c672          	ldab	#114
+4494 f8d3a 6bf30007      	stab	[OFST+4,s]
+4495 f8d3e               L3503:
+4496                     ; 273     return (pgrp);                                  /* Return pointer to event flag group              */
+4498 f8d3e ec80          	ldd	OFST-3,s
+4500 f8d40               L21:
+4502 f8d40 1b85          	leas	5,s
+4503 f8d42 3d            	rts	
+4664                     ; 318 _NEAR OS_FLAG_GRP  *OSFlagDel (OS_FLAG_GRP  *pgrp,
+4664                     ; 319                               INT8U         opt,
+4664                     ; 320                               INT8U        *perr)
+4664                     ; 321 {
+4665                     	switch	.text
+4666 f8d43               _OSFlagDel:
+4668 f8d43 3b            	pshd	
+4669 f8d44 1b9c          	leas	-4,s
+4670       00000004      OFST:	set	4
+4673                     ; 326     OS_CPU_SR     cpu_sr = 0u;
+4675                     ; 346     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                          */
+4677 f8d46 046404        	tbne	d,L3613
+4678                     ; 347         *perr = OS_ERR_FLAG_INVALID_PGRP;
+4680 f8d49 c66e          	ldab	#110
+4681                     ; 348         return (pgrp);
+4684 f8d4b 2007          	bra	L61
+4685 f8d4d               L3613:
+4686                     ; 354     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+4689 f8d4d f6163c        	ldab	_OSIntNesting
+4690 f8d50 270b          	beq	L5613
+4691                     ; 355         *perr = OS_ERR_DEL_ISR;                            /* ... can't DELETE from an ISR             */
+4693 f8d52 c60f          	ldab	#15
+4694                     ; 357         return (pgrp);
+4698 f8d54               L61:
+4699 f8d54 6bf3000a      	stab	[OFST+6,s]
+4700 f8d58 ec84          	ldd	OFST+0,s
+4702 f8d5a 1b86          	leas	6,s
+4703 f8d5c 3d            	rts	
+4704 f8d5d               L5613:
+4705                     ; 359     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event group type                */
+4707 f8d5d e6f30004      	ldab	[OFST+0,s]
+4708 f8d61 c105          	cmpb	#5
+4709 f8d63 2704          	beq	L7613
+4710                     ; 360         *perr = OS_ERR_EVENT_TYPE;
+4712 f8d65 c601          	ldab	#1
+4713                     ; 362         return (pgrp);
+4717 f8d67 20eb          	bra	L61
+4718 f8d69               L7613:
+4719                     ; 364     OS_ENTER_CRITICAL();
+4721 f8d69 164b4f        	jsr	_OS_CPU_SR_Save
+4723 f8d6c 6b82          	stab	OFST-2,s
+4724                     ; 365     if (pgrp->OSFlagWaitList != (void *)0) {               /* See if any tasks waiting on event flags  */
+4726 f8d6e ed84          	ldy	OFST+0,s
+4727 f8d70 ec41          	ldd	1,y
+4728 f8d72 2706          	beq	L1713
+4729                     ; 366         tasks_waiting = OS_TRUE;                           /* Yes                                      */
+4731 f8d74 c601          	ldab	#1
+4732 f8d76 6b83          	stab	OFST-1,s
+4734 f8d78 2002          	bra	L3713
+4735 f8d7a               L1713:
+4736                     ; 368         tasks_waiting = OS_FALSE;                          /* No                                       */
+4738 f8d7a 6983          	clr	OFST-1,s
+4739 f8d7c               L3713:
+4740                     ; 370     switch (opt) {
+4742 f8d7c e689          	ldab	OFST+5,s
+4744 f8d7e 270d          	beq	L5503
+4745 f8d80 040142        	dbeq	b,L7503
+4746                     ; 411         default:
+4746                     ; 412              OS_EXIT_CRITICAL();
+4748 f8d83 e682          	ldab	OFST-2,s
+4749 f8d85 87            	clra	
+4750 f8d86 164b54        	jsr	_OS_CPU_SR_Restore
+4752                     ; 413              *perr                = OS_ERR_INVALID_OPT;
+4754 f8d89 c607          	ldab	#7
+4755                     ; 414              pgrp_return          = pgrp;
+4757                     ; 415              break;
+4759 f8d8b 202e          	bra	LC007
+4760 f8d8d               L5503:
+4761                     ; 371         case OS_DEL_NO_PEND:                               /* Delete group if no task waiting          */
+4761                     ; 372              if (tasks_waiting == OS_FALSE) {
+4763 f8d8d e683          	ldab	OFST-1,s
+4764 f8d8f 2622          	bne	L1023
+4765                     ; 374                  pgrp->OSFlagName     = (INT8U *)(void *)"?";
+4767 f8d91 cc7733        	ldd	#L1503
+4768 f8d94 6c45          	std	5,y
+4769                     ; 376                  pgrp->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+4771 f8d96 87            	clra	
+4772 f8d97 6a40          	staa	0,y
+4773                     ; 377                  pgrp->OSFlagWaitList = (void *)OSFlagFreeList; /* Return group to free list           */
+4775 f8d99 180141163d    	movw	_OSFlagFreeList,1,y
+4776                     ; 378                  pgrp->OSFlagFlags    = (OS_FLAGS)0;
+4778 f8d9e c7            	clrb	
+4779 f8d9f 6c43          	std	3,y
+4780                     ; 379                  OSFlagFreeList       = pgrp;
+4782 f8da1 180584163d    	movw	OFST+0,s,_OSFlagFreeList
+4783                     ; 380                  OS_EXIT_CRITICAL();
+4785 f8da6 e682          	ldab	OFST-2,s
+4786 f8da8 164b54        	jsr	_OS_CPU_SR_Restore
+4788                     ; 381                  *perr                = OS_ERR_NONE;
+4790 f8dab 87            	clra	
+4791 f8dac 6af3000a      	staa	[OFST+6,s]
+4792                     ; 382                  pgrp_return          = (OS_FLAG_GRP *)0;  /* Event Flag Group has been deleted        */
+4794 f8db0 c7            	clrb	
+4796 f8db1 200e          	bra	LC006
+4797 f8db3               L1023:
+4798                     ; 384                  OS_EXIT_CRITICAL();
+4800 f8db3 e682          	ldab	OFST-2,s
+4801 f8db5 87            	clra	
+4802 f8db6 164b54        	jsr	_OS_CPU_SR_Restore
+4804                     ; 385                  *perr                = OS_ERR_TASK_WAITING;
+4806 f8db9 c649          	ldab	#73
+4807                     ; 386                  pgrp_return          = pgrp;
+4809 f8dbb               LC007:
+4810 f8dbb 6bf3000a      	stab	[OFST+6,s]
+4811 f8dbf ec84          	ldd	OFST+0,s
+4812 f8dc1               LC006:
+4813 f8dc1 6c80          	std	OFST-4,s
+4814 f8dc3 2041          	bra	L7713
+4815 f8dc5               L7503:
+4816                     ; 390         case OS_DEL_ALWAYS:                                /* Always delete the event flag group       */
+4816                     ; 391              pnode = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
+4818 f8dc5 ec41          	ldd	1,y
+4820 f8dc7 2011          	bra	L1123
+4821 f8dc9               L5023:
+4822                     ; 393                  (void)OS_FlagTaskRdy(pnode, (OS_FLAGS)0, OS_STAT_PEND_ABORT);
+4824 f8dc9 cc0002        	ldd	#2
+4825 f8dcc 3b            	pshd	
+4826 f8dcd c7            	clrb	
+4827 f8dce 3b            	pshd	
+4828 f8dcf ec84          	ldd	OFST+0,s
+4829 f8dd1 16523b        	jsr	L5462_OS_FlagTaskRdy
+4831 f8dd4 1b84          	leas	4,s
+4832                     ; 394                  pnode = (OS_FLAG_NODE *)pnode->OSFlagNodeNext;
+4834 f8dd6 ecf30000      	ldd	[OFST-4,s]
+4835 f8dda               L1123:
+4836 f8dda 6c80          	std	OFST-4,s
+4837                     ; 392              while (pnode != (OS_FLAG_NODE *)0) {          /* Ready ALL tasks waiting for flags        */
+4839 f8ddc 26eb          	bne	L5023
+4840                     ; 397              pgrp->OSFlagName     = (INT8U *)(void *)"?";
+4842 f8dde cc7733        	ldd	#L1503
+4843 f8de1 ed84          	ldy	OFST+0,s
+4844 f8de3 6c45          	std	5,y
+4845                     ; 399              pgrp->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+4847 f8de5 87            	clra	
+4848 f8de6 6a40          	staa	0,y
+4849                     ; 400              pgrp->OSFlagWaitList = (void *)OSFlagFreeList;/* Return group to free list                */
+4851 f8de8 180141163d    	movw	_OSFlagFreeList,1,y
+4852                     ; 401              pgrp->OSFlagFlags    = (OS_FLAGS)0;
+4854 f8ded c7            	clrb	
+4855 f8dee 6c43          	std	3,y
+4856                     ; 402              OSFlagFreeList       = pgrp;
+4858 f8df0 7d163d        	sty	_OSFlagFreeList
+4859                     ; 403              OS_EXIT_CRITICAL();
+4861 f8df3 e682          	ldab	OFST-2,s
+4862 f8df5 164b54        	jsr	_OS_CPU_SR_Restore
+4864                     ; 404              if (tasks_waiting == OS_TRUE) {               /* Reschedule only if task(s) were waiting  */
+4866 f8df8 e683          	ldab	OFST-1,s
+4867 f8dfa 042103        	dbne	b,L5123
+4868                     ; 405                  OS_Sched();                               /* Find highest priority task ready to run  */
+4870 f8dfd 164933        	jsr	_OS_Sched
+4872 f8e00               L5123:
+4873                     ; 407              *perr = OS_ERR_NONE;
+4875 f8e00 87            	clra	
+4876 f8e01 6af3000a      	staa	[OFST+6,s]
+4877                     ; 408              pgrp_return          = (OS_FLAG_GRP *)0;      /* Event Flag Group has been deleted        */
+4879 f8e05 c7            	clrb	
+4880                     ; 409              break;
+4882 f8e06               L7713:
+4883                     ; 420     return (pgrp_return);
+4888 f8e06 1b86          	leas	6,s
+4889 f8e08 3d            	rts	
+4964                     ; 449 _NEAR INT8U  OSFlagNameGet (OS_FLAG_GRP   *pgrp,
+4964                     ; 450                            INT8U        **pname,
+4964                     ; 451                            INT8U         *perr)
+4964                     ; 452 {
+4965                     	switch	.text
+4966 f8e09               _OSFlagNameGet:
+4968 f8e09 3b            	pshd	
+4969       00000002      OFST:	set	2
+4972                     ; 455     OS_CPU_SR  cpu_sr = 0u;
+4974                     ; 468     if (pgrp == (OS_FLAG_GRP *)0) {              /* Is 'pgrp' a NULL pointer?                          */
+4976 f8e0a 6cae          	std	2,-s
+4977 f8e0c 2604          	bne	L3523
+4978                     ; 469         *perr = OS_ERR_FLAG_INVALID_PGRP;
+4980 f8e0e c66e          	ldab	#110
+4981                     ; 470         return (0u);
+4984 f8e10 2006          	bra	LC008
+4985 f8e12               L3523:
+4986                     ; 472     if (pname == (INT8U **)0) {                   /* Is 'pname' a NULL pointer?                         */
+4988 f8e12 ec86          	ldd	OFST+4,s
+4989 f8e14 260a          	bne	L5523
+4990                     ; 473         *perr = OS_ERR_PNAME_NULL;
+4992 f8e16 c60c          	ldab	#12
+4993                     ; 474         return (0u);
+4995 f8e18               LC008:
+4996 f8e18 6bf30008      	stab	[OFST+6,s]
+4997 f8e1c c7            	clrb	
+4999 f8e1d               L22:
+5001 f8e1d 1b84          	leas	4,s
+5002 f8e1f 3d            	rts	
+5003 f8e20               L5523:
+5004                     ; 477     if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
+5006 f8e20 f6163c        	ldab	_OSIntNesting
+5007 f8e23 2704          	beq	L7523
+5008                     ; 478         *perr = OS_ERR_NAME_GET_ISR;
+5010 f8e25 c611          	ldab	#17
+5011                     ; 479         return (0u);
+5014 f8e27 20ef          	bra	LC008
+5015 f8e29               L7523:
+5016                     ; 481     OS_ENTER_CRITICAL();
+5018 f8e29 164b4f        	jsr	_OS_CPU_SR_Save
+5020 f8e2c 6b80          	stab	OFST-2,s
+5021                     ; 482     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {
+5023 f8e2e ed82          	ldy	OFST+0,s
+5024 f8e30 e640          	ldab	0,y
+5025 f8e32 c105          	cmpb	#5
+5026 f8e34 270a          	beq	L1623
+5027                     ; 483         OS_EXIT_CRITICAL();
+5029 f8e36 e680          	ldab	OFST-2,s
+5030 f8e38 87            	clra	
+5031 f8e39 164b54        	jsr	_OS_CPU_SR_Restore
+5033                     ; 484         *perr = OS_ERR_EVENT_TYPE;
+5035 f8e3c c601          	ldab	#1
+5036                     ; 485         return (0u);
+5039 f8e3e 20d8          	bra	LC008
+5040 f8e40               L1623:
+5041                     ; 487     *pname = pgrp->OSFlagName;
+5043 f8e40 ec45          	ldd	5,y
+5044 f8e42 ee86          	ldx	OFST+4,s
+5045 f8e44 6c00          	std	0,x
+5046                     ; 488     len    = OS_StrLen(*pname);
+5048 f8e46 1649af        	jsr	_OS_StrLen
+5050 f8e49 6b81          	stab	OFST-1,s
+5051                     ; 489     OS_EXIT_CRITICAL();
+5053 f8e4b e680          	ldab	OFST-2,s
+5054 f8e4d 87            	clra	
+5055 f8e4e 164b54        	jsr	_OS_CPU_SR_Restore
+5057                     ; 490     *perr  = OS_ERR_NONE;
+5059 f8e51 69f30008      	clr	[OFST+6,s]
+5060                     ; 491     return (len);
+5062 f8e55 e681          	ldab	OFST-1,s
+5064 f8e57 20c4          	bra	L22
+5130                     ; 520 _NEAR void  OSFlagNameSet (OS_FLAG_GRP  *pgrp,
+5130                     ; 521                           INT8U        *pname,
+5130                     ; 522                           INT8U        *perr)
+5130                     ; 523 {
+5131                     	switch	.text
+5132 f8e59               _OSFlagNameSet:
+5134 f8e59 3b            	pshd	
+5135 f8e5a 37            	pshb	
+5136       00000001      OFST:	set	1
+5139                     ; 525     OS_CPU_SR  cpu_sr = 0u;
+5141                     ; 538     if (pgrp == (OS_FLAG_GRP *)0) {              /* Is 'pgrp' a NULL pointer?                          */
+5143 f8e5b 046404        	tbne	d,L5133
+5144                     ; 539         *perr = OS_ERR_FLAG_INVALID_PGRP;
+5146 f8e5e c66e          	ldab	#110
+5147                     ; 540         return;
+5149 f8e60 2006          	bra	LC009
+5150 f8e62               L5133:
+5151                     ; 542     if (pname == (INT8U *)0) {                   /* Is 'pname' a NULL pointer?                         */
+5153 f8e62 ec85          	ldd	OFST+4,s
+5154 f8e64 2609          	bne	L7133
+5155                     ; 543         *perr = OS_ERR_PNAME_NULL;
+5157 f8e66 c60c          	ldab	#12
+5158 f8e68               LC009:
+5159 f8e68 6bf30007      	stab	[OFST+6,s]
+5160                     ; 544         return;
+5161 f8e6c               L62:
+5164 f8e6c 1b83          	leas	3,s
+5165 f8e6e 3d            	rts	
+5166 f8e6f               L7133:
+5167                     ; 547     if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
+5169 f8e6f f6163c        	ldab	_OSIntNesting
+5170 f8e72 2704          	beq	L1233
+5171                     ; 548         *perr = OS_ERR_NAME_SET_ISR;
+5173 f8e74 c612          	ldab	#18
+5174                     ; 549         return;
+5176 f8e76 20f0          	bra	LC009
+5177 f8e78               L1233:
+5178                     ; 551     OS_ENTER_CRITICAL();
+5180 f8e78 164b4f        	jsr	_OS_CPU_SR_Save
+5182 f8e7b 6b80          	stab	OFST-1,s
+5183                     ; 552     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {
+5185 f8e7d ed81          	ldy	OFST+0,s
+5186 f8e7f e640          	ldab	0,y
+5187 f8e81 c105          	cmpb	#5
+5188 f8e83 270a          	beq	L3233
+5189                     ; 553         OS_EXIT_CRITICAL();
+5191 f8e85 e680          	ldab	OFST-1,s
+5192 f8e87 87            	clra	
+5193 f8e88 164b54        	jsr	_OS_CPU_SR_Restore
+5195                     ; 554         *perr = OS_ERR_EVENT_TYPE;
+5197 f8e8b c601          	ldab	#1
+5198                     ; 555         return;
+5200 f8e8d 20d9          	bra	LC009
+5201 f8e8f               L3233:
+5202                     ; 557     pgrp->OSFlagName = pname;
+5204 f8e8f 18028545      	movw	OFST+4,s,5,y
+5205                     ; 558     OS_EXIT_CRITICAL();
+5207 f8e93 e680          	ldab	OFST-1,s
+5208 f8e95 87            	clra	
+5209 f8e96 164b54        	jsr	_OS_CPU_SR_Restore
+5211                     ; 560     *perr            = OS_ERR_NONE;
+5214 f8e99 69f30007      	clr	[OFST+6,s]
+5215                     ; 561     return;
+5217 f8e9d 20cd          	bra	L62
+5337                     ; 620 _NEAR OS_FLAGS  OSFlagPend (OS_FLAG_GRP  *pgrp,
+5337                     ; 621                            OS_FLAGS      flags,
+5337                     ; 622                            INT8U         wait_type,
+5337                     ; 623                            INT32U        timeout,
+5337                     ; 624                            INT8U        *perr)
+5337                     ; 625 {
+5338                     	switch	.text
+5339 f8e9f               _OSFlagPend:
+5341 f8e9f 3b            	pshd	
+5342 f8ea0 1b91          	leas	-15,s
+5343       0000000f      OFST:	set	15
+5346                     ; 632     OS_CPU_SR     cpu_sr = 0u;
+5348                     ; 644     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                          */
+5350 f8ea2 046404        	tbne	d,L1243
+5351                     ; 645         *perr = OS_ERR_FLAG_INVALID_PGRP;
+5353 f8ea5 c66e          	ldab	#110
+5354                     ; 646         return ((OS_FLAGS)0);
+5357 f8ea7 2007          	bra	LC010
+5358 f8ea9               L1243:
+5359                     ; 652     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+5362 f8ea9 f6163c        	ldab	_OSIntNesting
+5363 f8eac 270c          	beq	L3243
+5364                     ; 653         *perr = OS_ERR_PEND_ISR;                           /* ... can't PEND from an ISR               */
+5366 f8eae c602          	ldab	#2
+5367                     ; 655         return ((OS_FLAGS)0);
+5370 f8eb0               LC010:
+5371 f8eb0 6bf3001b      	stab	[OFST+12,s]
+5372 f8eb4 87            	clra	
+5373 f8eb5 c7            	clrb	
+5375 f8eb6               L23:
+5377 f8eb6 1bf011        	leas	17,s
+5378 f8eb9 3d            	rts	
+5379 f8eba               L3243:
+5380                     ; 657     if (OSLockNesting > 0u) {                              /* See if called with scheduler locked ...  */
+5382 f8eba f6163b        	ldab	_OSLockNesting
+5383 f8ebd 2704          	beq	L5243
+5384                     ; 658         *perr = OS_ERR_PEND_LOCKED;                        /* ... can't PEND when locked               */
+5386 f8ebf c60d          	ldab	#13
+5387                     ; 660         return ((OS_FLAGS)0);
+5391 f8ec1 20ed          	bra	LC010
+5392 f8ec3               L5243:
+5393                     ; 662     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event block type                */
+5395 f8ec3 e6f3000f      	ldab	[OFST+0,s]
+5396 f8ec7 c105          	cmpb	#5
+5397 f8ec9 2704          	beq	L7243
+5398                     ; 663         *perr = OS_ERR_EVENT_TYPE;
+5400 f8ecb c601          	ldab	#1
+5401                     ; 665         return ((OS_FLAGS)0);
+5405 f8ecd 20e1          	bra	LC010
+5406 f8ecf               L7243:
+5407                     ; 667     result = (INT8U)(wait_type & OS_FLAG_CONSUME);
+5409 f8ecf e6f016        	ldab	OFST+7,s
+5410 f8ed2 c480          	andb	#128
+5411 f8ed4 6b83          	stab	OFST-12,s
+5412                     ; 668     if (result != (INT8U)0) {                              /* See if we need to consume the flags      */
+5414 f8ed6 270a          	beq	L1343
+5415                     ; 669         wait_type &= (INT8U)~(INT8U)OS_FLAG_CONSUME;
+5417 f8ed8 0df01680      	bclr	OFST+7,s,128
+5418                     ; 670         consume    = OS_TRUE;
+5420 f8edc c601          	ldab	#1
+5421 f8ede 6b83          	stab	OFST-12,s
+5423 f8ee0 2002          	bra	L3343
+5424 f8ee2               L1343:
+5425                     ; 672         consume    = OS_FALSE;
+5427 f8ee2 6983          	clr	OFST-12,s
+5428 f8ee4               L3343:
+5429                     ; 675     OS_ENTER_CRITICAL();
+5431 f8ee4 164b4f        	jsr	_OS_CPU_SR_Save
+5433 f8ee7 6b82          	stab	OFST-13,s
+5434                     ; 676     switch (wait_type) {
+5436 f8ee9 e6f016        	ldab	OFST+7,s
+5438 f8eec 275f          	beq	L1333
+5439 f8eee 53            	decb	
+5440 f8eef 277c          	beq	L3333
+5441 f8ef1 04010d        	dbeq	b,L5233
+5442 f8ef4 040122        	dbeq	b,L7233
+5443                     ; 747         default:
+5443                     ; 748              OS_EXIT_CRITICAL();
+5446                     ; 749              flags_rdy = (OS_FLAGS)0;
+5448                     ; 750              *perr      = OS_ERR_FLAG_WAIT_TYPE;
+5450 f8ef7               LC011:
+5451 f8ef7 e682          	ldab	OFST-13,s
+5452 f8ef9 87            	clra	
+5453 f8efa 164b54        	jsr	_OS_CPU_SR_Restore
+5454 f8efd c66f          	ldab	#111
+5455                     ; 752              return (flags_rdy);
+5459 f8eff 20af          	bra	LC010
+5460 f8f01               L5233:
+5461                     ; 677         case OS_FLAG_WAIT_SET_ALL:                         /* See if all required flags are set        */
+5461                     ; 678              flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & flags);   /* Extract only the bits we want     */
+5463 f8f01 ed8f          	ldy	OFST+0,s
+5464 f8f03 ec43          	ldd	3,y
+5465 f8f05 e4f014        	andb	OFST+5,s
+5466 f8f08 a4f013        	anda	OFST+4,s
+5467 f8f0b 6c80          	std	OFST-15,s
+5468                     ; 679              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want     */
+5470 f8f0d acf013        	cpd	OFST+4,s
+5471 f8f10 266b          	bne	L3643
+5472                     ; 680                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
+5474 f8f12 e683          	ldab	OFST-12,s
+5475 f8f14 53            	decb	
+5476 f8f15 261f          	bne	L1543
+5477                     ; 681                      pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;   /* Clear ONLY the flags we wanted    */
+5479                     ; 683                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready               */
+5481                     ; 684                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller     */
+5484                     ; 685                  *perr                   = OS_ERR_NONE;
+5486                     ; 687                  return (flags_rdy);
+5490 f8f17 2013          	bra	LC017
+5491                     ; 689                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
+5494                     ; 690                  OS_EXIT_CRITICAL();
+5497 f8f19               L7233:
+5498                     ; 694         case OS_FLAG_WAIT_SET_ANY:
+5498                     ; 695              flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & flags);    /* Extract only the bits we want    */
+5500 f8f19 ed8f          	ldy	OFST+0,s
+5501 f8f1b ec43          	ldd	3,y
+5502 f8f1d e4f014        	andb	OFST+5,s
+5503 f8f20 a4f013        	anda	OFST+4,s
+5504 f8f23 6c80          	std	OFST-15,s
+5505                     ; 696              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag set                      */
+5507 f8f25 2756          	beq	L3643
+5508                     ; 697                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
+5510 f8f27 e683          	ldab	OFST-12,s
+5511 f8f29 04210a        	dbne	b,L1543
+5512                     ; 698                      pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;    /* Clear ONLY the flags that we got */
+5514 f8f2c               LC017:
+5515 f8f2c ec80          	ldd	OFST-15,s
+5516 f8f2e 51            	comb	
+5517 f8f2f 41            	coma	
+5518 f8f30 e444          	andb	4,y
+5519 f8f32 a443          	anda	3,y
+5520 f8f34               LC016:
+5521 f8f34 6c43          	std	3,y
+5522 f8f36               L1543:
+5523                     ; 700                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready               */
+5525 f8f36 ec80          	ldd	OFST-15,s
+5526 f8f38 fd1588        	ldy	_OSTCBCur
+5527 f8f3b 6ce81c        	std	28,y
+5528                     ; 701                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller     */
+5531                     ; 702                  *perr                   = OS_ERR_NONE;
+5533 f8f3e               LC013:
+5534 f8f3e e682          	ldab	OFST-13,s
+5535 f8f40 87            	clra	
+5536 f8f41 164b54        	jsr	_OS_CPU_SR_Restore
+5537 f8f44 69f3001b      	clr	[OFST+12,s]
+5538                     ; 704                  return (flags_rdy);
+5541 f8f48               LC012:
+5542 f8f48 ec80          	ldd	OFST-15,s
+5544 f8f4a 064eb6        	bra	L23
+5545                     ; 706                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
+5548                     ; 707                  OS_EXIT_CRITICAL();
+5551 f8f4d               L1333:
+5552                     ; 712         case OS_FLAG_WAIT_CLR_ALL:                         /* See if all required flags are cleared    */
+5552                     ; 713              flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & flags;    /* Extract only the bits we want     */
+5554 f8f4d ed8f          	ldy	OFST+0,s
+5555 f8f4f ec43          	ldd	3,y
+5556 f8f51 51            	comb	
+5557 f8f52 41            	coma	
+5558 f8f53 e4f014        	andb	OFST+5,s
+5559 f8f56 a4f013        	anda	OFST+4,s
+5560 f8f59 6c80          	std	OFST-15,s
+5561                     ; 714              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want     */
+5563 f8f5b acf013        	cpd	OFST+4,s
+5564 f8f5e 261d          	bne	L3643
+5565                     ; 715                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
+5567                     ; 716                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we wanted        */
+5569 f8f60               LC018:
+5570 f8f60 e683          	ldab	OFST-12,s
+5571 f8f62 53            	decb	
+5572 f8f63 26d1          	bne	L1543
+5573 f8f65 ec43          	ldd	3,y
+5574 f8f67 ea81          	orab	OFST-14,s
+5575 f8f69 aa80          	oraa	OFST-15,s
+5576                     ; 718                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready               */
+5578                     ; 719                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller     */
+5581                     ; 720                  *perr                   = OS_ERR_NONE;
+5583                     ; 722                  return (flags_rdy);
+5587 f8f6b 20c7          	bra	LC016
+5588                     ; 724                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
+5591                     ; 725                  OS_EXIT_CRITICAL();
+5594 f8f6d               L3333:
+5595                     ; 729         case OS_FLAG_WAIT_CLR_ANY:
+5595                     ; 730              flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & flags;   /* Extract only the bits we want      */
+5597 f8f6d ed8f          	ldy	OFST+0,s
+5598 f8f6f ec43          	ldd	3,y
+5599 f8f71 51            	comb	
+5600 f8f72 41            	coma	
+5601 f8f73 e4f014        	andb	OFST+5,s
+5602 f8f76 a4f013        	anda	OFST+4,s
+5603 f8f79 6c80          	std	OFST-15,s
+5604                     ; 731              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag cleared                  */
+5606                     ; 732                  if (consume == OS_TRUE) {                 /* See if we need to consume the flags      */
+5608                     ; 733                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we got           */
+5610                     ; 735                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready               */
+5612                     ; 736                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller     */
+5615                     ; 737                  *perr                   = OS_ERR_NONE;
+5617                     ; 739                  return (flags_rdy);
+5621 f8f7b 26e3          	bne	LC018
+5622 f8f7d               L3643:
+5623                     ; 741                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
+5626                     ; 742                  OS_EXIT_CRITICAL();
+5629 f8f7d ecf019        	ldd	OFST+10,s
+5630 f8f80 3b            	pshd	
+5631 f8f81 ecf019        	ldd	OFST+10,s
+5632 f8f84 3b            	pshd	
+5633 f8f85 e6f01a        	ldab	OFST+11,s
+5634 f8f88 87            	clra	
+5635 f8f89 3b            	pshd	
+5636 f8f8a ecf019        	ldd	OFST+10,s
+5637 f8f8d 3b            	pshd	
+5638 f8f8e 1a8c          	leax	OFST-3,s
+5639 f8f90 34            	pshx	
+5640 f8f91 ecf019        	ldd	OFST+10,s
+5641 f8f94 165165        	jsr	L3462_OS_FlagBlock
+5642 f8f97 1b8a          	leas	10,s
+5643 f8f99 e682          	ldab	OFST-13,s
+5644 f8f9b 87            	clra	
+5645 f8f9c 164b54        	jsr	_OS_CPU_SR_Restore
+5646                     ; 755     OS_Sched();                                            /* Find next HPT ready to run               */
+5648 f8f9f 164933        	jsr	_OS_Sched
+5650                     ; 756     OS_ENTER_CRITICAL();
+5652 f8fa2 164b4f        	jsr	_OS_CPU_SR_Save
+5654 f8fa5 6b82          	stab	OFST-13,s
+5655                     ; 757     if (OSTCBCur->OSTCBStatPend != OS_STAT_PEND_OK) {      /* Have we timed-out or aborted?            */
+5657 f8fa7 fd1588        	ldy	_OSTCBCur
+5658 f8faa e6e823        	ldab	35,y
+5659 f8fad 2732          	beq	L1743
+5660                     ; 758         pend_stat                = OSTCBCur->OSTCBStatPend;
+5662 f8faf 6b83          	stab	OFST-12,s
+5663                     ; 759         OSTCBCur->OSTCBStatPend  = OS_STAT_PEND_OK;
+5665 f8fb1 69e823        	clr	35,y
+5666                     ; 760         OS_FlagUnlink(&node);
+5668 f8fb4 b774          	tfr	s,d
+5669 f8fb6 c30004        	addd	#-11+OFST
+5670 f8fb9 16528b        	jsr	_OS_FlagUnlink
+5672                     ; 761         OSTCBCur->OSTCBStat      = OS_STAT_RDY;            /* Yes, make task ready-to-run              */
+5674 f8fbc fd1588        	ldy	_OSTCBCur
+5675 f8fbf 87            	clra	
+5676 f8fc0 6ae822        	staa	34,y
+5677                     ; 762         OS_EXIT_CRITICAL();
+5679 f8fc3 e682          	ldab	OFST-13,s
+5680 f8fc5 164b54        	jsr	_OS_CPU_SR_Restore
+5682                     ; 763         flags_rdy                = (OS_FLAGS)0;
+5684 f8fc8 87            	clra	
+5685 f8fc9 c7            	clrb	
+5686 f8fca 6c80          	std	OFST-15,s
+5687                     ; 764         switch (pend_stat) {
+5689 f8fcc e683          	ldab	OFST-12,s
+5691 f8fce 040107        	dbeq	b,L1433
+5692 f8fd1 042104        	dbne	b,L1433
+5693                     ; 765             case OS_STAT_PEND_ABORT:
+5693                     ; 766                  *perr = OS_ERR_PEND_ABORT;                /* Indicate that we aborted   waiting       */
+5695 f8fd4 c60e          	ldab	#14
+5696                     ; 767                  break;
+5698 f8fd6 2002          	bra	L5743
+5699 f8fd8               L1433:
+5700                     ; 769             case OS_STAT_PEND_TO:
+5700                     ; 770             default:
+5700                     ; 771                  *perr = OS_ERR_TIMEOUT;                   /* Indicate that we timed-out waiting       */
+5702 f8fd8 c60a          	ldab	#10
+5703                     ; 772                  break;
+5705 f8fda               L5743:
+5706 f8fda 6bf3001b      	stab	[OFST+12,s]
+5707                     ; 775         return (flags_rdy);
+5711 f8fde 064f48        	bra	LC012
+5712 f8fe1               L1743:
+5713                     ; 777     flags_rdy = OSTCBCur->OSTCBFlagsRdy;
+5715 f8fe1 ece81c        	ldd	28,y
+5716 f8fe4 6c80          	std	OFST-15,s
+5717                     ; 778     if (consume == OS_TRUE) {                              /* See if we need to consume the flags      */
+5719 f8fe6 e683          	ldab	OFST-12,s
+5720 f8fe8 53            	decb	
+5721 f8fe9 1826ff51      	bne	LC013
+5722                     ; 779         switch (wait_type) {
+5724 f8fed e6f016        	ldab	OFST+7,s
+5726 f8ff0 2718          	beq	L5433
+5727 f8ff2 040115        	dbeq	b,L5433
+5728 f8ff5 040106        	dbeq	b,L3433
+5729 f8ff8 040103        	dbeq	b,L3433
+5730                     ; 791             default:
+5730                     ; 792                  OS_EXIT_CRITICAL();
+5733                     ; 793                  *perr = OS_ERR_FLAG_WAIT_TYPE;
+5735                     ; 795                  return ((OS_FLAGS)0);
+5739 f8ffb 064ef7        	bra	LC011
+5740 f8ffe               L3433:
+5741                     ; 780             case OS_FLAG_WAIT_SET_ALL:
+5741                     ; 781             case OS_FLAG_WAIT_SET_ANY:                     /* Clear ONLY the flags we got              */
+5741                     ; 782                  pgrp->OSFlagFlags &= (OS_FLAGS)~flags_rdy;
+5743 f8ffe ed8f          	ldy	OFST+0,s
+5744 f9000 ec80          	ldd	OFST-15,s
+5745 f9002 51            	comb	
+5746 f9003 41            	coma	
+5747 f9004 e444          	andb	4,y
+5748 f9006 a443          	anda	3,y
+5749                     ; 783                  break;
+5751 f9008 2008          	bra	LC015
+5752 f900a               L5433:
+5753                     ; 786             case OS_FLAG_WAIT_CLR_ALL:
+5753                     ; 787             case OS_FLAG_WAIT_CLR_ANY:                     /* Set   ONLY the flags we got              */
+5753                     ; 788                  pgrp->OSFlagFlags |=  flags_rdy;
+5755 f900a ed8f          	ldy	OFST+0,s
+5756 f900c ec43          	ldd	3,y
+5757 f900e ea81          	orab	OFST-14,s
+5758 f9010 aa80          	oraa	OFST-15,s
+5759 f9012               LC015:
+5760 f9012 6c43          	std	3,y
+5761                     ; 789                  break;
+5763                     ; 798     OS_EXIT_CRITICAL();
+5766                     ; 799     *perr = OS_ERR_NONE;                                   /* Event(s) must have occurred              */
+5768                     ; 801     return (flags_rdy);
+5772 f9014 064f3e        	bra	LC013
+5814                     ; 820 _NEAR OS_FLAGS  OSFlagPendGetFlagsRdy (void)
+5814                     ; 821 {
+5815                     	switch	.text
+5816 f9017               _OSFlagPendGetFlagsRdy:
+5818 f9017 1b9d          	leas	-3,s
+5819       00000003      OFST:	set	3
+5822                     ; 824     OS_CPU_SR     cpu_sr = 0u;
+5824                     ; 829     OS_ENTER_CRITICAL();
+5826 f9019 164b4f        	jsr	_OS_CPU_SR_Save
+5828 f901c 6b80          	stab	OFST-3,s
+5829                     ; 830     flags = OSTCBCur->OSTCBFlagsRdy;
+5831 f901e fd1588        	ldy	_OSTCBCur
+5832 f9021 ece81c        	ldd	28,y
+5833 f9024 6c81          	std	OFST-2,s
+5834                     ; 831     OS_EXIT_CRITICAL();
+5836 f9026 e680          	ldab	OFST-3,s
+5837 f9028 87            	clra	
+5838 f9029 164b54        	jsr	_OS_CPU_SR_Restore
+5840                     ; 832     return (flags);
+5842 f902c ec81          	ldd	OFST-2,s
+5845 f902e 1b83          	leas	3,s
+5846 f9030 3d            	rts	
+5957                     ; 877 _NEAR OS_FLAGS  OSFlagPost (OS_FLAG_GRP  *pgrp,
+5957                     ; 878                            OS_FLAGS      flags,
+5957                     ; 879                            INT8U         opt,
+5957                     ; 880                            INT8U        *perr)
+5957                     ; 881 {
+5958                     	switch	.text
+5959 f9031               _OSFlagPost:
+5961 f9031 3b            	pshd	
+5962 f9032 1b99          	leas	-7,s
+5963       00000007      OFST:	set	7
+5966                     ; 888     OS_CPU_SR     cpu_sr = 0u;
+5968                     ; 900     if (pgrp == (OS_FLAG_GRP *)0) {                  /* Validate 'pgrp'                                */
+5970 f9034 046404        	tbne	d,L3163
+5971                     ; 901         *perr = OS_ERR_FLAG_INVALID_PGRP;
+5973 f9037 c66e          	ldab	#110
+5974                     ; 902         return ((OS_FLAGS)0);
+5977 f9039 200a          	bra	L04
+5978 f903b               L3163:
+5979                     ; 908     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {    /* Make sure we are pointing to an event flag grp */
+5982 f903b e6f30007      	ldab	[OFST+0,s]
+5983 f903f c105          	cmpb	#5
+5984 f9041 270b          	beq	L5163
+5985                     ; 909         *perr = OS_ERR_EVENT_TYPE;
+5987 f9043 c601          	ldab	#1
+5988                     ; 911         return ((OS_FLAGS)0);
+5992 f9045               L04:
+5993 f9045 6bf3000f      	stab	[OFST+8,s]
+5994 f9049 87            	clra	
+5995 f904a c7            	clrb	
+5997 f904b 1b89          	leas	9,s
+5998 f904d 3d            	rts	
+5999 f904e               L5163:
+6000                     ; 914     OS_ENTER_CRITICAL();
+6002 f904e 164b4f        	jsr	_OS_CPU_SR_Save
+6004 f9051 6b86          	stab	OFST-1,s
+6005                     ; 915     switch (opt) {
+6007 f9053 e68e          	ldab	OFST+7,s
+6009 f9055 270d          	beq	L3253
+6010 f9057 040116        	dbeq	b,L5253
+6011                     ; 924         default:
+6011                     ; 925              OS_EXIT_CRITICAL();                     /* INVALID option                                 */
+6013 f905a e686          	ldab	OFST-1,s
+6014 f905c 87            	clra	
+6015 f905d 164b54        	jsr	_OS_CPU_SR_Restore
+6017                     ; 926              *perr = OS_ERR_FLAG_INVALID_OPT;
+6019 f9060 c671          	ldab	#113
+6020                     ; 928              return ((OS_FLAGS)0);
+6024 f9062 20e1          	bra	L04
+6025 f9064               L3253:
+6026                     ; 916         case OS_FLAG_CLR:
+6026                     ; 917              pgrp->OSFlagFlags &= (OS_FLAGS)~flags;  /* Clear the flags specified in the group         */
+6028 f9064 ed87          	ldy	OFST+0,s
+6029 f9066 ec8b          	ldd	OFST+4,s
+6030 f9068 51            	comb	
+6031 f9069 41            	coma	
+6032 f906a e444          	andb	4,y
+6033 f906c a443          	anda	3,y
+6034                     ; 918              break;
+6036 f906e 2008          	bra	L1263
+6037 f9070               L5253:
+6038                     ; 920         case OS_FLAG_SET:
+6038                     ; 921              pgrp->OSFlagFlags |=  flags;            /* Set   the flags specified in the group         */
+6040 f9070 ed87          	ldy	OFST+0,s
+6041 f9072 ec43          	ldd	3,y
+6042 f9074 ea8c          	orab	OFST+5,s
+6043 f9076 aa8b          	oraa	OFST+4,s
+6044                     ; 922              break;
+6046 f9078               L1263:
+6047 f9078 6c43          	std	3,y
+6048                     ; 930     sched = OS_FALSE;                                /* Indicate that we don't need rescheduling       */
+6050 f907a 6985          	clr	OFST-2,s
+6051                     ; 931     pnode = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
+6053 f907c ec41          	ldd	1,y
+6055 f907e 065106        	bra	L5263
+6056 f9081               L3263:
+6057                     ; 933         switch (pnode->OSFlagNodeWaitType) {
+6059 f9081 b746          	tfr	d,y
+6060 f9083 e64a          	ldab	10,y
+6062 f9085 2741          	beq	L5353
+6063 f9087 53            	decb	
+6064 f9088 2752          	beq	L7353
+6065 f908a 04010d        	dbeq	b,L1353
+6066 f908d 04012e        	dbeq	b,L3353
+6067                     ; 975             default:
+6067                     ; 976                  OS_EXIT_CRITICAL();
+6069 f9090 e686          	ldab	OFST-1,s
+6070 f9092 87            	clra	
+6071 f9093 164b54        	jsr	_OS_CPU_SR_Restore
+6073                     ; 977                  *perr = OS_ERR_FLAG_WAIT_TYPE;
+6075 f9096 c66f          	ldab	#111
+6076                     ; 979                  return ((OS_FLAGS)0);
+6080 f9098 20ab          	bra	L04
+6081 f909a               L1353:
+6082                     ; 934             case OS_FLAG_WAIT_SET_ALL:               /* See if all req. flags are set for current node */
+6082                     ; 935                  flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & pnode->OSFlagNodeFlags);
+6084 f909a ec48          	ldd	8,y
+6085 f909c ed87          	ldy	OFST+0,s
+6086 f909e e444          	andb	4,y
+6087 f90a0 a443          	anda	3,y
+6088 f90a2 6c82          	std	OFST-5,s
+6089                     ; 936                  if (flags_rdy == pnode->OSFlagNodeFlags) {   /* Make task RTR, event(s) Rx'd          */
+6091 f90a4 ed80          	ldy	OFST-7,s
+6092 f90a6 ac48          	cpd	8,y
+6093 f90a8 2658          	bne	L3363
+6094                     ; 937                      rdy = OS_FlagTaskRdy(pnode, flags_rdy, OS_STAT_PEND_OK);
+6096 f90aa 87            	clra	
+6097 f90ab c7            	clrb	
+6098 f90ac 3b            	pshd	
+6099 f90ad ec84          	ldd	OFST-3,s
+6100 f90af 3b            	pshd	
+6101 f90b0 b764          	tfr	y,d
+6102 f90b2 16523b        	jsr	L5462_OS_FlagTaskRdy
+6104 f90b5 1b84          	leas	4,s
+6105 f90b7 6b84          	stab	OFST-3,s
+6106                     ; 938                      if (rdy == OS_TRUE) {
+6108 f90b9 53            	decb	
+6109 f90ba 2646          	bne	L3363
+6110                     ; 939                          sched = OS_TRUE;                     /* When done we will reschedule          */
+6112 f90bc 2040          	bra	LC019
+6113 f90be               L3353:
+6114                     ; 944             case OS_FLAG_WAIT_SET_ANY:               /* See if any flag set                            */
+6114                     ; 945                  flags_rdy = (OS_FLAGS)(pgrp->OSFlagFlags & pnode->OSFlagNodeFlags);
+6116 f90be ec48          	ldd	8,y
+6117 f90c0 ed87          	ldy	OFST+0,s
+6118 f90c2 e444          	andb	4,y
+6119 f90c4 a443          	anda	3,y
+6120                     ; 946                  if (flags_rdy != (OS_FLAGS)0) {              /* Make task RTR, event(s) Rx'd          */
+6122                     ; 947                      rdy = OS_FlagTaskRdy(pnode, flags_rdy, OS_STAT_PEND_OK);
+6125                     ; 948                      if (rdy == OS_TRUE) {
+6127                     ; 949                          sched = OS_TRUE;                     /* When done we will reschedule          */
+6129 f90c6 2020          	bra	LC021
+6130 f90c8               L5353:
+6131                     ; 955             case OS_FLAG_WAIT_CLR_ALL:               /* See if all req. flags are set for current node */
+6131                     ; 956                  flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & pnode->OSFlagNodeFlags;
+6133 f90c8 ed87          	ldy	OFST+0,s
+6134 f90ca ec43          	ldd	3,y
+6135 f90cc 51            	comb	
+6136 f90cd 41            	coma	
+6137 f90ce ed80          	ldy	OFST-7,s
+6138 f90d0 e449          	andb	9,y
+6139 f90d2 a448          	anda	8,y
+6140 f90d4 6c82          	std	OFST-5,s
+6141                     ; 957                  if (flags_rdy == pnode->OSFlagNodeFlags) {   /* Make task RTR, event(s) Rx'd          */
+6143 f90d6 ac48          	cpd	8,y
+6144 f90d8 2628          	bne	L3363
+6145                     ; 958                      rdy = OS_FlagTaskRdy(pnode, flags_rdy, OS_STAT_PEND_OK);
+6148                     ; 959                      if (rdy == OS_TRUE) {
+6150                     ; 960                          sched = OS_TRUE;                     /* When done we will reschedule          */
+6152 f90da 2010          	bra	LC020
+6153 f90dc               L7353:
+6154                     ; 965             case OS_FLAG_WAIT_CLR_ANY:               /* See if any flag set                            */
+6154                     ; 966                  flags_rdy = (OS_FLAGS)~pgrp->OSFlagFlags & pnode->OSFlagNodeFlags;
+6156 f90dc ed87          	ldy	OFST+0,s
+6157 f90de ec43          	ldd	3,y
+6158 f90e0 51            	comb	
+6159 f90e1 41            	coma	
+6160 f90e2 ed80          	ldy	OFST-7,s
+6161 f90e4 e449          	andb	9,y
+6162 f90e6 a448          	anda	8,y
+6163                     ; 967                  if (flags_rdy != (OS_FLAGS)0) {              /* Make task RTR, event(s) Rx'd          */
+6165 f90e8               LC021:
+6166 f90e8 6c82          	std	OFST-5,s
+6167 f90ea 2716          	beq	L3363
+6168                     ; 968                      rdy = OS_FlagTaskRdy(pnode, flags_rdy, OS_STAT_PEND_OK);
+6171                     ; 969                      if (rdy == OS_TRUE) {
+6173 f90ec               LC020:
+6174 f90ec 87            	clra	
+6175 f90ed c7            	clrb	
+6176 f90ee 3b            	pshd	
+6177 f90ef ec84          	ldd	OFST-3,s
+6178 f90f1 3b            	pshd	
+6179 f90f2 ec84          	ldd	OFST-3,s
+6180 f90f4 16523b        	jsr	L5462_OS_FlagTaskRdy
+6181 f90f7 1b84          	leas	4,s
+6182 f90f9 6b84          	stab	OFST-3,s
+6183 f90fb 042104        	dbne	b,L3363
+6184                     ; 970                          sched = OS_TRUE;                     /* When done we will reschedule          */
+6186 f90fe               LC019:
+6187 f90fe c601          	ldab	#1
+6188 f9100 6b85          	stab	OFST-2,s
+6189 f9102               L3363:
+6190                     ; 981         pnode = (OS_FLAG_NODE *)pnode->OSFlagNodeNext; /* Point to next task waiting for event flag(s) */
+6192 f9102 ecf30000      	ldd	[OFST-7,s]
+6193 f9106               L5263:
+6194 f9106 6c80          	std	OFST-7,s
+6195                     ; 932     while (pnode != (OS_FLAG_NODE *)0) {             /* Go through all tasks waiting on event flag(s)  */
+6197 f9108 1826ff75      	bne	L3263
+6198                     ; 983     OS_EXIT_CRITICAL();
+6200 f910c e686          	ldab	OFST-1,s
+6201 f910e 164b54        	jsr	_OS_CPU_SR_Restore
+6203                     ; 984     if (sched == OS_TRUE) {
+6205 f9111 e685          	ldab	OFST-2,s
+6206 f9113 042103        	dbne	b,L5563
+6207                     ; 985         OS_Sched();
+6209 f9116 164933        	jsr	_OS_Sched
+6211 f9119               L5563:
+6212                     ; 987     OS_ENTER_CRITICAL();
+6214 f9119 164b4f        	jsr	_OS_CPU_SR_Save
+6216 f911c 6b86          	stab	OFST-1,s
+6217                     ; 988     flags_cur = pgrp->OSFlagFlags;
+6219 f911e ed87          	ldy	OFST+0,s
+6220 f9120 18024382      	movw	3,y,OFST-5,s
+6221                     ; 989     OS_EXIT_CRITICAL();
+6223 f9124 87            	clra	
+6224 f9125 164b54        	jsr	_OS_CPU_SR_Restore
+6226                     ; 990     *perr     = OS_ERR_NONE;
+6228 f9128 69f3000f      	clr	[OFST+8,s]
+6229                     ; 993     return (flags_cur);
+6232 f912c ec82          	ldd	OFST-5,s
+6235 f912e 1b89          	leas	9,s
+6236 f9130 3d            	rts	
+6298                     ; 1017 _NEAR OS_FLAGS  OSFlagQuery (OS_FLAG_GRP  *pgrp,
+6298                     ; 1018                             INT8U        *perr)
+6298                     ; 1019 {
+6299                     	switch	.text
+6300 f9131               _OSFlagQuery:
+6302 f9131 3b            	pshd	
+6303 f9132 1b9d          	leas	-3,s
+6304       00000003      OFST:	set	3
+6307                     ; 1022     OS_CPU_SR  cpu_sr = 0u;
+6309                     ; 1035     if (pgrp == (OS_FLAG_GRP *)0) {               /* Validate 'pgrp'                                   */
+6311 f9134 046404        	tbne	d,L7073
+6312                     ; 1036         *perr = OS_ERR_FLAG_INVALID_PGRP;
+6314 f9137 c66e          	ldab	#110
+6315                     ; 1037         return ((OS_FLAGS)0);
+6318 f9139 200a          	bra	LC022
+6319 f913b               L7073:
+6320                     ; 1040     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) { /* Validate event block type                         */
+6322 f913b e6f30003      	ldab	[OFST+0,s]
+6323 f913f c105          	cmpb	#5
+6324 f9141 270b          	beq	L1173
+6325                     ; 1041         *perr = OS_ERR_EVENT_TYPE;
+6327 f9143 c601          	ldab	#1
+6328                     ; 1042         return ((OS_FLAGS)0);
+6330 f9145               LC022:
+6331 f9145 6bf30007      	stab	[OFST+4,s]
+6332 f9149 87            	clra	
+6333 f914a c7            	clrb	
+6335 f914b               L44:
+6337 f914b 1b85          	leas	5,s
+6338 f914d 3d            	rts	
+6339 f914e               L1173:
+6340                     ; 1044     OS_ENTER_CRITICAL();
+6342 f914e 164b4f        	jsr	_OS_CPU_SR_Save
+6344 f9151 6b80          	stab	OFST-3,s
+6345                     ; 1045     flags = pgrp->OSFlagFlags;
+6347 f9153 ed83          	ldy	OFST+0,s
+6348 f9155 18024381      	movw	3,y,OFST-2,s
+6349                     ; 1046     OS_EXIT_CRITICAL();
+6351 f9159 87            	clra	
+6352 f915a 164b54        	jsr	_OS_CPU_SR_Restore
+6354                     ; 1047     *perr = OS_ERR_NONE;
+6356 f915d 69f30007      	clr	[OFST+4,s]
+6357                     ; 1048     return (flags);                               /* Return the current value of the event flags       */
+6359 f9161 ec81          	ldd	OFST-2,s
+6361 f9163 20e6          	bra	L44
+6452                     ; 1090 static  void  OS_FlagBlock (OS_FLAG_GRP  *pgrp,
+6452                     ; 1091                             OS_FLAG_NODE *pnode,
+6452                     ; 1092                             OS_FLAGS      flags,
+6452                     ; 1093                             INT8U         wait_type,
+6452                     ; 1094                             INT32U        timeout)
+6452                     ; 1095 {
+6453                     	switch	.text
+6454 f9165               L3462_OS_FlagBlock:
+6456 f9165 3b            	pshd	
+6457 f9166 1b9d          	leas	-3,s
+6458       00000003      OFST:	set	3
+6461                     ; 1100     OSTCBCur->OSTCBStat      |= OS_STAT_FLAG;
+6463 f9168 fd1588        	ldy	_OSTCBCur
+6464 f916b 0ce82220      	bset	34,y,32
+6465                     ; 1101     OSTCBCur->OSTCBStatPend   = OS_STAT_PEND_OK;
+6467 f916f 69e823        	clr	35,y
+6468                     ; 1102     OSTCBCur->OSTCBDly        = timeout;              /* Store timeout in task's TCB                   */
+6470 f9172 ec8f          	ldd	OFST+12,s
+6471 f9174 6ce820        	std	32,y
+6472 f9177 ec8d          	ldd	OFST+10,s
+6473 f9179 6ce81e        	std	30,y
+6474                     ; 1104     OSTCBCur->OSTCBFlagNode   = pnode;                /* TCB to link to node                           */
+6476 f917c ec87          	ldd	OFST+4,s
+6477 f917e 6ce81a        	std	26,y
+6478                     ; 1106     pnode->OSFlagNodeFlags    = flags;                /* Save the flags that we need to wait for       */
+6480 f9181 b746          	tfr	d,y
+6481 f9183 18028948      	movw	OFST+6,s,8,y
+6482                     ; 1107     pnode->OSFlagNodeWaitType = wait_type;            /* Save the type of wait we are doing            */
+6484 f9187 180a8c4a      	movb	OFST+9,s,10,y
+6485                     ; 1108     pnode->OSFlagNodeTCB      = (void *)OSTCBCur;     /* Link to task's TCB                            */
+6487 f918b 1801441588    	movw	_OSTCBCur,4,y
+6488                     ; 1109     pnode->OSFlagNodeNext     = pgrp->OSFlagWaitList; /* Add node at beginning of event flag wait list */
+6490 f9190 ee83          	ldx	OFST+0,s
+6491 f9192 ed87          	ldy	OFST+4,s
+6492 f9194 18020140      	movw	1,x,0,y
+6493                     ; 1110     pnode->OSFlagNodePrev     = (void *)0;
+6495 f9198 87            	clra	
+6496 f9199 c7            	clrb	
+6497 f919a 6c42          	std	2,y
+6498                     ; 1111     pnode->OSFlagNodeFlagGrp  = (void *)pgrp;         /* Link to Event Flag Group                      */
+6500 f919c 18028346      	movw	OFST+0,s,6,y
+6501                     ; 1112     pnode_next                = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
+6503 f91a0 ed83          	ldy	OFST+0,s
+6504 f91a2 ed41          	ldy	1,y
+6505 f91a4 6d80          	sty	OFST-3,s
+6506                     ; 1113     if (pnode_next != (void *)0) {                    /* Is this the first NODE to insert?             */
+6508 f91a6 2704          	beq	L7573
+6509                     ; 1114         pnode_next->OSFlagNodePrev = pnode;           /* No, link in doubly linked list                */
+6511 f91a8 18028742      	movw	OFST+4,s,2,y
+6512 f91ac               L7573:
+6513                     ; 1116     pgrp->OSFlagWaitList = (void *)pnode;
+6515 f91ac ed83          	ldy	OFST+0,s
+6516 f91ae 18028741      	movw	OFST+4,s,1,y
+6517                     ; 1118     y            =  OSTCBCur->OSTCBY;                 /* Suspend current task until flag(s) received   */
+6519 f91b2 fd1588        	ldy	_OSTCBCur
+6520 f91b5 e6e826        	ldab	38,y
+6521                     ; 1119     OSRdyTbl[y] &= (OS_PRIO)~OSTCBCur->OSTCBBitX;
+6523 f91b8 b796          	exg	b,y
+6524 f91ba fe1588        	ldx	_OSTCBCur
+6525 f91bd e6e027        	ldab	39,x
+6526 f91c0 51            	comb	
+6527 f91c1 e4ea1630      	andb	_OSRdyTbl,y
+6528 f91c5 6bea1630      	stab	_OSRdyTbl,y
+6529                     ; 1121     if (OSRdyTbl[y] == 0x00u) {
+6532 f91c9 260c          	bne	L1673
+6533                     ; 1122         OSRdyGrp &= (OS_PRIO)~OSTCBCur->OSTCBBitY;
+6535 f91cb b756          	tfr	x,y
+6536 f91cd e6e828        	ldab	40,y
+6537 f91d0 51            	comb	
+6538 f91d1 f41638        	andb	_OSRdyGrp
+6539 f91d4 7b1638        	stab	_OSRdyGrp
+6540 f91d7               L1673:
+6541                     ; 1124 }
+6544 f91d7 1b85          	leas	5,s
+6545 f91d9 3d            	rts	
+6610                     ; 1142 _NEAR void  OS_FlagInit (void)
+6610                     ; 1143 {
+6611                     	switch	.text
+6612 f91da               _OS_FlagInit:
+6614 f91da 1b9a          	leas	-6,s
+6615       00000006      OFST:	set	6
+6618                     ; 1161     OS_MemClr((INT8U *)&OSFlagTbl[0], sizeof(OSFlagTbl));           /* Clear the flag group table      */
+6620 f91dc cc0023        	ldd	#35
+6621 f91df 3b            	pshd	
+6622 f91e0 cc163f        	ldd	#_OSFlagTbl
+6623 f91e3 164907        	jsr	_OS_MemClr
+6625 f91e6 1b82          	leas	2,s
+6626                     ; 1162     for (ix = 0u; ix < (OS_MAX_FLAGS - 1u); ix++) {                 /* Init. list of free EVENT FLAGS  */
+6628 f91e8 87            	clra	
+6629 f91e9 c7            	clrb	
+6630 f91ea b746          	tfr	d,y
+6631 f91ec 6d82          	sty	OFST-4,s
+6632 f91ee               L5104:
+6633                     ; 1163         ix_next = ix + 1u;
+6635 f91ee 02            	iny	
+6636 f91ef 6d84          	sty	OFST-2,s
+6637                     ; 1164         pgrp1 = &OSFlagTbl[ix];
+6639 f91f1 cd0007        	ldy	#7
+6640 f91f4 13            	emul	
+6641 f91f5 c3163f        	addd	#_OSFlagTbl
+6642 f91f8 6c80          	std	OFST-6,s
+6643                     ; 1165         pgrp2 = &OSFlagTbl[ix_next];
+6645 f91fa ec84          	ldd	OFST-2,s
+6646 f91fc cd0007        	ldy	#7
+6647 f91ff 13            	emul	
+6648 f9200 c3163f        	addd	#_OSFlagTbl
+6649 f9203 6c84          	std	OFST-2,s
+6650                     ; 1166         pgrp1->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+6652 f9205 ed80          	ldy	OFST-6,s
+6653 f9207 6940          	clr	0,y
+6654                     ; 1167         pgrp1->OSFlagWaitList = (void *)pgrp2;
+6656 f9209 6c41          	std	1,y
+6657                     ; 1169         pgrp1->OSFlagName     = (INT8U *)(void *)"?";               /* Unknown name                    */
+6659 f920b cc7733        	ldd	#L1503
+6660 f920e 6c45          	std	5,y
+6661                     ; 1162     for (ix = 0u; ix < (OS_MAX_FLAGS - 1u); ix++) {                 /* Init. list of free EVENT FLAGS  */
+6663 f9210 ed82          	ldy	OFST-4,s
+6664 f9212 02            	iny	
+6667 f9213 b764          	tfr	y,d
+6668 f9215 6c82          	std	OFST-4,s
+6669 f9217 8c0004        	cpd	#4
+6670 f921a 25d2          	blo	L5104
+6671                     ; 1172     pgrp1                 = &OSFlagTbl[ix];
+6673 f921c cd0007        	ldy	#7
+6674 f921f 13            	emul	
+6675 f9220 c3163f        	addd	#_OSFlagTbl
+6676 f9223 6c80          	std	OFST-6,s
+6677                     ; 1173     pgrp1->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+6679 f9225 87            	clra	
+6680 f9226 ed80          	ldy	OFST-6,s
+6681 f9228 6a40          	staa	0,y
+6682                     ; 1174     pgrp1->OSFlagWaitList = (void *)0;
+6684 f922a c7            	clrb	
+6685 f922b 6c41          	std	1,y
+6686                     ; 1176     pgrp1->OSFlagName     = (INT8U *)(void *)"?";                   /* Unknown name                    */
+6688 f922d cc7733        	ldd	#L1503
+6689 f9230 6c45          	std	5,y
+6690                     ; 1178     OSFlagFreeList        = &OSFlagTbl[0];
+6692 f9232 cc163f        	ldd	#_OSFlagTbl
+6693 f9235 7c163d        	std	_OSFlagFreeList
+6694                     ; 1180 }
+6697 f9238 1b86          	leas	6,s
+6698 f923a 3d            	rts	
+7087                     ; 1209 static  BOOLEAN  OS_FlagTaskRdy (OS_FLAG_NODE *pnode,
+7087                     ; 1210                                  OS_FLAGS      flags_rdy,
+7087                     ; 1211                                  INT8U         pend_stat)
+7087                     ; 1212 {
+7088                     	switch	.text
+7089 f923b               L5462_OS_FlagTaskRdy:
+7091 f923b 3b            	pshd	
+7092 f923c 1b9d          	leas	-3,s
+7093       00000003      OFST:	set	3
+7096                     ; 1217     ptcb                 = (OS_TCB *)pnode->OSFlagNodeTCB; /* Point to TCB of waiting task             */
+7098 f923e b746          	tfr	d,y
+7099 f9240 ed44          	ldy	4,y
+7100 f9242 6d80          	sty	OFST-3,s
+7101                     ; 1218     ptcb->OSTCBDly       = 0u;
+7103 f9244 87            	clra	
+7104 f9245 c7            	clrb	
+7105 f9246 6ce820        	std	32,y
+7106 f9249 6ce81e        	std	30,y
+7107                     ; 1219     ptcb->OSTCBFlagsRdy  = flags_rdy;
+7109 f924c ec87          	ldd	OFST+4,s
+7110 f924e 6ce81c        	std	28,y
+7111                     ; 1220     ptcb->OSTCBStat     &= (INT8U)~(INT8U)OS_STAT_FLAG;
+7113 f9251 0de82220      	bclr	34,y,32
+7114                     ; 1221     ptcb->OSTCBStatPend  = pend_stat;
+7116 f9255 e68a          	ldab	OFST+7,s
+7117 f9257 6be823        	stab	35,y
+7118                     ; 1222     if (ptcb->OSTCBStat == OS_STAT_RDY) {                  /* Task now ready?                          */
+7120 f925a e6e822        	ldab	34,y
+7121 f925d 2621          	bne	L7424
+7122                     ; 1223         OSRdyGrp               |= ptcb->OSTCBBitY;         /* Put task into ready list                 */
+7124 f925f e6e828        	ldab	40,y
+7125 f9262 fa1638        	orab	_OSRdyGrp
+7126 f9265 7b1638        	stab	_OSRdyGrp
+7127                     ; 1224         OSRdyTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
+7129 f9268 e6e826        	ldab	38,y
+7130 f926b b796          	exg	b,y
+7131 f926d ee80          	ldx	OFST-3,s
+7132 f926f e6e027        	ldab	39,x
+7133 f9272 eaea1630      	orab	_OSRdyTbl,y
+7134 f9276 6bea1630      	stab	_OSRdyTbl,y
+7135                     ; 1226         sched                   = OS_TRUE;
+7138 f927a c601          	ldab	#1
+7139 f927c 6b82          	stab	OFST-1,s
+7141 f927e 2002          	bra	L1524
+7142 f9280               L7424:
+7143                     ; 1228         sched                   = OS_FALSE;
+7145 f9280 6982          	clr	OFST-1,s
+7146 f9282               L1524:
+7147                     ; 1230     OS_FlagUnlink(pnode);
+7149 f9282 ec83          	ldd	OFST+0,s
+7150 f9284 0705          	jsr	_OS_FlagUnlink
+7152                     ; 1231     return (sched);
+7154 f9286 e682          	ldab	OFST-1,s
+7157 f9288 1b85          	leas	5,s
+7158 f928a 3d            	rts	
+7242                     ; 1256 _NEAR void  OS_FlagUnlink (OS_FLAG_NODE *pnode)
+7242                     ; 1257 {
+7243                     	switch	.text
+7244 f928b               _OS_FlagUnlink:
+7246 f928b 3b            	pshd	
+7247 f928c 1b9c          	leas	-4,s
+7248       00000004      OFST:	set	4
+7251                     ; 1266     pnode_prev = (OS_FLAG_NODE *)pnode->OSFlagNodePrev;
+7253 f928e b746          	tfr	d,y
+7254 f9290 18024280      	movw	2,y,OFST-4,s
+7255                     ; 1267     pnode_next = (OS_FLAG_NODE *)pnode->OSFlagNodeNext;
+7257 f9294 ed84          	ldy	OFST+0,s
+7258 f9296 ec40          	ldd	0,y
+7259 f9298 6c82          	std	OFST-2,s
+7260                     ; 1268     if (pnode_prev == (OS_FLAG_NODE *)0) {                      /* Is it first node in wait list?      */
+7262 f929a ee80          	ldx	OFST-4,s
+7263 f929c 260e          	bne	L3234
+7264                     ; 1269         pgrp                 = (OS_FLAG_GRP *)pnode->OSFlagNodeFlagGrp;
+7266 f929e ed46          	ldy	6,y
+7267 f92a0 6d80          	sty	OFST-4,s
+7268                     ; 1270         pgrp->OSFlagWaitList = (void *)pnode_next;              /*      Update list for new 1st node   */
+7270 f92a2 6c41          	std	1,y
+7271                     ; 1271         if (pnode_next != (OS_FLAG_NODE *)0) {
+7273 f92a4 2710          	beq	L7234
+7274                     ; 1272             pnode_next->OSFlagNodePrev = (OS_FLAG_NODE *)0;     /*      Link new 1st node PREV to NULL */
+7276 f92a6 87            	clra	
+7277 f92a7 c7            	clrb	
+7278 f92a8 ed82          	ldy	OFST-2,s
+7279 f92aa 2008          	bra	LC023
+7280 f92ac               L3234:
+7281                     ; 1275         pnode_prev->OSFlagNodeNext = pnode_next;                /*      Link around the node to unlink */
+7283 f92ac b746          	tfr	d,y
+7284 f92ae 6d00          	sty	0,x
+7285                     ; 1276         if (pnode_next != (OS_FLAG_NODE *)0) {                  /*      Was this the LAST node?        */
+7287 f92b0 2704          	beq	L7234
+7288                     ; 1277             pnode_next->OSFlagNodePrev = pnode_prev;            /*      No, Link around current node   */
+7290 f92b2 b754          	tfr	x,d
+7291 f92b4               LC023:
+7292 f92b4 6c42          	std	2,y
+7293 f92b6               L7234:
+7294                     ; 1281     ptcb                = (OS_TCB *)pnode->OSFlagNodeTCB;
+7296 f92b6 ed84          	ldy	OFST+0,s
+7297 f92b8 ed44          	ldy	4,y
+7298                     ; 1282     ptcb->OSTCBFlagNode = (OS_FLAG_NODE *)0;
+7300 f92ba 87            	clra	
+7301 f92bb c7            	clrb	
+7302 f92bc 6ce81a        	std	26,y
+7303                     ; 1284 }
+7306 f92bf 1b86          	leas	6,s
+7307 f92c1 3d            	rts	
+7319                     	xref	_OS_StrLen
+7320                     	xref	_OS_Sched
+7321                     	xref	_OS_MemClr
+7322                     	xdef	_OS_FlagUnlink
+7323                     	xdef	_OS_FlagInit
+7324                     	xdef	_OSFlagQuery
+7325                     	xdef	_OSFlagPost
+7326                     	xdef	_OSFlagPendGetFlagsRdy
+7327                     	xdef	_OSFlagPend
+7328                     	xdef	_OSFlagNameSet
+7329                     	xdef	_OSFlagNameGet
+7330                     	xdef	_OSFlagDel
+7331                     	xdef	_OSFlagCreate
+7332                     	xdef	_OSFlagAccept
+7333                     	xref	_OSTCBCur
+7334                     	xref	_OSRdyTbl
+7335                     	xref	_OSRdyGrp
+7336                     	xref	_OSLockNesting
+7337                     	xref	_OSIntNesting
+7338                     	xref	_OSFlagFreeList
+7339                     	xref	_OSFlagTbl
+7340                     	xref	_OS_CPU_SR_Restore
+7341                     	xref	_OS_CPU_SR_Save
+7342                     .const:	section	.data
+7343 fb733               L1503:
+7344 fb733 3f00          	dc.b	"?",0
+7365                     	end

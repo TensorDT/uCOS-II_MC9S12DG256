@@ -66,6 +66,8 @@ _NEAR void  OSTaskAbort(void);
 static  INT16U  OSTmrCtr;
 #endif
 
+static INT16U CntrTick = 0;
+
 /*
 *********************************************************************************************************
 *                                       OS INITIALIZATION HOOK
@@ -453,5 +455,20 @@ _NEAR void  OSTimeTickHook (void)
 // Added 28-Oct-2020 GPM
 _NEAR void  OSTickISRHandler (void)
 {
-    // Put clock handling code here!!!
+    // Clear the interrupt by writing a 1 to the channel (timer) 7
+    // interrupt flag.
+    TFLG1 |= TFLG1_C7F;
+
+    // Increment the output compare so another interrupt is generated
+    // at the desired interval.
+    TC7   += TMR_TICKS_PER_TMR_INT;
+    // Can't the ECT be configured to create a periodic timer? If so,
+    // consider doing that.
+
+    // FIX ME!!! Create a module for handling timekeeping and call a
+    // function in it to update the clock by MS_PER_TMR_INT.
+
+    ++CntrTick;  // For debugging...
+
+    return;
 }

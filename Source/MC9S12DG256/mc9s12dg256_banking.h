@@ -5,7 +5,7 @@
 //  Purpose:    MC9S12DG256 processor banking header file
 //              for use with the Cosmic compiler.
 //
-//  Target:     CPU 2.0
+//  Target:     MC9S12DG256-based board
 //
 //  Revisions:
 //   ##  dd mmm yyyy  who  description
@@ -32,22 +32,20 @@
 // See FreeScale Semiconductor CPU12 Reference Manual, Rev. 4.0 pp. 339-340
 // for more information.
 #if defined BANKED
-#define _NEAR      @near
-#define _FAR       @far
-#define _INTERRUPT @interrupt
+#define _NEAR      @near            // for code in unbanked flash
+#define _FAR       @far             // for code in banked flash
+#define _INTERRUPT @interrupt       // for Interrupt Service Routines
+#define _EEPROM    @eeprom          // for data in EEPROM
+#define _DIR       @dir             // for variables in RAM zero page
 #else
 #define _NEAR
 #define _FAR
 #define _INTERRUPT
+#define _EEPROM
+#define _DIR
 #endif
 
 //--------------------------- Included Files --------------------------
-// none
-
-// ---------------- CPU INCLUDE FILES -----------------
-// none
-
-// -------------- MICRIUM INCLUDE FILES ---------------
 // none
 
 //-------------------------- Type Definitions -------------------------

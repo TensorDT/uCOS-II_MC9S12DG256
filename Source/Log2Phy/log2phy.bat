@@ -1,9 +1,10 @@
 .\Log2Phy\Log2Phy_12
 cd .\Build-Mfg
-del PWR_RB_DDDC.s19
-ren PWR_QBUS.phy PWR_RB_DDDC.s19
-del PWR_QBUS.s19
+del uCOS-II_MC9S12DG256.s19
+ren uCOS-II_MC9S12DG256.phy uCOS-II_MC9S12DG256.s19
 del *.extra
 del *.la
+del *.ls
+del *.o
 cd ..
 

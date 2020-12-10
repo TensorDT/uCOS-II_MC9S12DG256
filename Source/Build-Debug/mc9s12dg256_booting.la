@@ -1,0 +1,385 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+4092                     ; 74 _NEAR static void initHardware(void)
+4092                     ; 75 {
+4093                     	switch	.text
+4094 ff606               L3462_initHardware:
+4098                     ; 77     INTCR  = 0x00;           // External interrupt is disabled
+4100 ff606 c7            	clrb	
+4101 ff607 5b1e          	stab	_INTCR
+4102                     ; 78     EBICTL = 0x00;           // NO ECLK stretches
+4104 ff609 5b0e          	stab	_EBICTL
+4105                     ; 85     INITRG = 0x00;           // REGISTERS in default location: 0x0000 to 0x03FF
+4107 ff60b 5b11          	stab	_INITRG
+4108                     ; 86     INITEE = 0x01;           // EEPROM (4KB-1KB=3KB) is at 0x0400 to 0x0FFF
+4110 ff60d 52            	incb	
+4111 ff60e 5b12          	stab	_INITEE
+4112                     ; 87     INITRM = 0x11;           // RAM is aligned upward; is 12KB block: 0x1000 to 0x3FFF
+4114 ff610 c611          	ldab	#17
+4115 ff612 5b10          	stab	_INITRM
+4116                     ; 93     MISC   = 0x01;           // FLASH enabled in memory map, upper half only.
+4118 ff614 c601          	ldab	#1
+4119 ff616 5b13          	stab	_MISC
+4120                     ; 101     MODE   = 0x80;           // Normal Single Chip mode
+4122 ff618 c680          	ldab	#128
+4123 ff61a 5b0b          	stab	_MODE
+4124                     ; 103     MODRR |= 0x10;           // bit 4 is for re-assigning SPI0 to Port M
+4126 ff61c 1c025710      	bset	_MODRR,16
+4127                     ; 106     CRGINT = 0x00;           // All CRG interrupts disabled
+4129 ff620 c7            	clrb	
+4130 ff621 5b38          	stab	_CRGINT
+4131                     ; 117     CLKSEL = 0x00;           // OSCCLK is system clock - nobody stops ever
+4133 ff623 5b39          	stab	_CLKSEL
+4134                     ; 119     PLLCTL = 0x80;           // Clock monitor on, PLL off
+4136 ff625 c680          	ldab	#128
+4137 ff627 5b3a          	stab	_PLLCTL
+4138                     ; 120     RTICTL = 0x00;           // No idea what this does?
+4140 ff629 c7            	clrb	
+4141 ff62a 5b3b          	stab	_RTICTL
+4142                     ; 121     COPCTL = 0x00;           // COP control register - COP disabled
+4144 ff62c 5b3c          	stab	_COPCTL
+4145                     ; 125     PUCR   = 0x12;           // PORTB/E pullups enabled
+4147 ff62e c612          	ldab	#18
+4148 ff630 5b0c          	stab	_PUCR
+4149                     ; 126     RDRIV  = 0x00;           // Full drive capability
+4151 ff632 c7            	clrb	
+4152 ff633 5b0d          	stab	_RDRIV
+4153                     ; 138     DDRA   = 0xFF;  // previously 0x9E
+4155 ff635 c6ff          	ldab	#255
+4156 ff637 5b02          	stab	_DDRA
+4157                     ; 139     PORTA  = 0x0F;  // previously 0x10
+4159 ff639 c60f          	ldab	#15
+4160 ff63b 5b00          	stab	_PORTA
+4161                     ; 151     DDRB  = 0x00;
+4163 ff63d c7            	clrb	
+4164 ff63e 5b03          	stab	_DDRB
+4165                     ; 152     PORTB = 0x00;
+4167 ff640 5b01          	stab	_PORTB
+4168                     ; 163     PEAR   = 0x10;           // PE4 is GPIO, no R/W for PE2
+4170 ff642 c610          	ldab	#16
+4171 ff644 5b0a          	stab	_PEAR
+4172                     ; 175     DDRE = 0x00;             // previously 0x10
+4174 ff646 c7            	clrb	
+4175 ff647 5b09          	stab	_DDRE
+4176                     ; 176     PORTE = 0x00;
+4178 ff649 5b08          	stab	_PORTE
+4179                     ; 191     DDRS   = 0x02;
+4181 ff64b c602          	ldab	#2
+4182 ff64d 7b024a        	stab	_DDRS
+4183                     ; 192     RDRS   = 0x00;           // Full (0) or reduced (1) drive outputs
+4185 ff650 79024b        	clr	_RDRS
+4186                     ; 193     PERS   = 0x00;           // Pull up/dwn enabled (1) or disabled (0)
+4188 ff653 79024c        	clr	_PERS
+4189                     ; 194     PPSS   = 0x00;           // Pull up (0) or pull down (1) for pins with PERT enabled
+4191 ff656 79024d        	clr	_PPSS
+4192                     ; 195     WOMS   = 0x00;           // Outputs operate open-drain(1), wired-or, or push-pull(0)
+4194 ff659 79024e        	clr	_WOMS
+4195                     ; 196     PTS    = 0x02;
+4197 ff65c 7b0248        	stab	_PTS
+4198                     ; 209     DDRT   = 0x6F;
+4200 ff65f c66f          	ldab	#111
+4201 ff661 7b0242        	stab	_DDRT
+4202                     ; 210     RDRT   = 0x00;           // Full (0) or Reduced (1) drive outputs
+4204 ff664 790243        	clr	_RDRT
+4205                     ; 211     PERT   = 0x00;           // Pull up/dwn enabled (1) or disabled (0)
+4207 ff667 790244        	clr	_PERT
+4208                     ; 212     PPST   = 0x00;           // Pull up (0) or pull down (1) for pins with PERT enabled
+4210 ff66a 790245        	clr	_PPST
+4211                     ; 213     PTT    = 0x0F;
+4213 ff66d c60f          	ldab	#15
+4214 ff66f 7b0240        	stab	_PTT
+4215                     ; 224     PACTL = 0x00;
+4217 ff672 c7            	clrb	
+4218 ff673 5b60          	stab	_PACTL
+4219                     ; 238     DDRM  = 0x3A;            // Note SPI, CAN, BDLC registers overide the DDRM
+4221 ff675 c63a          	ldab	#58
+4222 ff677 7b0252        	stab	_DDRM
+4223                     ; 239     PTM   = 0x1A;
+4225 ff67a c61a          	ldab	#26
+4226 ff67c 7b0250        	stab	_PTM
+4227                     ; 240     RDRM  = 0x00;
+4229 ff67f 790253        	clr	_RDRM
+4230                     ; 241     PERM  = 0x00;
+4232 ff682 790254        	clr	_PERM
+4233                     ; 242     PPSM  = 0x00;
+4235 ff685 790255        	clr	_PPSM
+4236                     ; 243     WOMM  = 0x00;
+4238 ff688 790256        	clr	_WOMM
+4239                     ; 259     DDRP   = 0x1E;           // Data Direction Register (0)Input, (1) Output
+4241 ff68b c61e          	ldab	#30
+4242 ff68d 7b025a        	stab	_DDRP
+4243                     ; 260     PTP    = 0x0A;           // Port P
+4245 ff690 c60a          	ldab	#10
+4246 ff692 7b0258        	stab	_PTP
+4247                     ; 261     RDRP   = 0x00;           // Full (0) or reduced (1) drive outputs
+4249 ff695 c7            	clrb	
+4250 ff696 7b025b        	stab	_RDRP
+4251                     ; 262     PERP   = 0x00;           // Pull up/down enabled (1) or disabled (0)
+4253 ff699 7b025c        	stab	_PERP
+4254                     ; 263     PPSP   = 0x00;           // Pull up (0) or pull down (1) for pins with PERT enabled
+4256 ff69c 7b025d        	stab	_PPSP
+4257                     ; 264     PIEP   = 0x00;           // Enables (1) external int for each pin of Port P
+4259 ff69f 7b025e        	stab	_PIEP
+4260                     ; 265     PIFP   = 0x00;           // Ext port P int flag register, reset by writing "1"
+4262 ff6a2 7b025f        	stab	_PIFP
+4263                     ; 278     DDRJ   = 0x00;           // Data Direction Register (0)Input, (1) Output
+4265 ff6a5 7b026a        	stab	_DDRJ
+4266                     ; 279     PTJ    = 0x00;
+4268 ff6a8 7b0268        	stab	_PTJ
+4269                     ; 280     RDRJ   = 0x00;
+4271 ff6ab 7b026b        	stab	_RDRJ
+4272                     ; 281     PERJ   = 0x00;
+4274 ff6ae 7b026c        	stab	_PERJ
+4275                     ; 282     PPSJ   = 0x00;
+4277 ff6b1 7b026d        	stab	_PPSJ
+4278                     ; 293     ATD0CTL2 = 0x00;
+4280 ff6b4 5b82          	stab	_ATD0CTL2
+4281                     ; 305     TSCR1  = 0x80;
+4283 ff6b6 c680          	ldab	#128
+4284 ff6b8 5b46          	stab	_TSCR1
+4285                     ; 316     TSCR2  = 0x02;           // tmr clock = BUS CLOCK / 4 = 2457600 / 4 = 614400 HZ
+4287 ff6ba c602          	ldab	#2
+4288 ff6bc 5b4d          	stab	_TSCR2
+4289                     ; 319     TCTL1  = 0x00;
+4291 ff6be c7            	clrb	
+4292 ff6bf 5b48          	stab	_TCTL1
+4293                     ; 320     TCTL2  = 0x00;
+4295 ff6c1 5b49          	stab	_TCTL2
+4296                     ; 321     TCTL3  = 0x00;
+4298 ff6c3 5b4a          	stab	_TCTL3
+4299                     ; 322     TCTL4  = 0x00;
+4301 ff6c5 5b4b          	stab	_TCTL4
+4302                     ; 325     SCI0BD = BAUD19200;
+4304 ff6c7 cc0008        	ldd	#8
+4305 ff6ca 5cc8          	std	_SCI0BD
+4306                     ; 338     SCI0CR1 = 0x00;
+4308 ff6cc c7            	clrb	
+4309 ff6cd 5bca          	stab	_SCI0CR1
+4310                     ; 349     SCI0CR2 = 0x04;          // Enable receiver
+4312 ff6cf c604          	ldab	#4
+4313 ff6d1 5bcb          	stab	_SCI0CR2
+4314                     ; 360     SPI0CR2 = 0x00;          // CHECK ME!!! CTF inits this to 0x08 (output buffer enabled)
+4316 ff6d3 c7            	clrb	
+4317 ff6d4 5bd9          	stab	_SPI0CR2
+4318                     ; 371     SPI0CR1 = 0x4C;
+4320 ff6d6 c64c          	ldab	#76
+4321 ff6d8 5bd8          	stab	_SPI0CR1
+4322                     ; 376     SPI0BR  = 0x01;
+4324 ff6da c601          	ldab	#1
+4325 ff6dc 5bda          	stab	_SPI0BR
+4326                     ; 379     ByteUpperCase = SPI0SR;
+4328 ff6de d6db          	ldab	_SPI0SR
+4329                     ; 380     ByteUpperCase = SPI0DR;
+4331 ff6e0 d6dd          	ldab	_SPI0DR
+4332 ff6e2 7b39e0        	stab	_ByteUpperCase
+4333                     ; 382     return;
+4336 ff6e5 3d            	rts	
+4382                     ; 395 _NEAR static void delayMilliseconds(
+4382                     ; 396     UINT16 delay_ms)         // software delay in milliseconds
+4382                     ; 397 {
+4383                     	switch	.text
+4384 ff6e6               L3662_delayMilliseconds:
+4386 ff6e6 3b            	pshd	
+4387 ff6e7 1b9d          	leas	-3,s
+4388       00000003      OFST:	set	3
+4391                     ; 401     for (cntr_ms=0; cntr_ms<delay_ms; cntr_ms++) {
+4393 ff6e9 87            	clra	
+4394 ff6ea c7            	clrb	
+4396 ff6eb 2010          	bra	L1172
+4397 ff6ed               L5072:
+4398                     ; 402         for (cntr1msLoop=0; cntr1msLoop<149; cntr1msLoop++) {
+4400 ff6ed 6980          	clr	OFST-3,s
+4401 ff6ef               L5172:
+4402                     ; 403             NOP();
+4405 ff6ef a7            	nop	
+4407                     ; 402         for (cntr1msLoop=0; cntr1msLoop<149; cntr1msLoop++) {
+4409 ff6f0 6280          	inc	OFST-3,s
+4412 ff6f2 e680          	ldab	OFST-3,s
+4413 ff6f4 c195          	cmpb	#149
+4414 ff6f6 25f7          	blo	L5172
+4415                     ; 401     for (cntr_ms=0; cntr_ms<delay_ms; cntr_ms++) {
+4417 ff6f8 ec81          	ldd	OFST-2,s
+4418 ff6fa c30001        	addd	#1
+4419 ff6fd               L1172:
+4420 ff6fd 6c81          	std	OFST-2,s
+4423 ff6ff ac83          	cpd	OFST+0,s
+4424 ff701 25ea          	blo	L5072
+4425                     ; 407     return;
+4428 ff703 1b85          	leas	5,s
+4429 ff705 3d            	rts	
+4474                     ; 419 _NEAR static void copyBootloaderToRAM(void)
+4474                     ; 420 {
+4475                     	switch	.text
+4476 ff706               L3272_copyBootloaderToRAM:
+4478 ff706 1b9c          	leas	-4,s
+4479       00000004      OFST:	set	4
+4482                     ; 424     pROM = (UINT16*)BL_ROM_ADDR_START;  // load start of ROM boot code
+4484 ff708 ccf800        	ldd	#-2048
+4485 ff70b 6c82          	std	OFST-2,s
+4486                     ; 425     pRAM = (UINT16*)BL_RAM_ADDR_START;  // load start of RAM boot code
+4488 ff70d 863a          	ldaa	#58
+4490 ff70f 200c          	bra	L3572
+4491 ff711               L7472:
+4492                     ; 429         *pRAM++ = *pROM++;   
+4494 ff711 ed82          	ldy	OFST-2,s
+4495 ff713 ec71          	ldd	2,y+
+4496 ff715 6d82          	sty	OFST-2,s
+4497 ff717 ed80          	ldy	OFST-4,s
+4498 ff719 6c71          	std	2,y+
+4499 ff71b b764          	tfr	y,d
+4500 ff71d               L3572:
+4501 ff71d 6c80          	std	OFST-4,s
+4502                     ; 427     while(pRAM <= (volatile UINT16*)BL_RAM_ADDR_END) {
+4504 ff71f 8c3eff        	cpd	#16127
+4505 ff722 23ed          	bls	L7472
+4506                     ; 432     return;
+4509 ff724 1b84          	leas	4,s
+4510 ff726 3d            	rts	
+4546                     ; 440 _NEAR void Booting(void)
+4546                     ; 441 {
+4547                     	switch	.text
+4548 ff727               _Booting:
+4552                     ; 444     CntrTimeout = 0;
+4554 ff727 7939e1        	clr	_CntrTimeout
+4555                     ; 445     IdxByte = 0;
+4557 ff72a 7939e2        	clr	_IdxByte
+4558                     ; 446     DirComparison = DIR_COMP_GREATER_THAN;
+4560 ff72d 7939e3        	clr	_DirComparison
+4561                     ; 447     WasBLCmdRcvd = BFALSE;
+4563 ff730 7939e4        	clr	_WasBLCmdRcvd
+4564                     ; 450     INTR_OFF();
+4567 ff733 1410          	sei	
+4569                     ; 454     initHardware();
+4571 ff735 16f606        	jsr	L3462_initHardware
+4574 ff738 206a          	bra	L1003
+4575 ff73a               L7772:
+4576                     ; 458         if (SCI0SR1 & 0x20)  {                    // received a byte?
+4578 ff73a 4fcc2046      	brclr	_SCI0SR1,32,L1103
+4579                     ; 460             ByteUpperCase = SCI0DRL;
+4581 ff73e d6cf          	ldab	_SCI0DRL
+4582 ff740 7b39e0        	stab	_ByteUpperCase
+4583                     ; 462             switch (IdxByte) {
+4585 ff743 f639e2        	ldab	_IdxByte
+4587 ff746 270b          	beq	L7572
+4588 ff748 040111        	dbeq	b,L1672
+4589 ff74b 04011a        	dbeq	b,L3672
+4590 ff74e 040125        	dbeq	b,L5672
+4591 ff751 2031          	bra	L1103
+4592 ff753               L7572:
+4593                     ; 463                 case 0:
+4593                     ; 464                      if (ByteUpperCase == 'B') { // don't increment IdxByte until receiving 'B'
+4595 ff753 f639e0        	ldab	_ByteUpperCase
+4596 ff756 c142          	cmpb	#66
+4597 ff758 262a          	bne	L1103
+4598                     ; 465                          IdxByte++;
+4600 ff75a 2015          	bra	L7103
+4601 ff75c               L1672:
+4602                     ; 469                 case 1:
+4602                     ; 470                      if (ByteUpperCase != 'L') {
+4604 ff75c f639e0        	ldab	_ByteUpperCase
+4605 ff75f c14c          	cmpb	#76
+4606 ff761 2703          	beq	L5103
+4607                     ; 473                              jmp $4000
+4610 ff763 064000        	jmp	$4000
+4612 ff766               L5103:
+4613                     ; 476                      IdxByte++;
+4615                     ; 477                      break;
+4617 ff766 2009          	bra	L7103
+4618 ff768               L3672:
+4619                     ; 479                 case 2:
+4619                     ; 480                      if (ByteUpperCase != '2') {
+4621 ff768 f639e0        	ldab	_ByteUpperCase
+4622 ff76b c132          	cmpb	#50
+4623 ff76d 2702          	beq	L7103
+4624 ff76f               L1203:
+4625                     ; 484                          while(BTRUE);
+4627 ff76f 20fe          	bra	L1203
+4628 ff771               L7103:
+4629                     ; 486                      IdxByte++;
+4631 ff771 7239e2        	inc	_IdxByte
+4632                     ; 487                      break;
+4634 ff774 200e          	bra	L1103
+4635 ff776               L5672:
+4636                     ; 489                 case 3:
+4636                     ; 490                      if (ByteUpperCase != '0') {
+4638 ff776 f639e0        	ldab	_ByteUpperCase
+4639 ff779 c130          	cmpb	#48
+4640 ff77b 2702          	beq	L5203
+4641 ff77d               L7203:
+4642                     ; 494                         while(BTRUE);
+4644 ff77d 20fe          	bra	L7203
+4645 ff77f               L5203:
+4646                     ; 497                          WasBLCmdRcvd = BTRUE;
+4648 ff77f c601          	ldab	#1
+4649 ff781 7b39e4        	stab	_WasBLCmdRcvd
+4650 ff784               L1103:
+4651                     ; 506         if (DirComparison == DIR_COMP_GREATER_THAN) {  // '>' comparison
+4653 ff784 f639e3        	ldab	_DirComparison
+4654 ff787 2611          	bne	L5303
+4655                     ; 507             if (TCNT > 0x8000) {
+4657 ff789 dc44          	ldd	_TCNT
+4658 ff78b 8c8000        	cpd	#-32768
+4659 ff78e 2314          	bls	L1003
+4660                     ; 508                 CntrTimeout++;
+4662 ff790 7239e1        	inc	_CntrTimeout
+4663                     ; 509                 DirComparison = DIR_COMP_LESS_THAN;    // changed to '<'
+4665 ff793 c601          	ldab	#1
+4666 ff795 7b39e3        	stab	_DirComparison
+4667 ff798 200a          	bra	L1003
+4668 ff79a               L5303:
+4669                     ; 513             if (TCNT < 0x8000) {
+4671 ff79a dc44          	ldd	_TCNT
+4672 ff79c 8c8000        	cpd	#-32768
+4673 ff79f 2403          	bhs	L1003
+4674                     ; 514                 DirComparison = DIR_COMP_GREATER_THAN; // changed to '>'
+4676 ff7a1 7939e3        	clr	_DirComparison
+4677 ff7a4               L1003:
+4678                     ; 456     while ((CntrTimeout < TIMEOUT_20_CENTISEC) && // a timeout of about 2sec
+4678                     ; 457             !WasBLCmdRcvd) {                      // no Enq received
+4680 ff7a4 f639e1        	ldab	_CntrTimeout
+4681 ff7a7 c114          	cmpb	#20
+4682 ff7a9 2405          	bhs	L5403
+4684 ff7ab f739e4        	tst	_WasBLCmdRcvd
+4685 ff7ae 278a          	beq	L7772
+4686 ff7b0               L5403:
+4687                     ; 521     if (!WasBLCmdRcvd) {
+4689 ff7b0 f739e4        	tst	_WasBLCmdRcvd
+4690 ff7b3 2603          	bne	L7403
+4691                     ; 523             jmp $4000
+4694 ff7b5 064000        	jmp	$4000
+4696 ff7b8               L7403:
+4697                     ; 528     delayMilliseconds(1);    // Shortened delay due to debugger sluggishness
+4699 ff7b8 cc0001        	ldd	#1
+4700 ff7bb 16f6e6        	jsr	L3662_delayMilliseconds
+4702                     ; 533     TX_MODE();               // Switch to transmit mode
+4704 ff7be 1d025002      	bclr	_PTM,2
+4707 ff7c2 c608          	ldab	#8
+4708 ff7c4 5bcb          	stab	_SCI0CR2
+4709                     ; 535     SCI0DRL = ACK;           // Send an ACK
+4712 ff7c6 c606          	ldab	#6
+4713 ff7c8 5bcf          	stab	_SCI0DRL
+4715 ff7ca               L5503:
+4716                     ; 537     while (!(SCI0SR1 & 0x40));
+4718 ff7ca 4fcc40fc      	brclr	_SCI0SR1,64,L5503
+4719                     ; 539     RX_MODE();               // Return back to receive mode
+4721 ff7ce 1c025002      	bset	_PTM,2
+4724 ff7d2 c604          	ldab	#4
+4725 ff7d4 5bcb          	stab	_SCI0CR2
+4726                     ; 541     ByteUpperCase = SCI0SR1;
+4729 ff7d6 d6cc          	ldab	_SCI0SR1
+4730                     ; 542     ByteUpperCase = SCI0DRL;
+4732 ff7d8 d6cf          	ldab	_SCI0DRL
+4733 ff7da 7b39e0        	stab	_ByteUpperCase
+4734                     ; 546     copyBootloaderToRAM();
+4736 ff7dd 16f706        	jsr	L3272_copyBootloaderToRAM
+4738                     ; 557         xref __stack
+4741                     xref __stack
+4743                     ; 558         lds #__stack
+4746 ff7e0 cf4000        	lds	#__stack
+4748                     ; 559         jmp $3A00
+4751 ff7e3 063a00        	jmp	$3A00
+4753                     ; 562     return;
+4838                     	xdef	_Booting
+4858                     	end

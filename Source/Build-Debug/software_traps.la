@@ -1,0 +1,389 @@
+   1                     ; C Compiler for 68HCS12 [COSMIC Software]
+   2                     ; Parser V4.11.9 - 08 Feb 2017
+   3                     ; Generator V4.8.12 - 22 Feb 2017
+   4                     ; Optimizer V4.7.11 - 22 Feb 2017
+  44                     ; 39 _NEAR void SoftwareTrap64 (void) {for(;;);}
+  45                     	switch	.text
+  46 f80a7               _SoftwareTrap64:
+  50 f80a7               L12:
+  53 f80a7 20fe          	bra	L12
+  75                     ; 40 _NEAR void SoftwareTrap63 (void) {for(;;);}
+  76                     	switch	.text
+  77 f80a9               _SoftwareTrap63:
+  81 f80a9               L53:
+  84 f80a9 20fe          	bra	L53
+ 106                     ; 41 _NEAR void SoftwareTrap62 (void) {for(;;);}
+ 107                     	switch	.text
+ 108 f80ab               _SoftwareTrap62:
+ 112 f80ab               L15:
+ 115 f80ab 20fe          	bra	L15
+ 137                     ; 42 _NEAR void SoftwareTrap61 (void) {for(;;);}
+ 138                     	switch	.text
+ 139 f80ad               _SoftwareTrap61:
+ 143 f80ad               L56:
+ 146 f80ad 20fe          	bra	L56
+ 168                     ; 43 _NEAR void SoftwareTrap60 (void) {for(;;);}
+ 169                     	switch	.text
+ 170 f80af               _SoftwareTrap60:
+ 174 f80af               L101:
+ 177 f80af 20fe          	bra	L101
+ 199                     ; 44 _NEAR void SoftwareTrap59 (void) {for(;;);}
+ 200                     	switch	.text
+ 201 f80b1               _SoftwareTrap59:
+ 205 f80b1               L511:
+ 208 f80b1 20fe          	bra	L511
+ 230                     ; 45 _NEAR void SoftwareTrap58 (void) {for(;;);}
+ 231                     	switch	.text
+ 232 f80b3               _SoftwareTrap58:
+ 236 f80b3               L131:
+ 239 f80b3 20fe          	bra	L131
+ 261                     ; 46 _NEAR void SoftwareTrap57 (void) {for(;;);}
+ 262                     	switch	.text
+ 263 f80b5               _SoftwareTrap57:
+ 267 f80b5               L541:
+ 270 f80b5 20fe          	bra	L541
+ 292                     ; 47 _NEAR void SoftwareTrap56 (void) {for(;;);}
+ 293                     	switch	.text
+ 294 f80b7               _SoftwareTrap56:
+ 298 f80b7               L161:
+ 301 f80b7 20fe          	bra	L161
+ 323                     ; 48 _NEAR void SoftwareTrap55 (void) {for(;;);}
+ 324                     	switch	.text
+ 325 f80b9               _SoftwareTrap55:
+ 329 f80b9               L571:
+ 332 f80b9 20fe          	bra	L571
+ 354                     ; 49 _NEAR void SoftwareTrap54 (void) {for(;;);}
+ 355                     	switch	.text
+ 356 f80bb               _SoftwareTrap54:
+ 360 f80bb               L112:
+ 363 f80bb 20fe          	bra	L112
+ 385                     ; 50 _NEAR void SoftwareTrap53 (void) {for(;;);}
+ 386                     	switch	.text
+ 387 f80bd               _SoftwareTrap53:
+ 391 f80bd               L522:
+ 394 f80bd 20fe          	bra	L522
+ 416                     ; 51 _NEAR void SoftwareTrap52 (void) {for(;;);}
+ 417                     	switch	.text
+ 418 f80bf               _SoftwareTrap52:
+ 422 f80bf               L142:
+ 425 f80bf 20fe          	bra	L142
+ 447                     ; 52 _NEAR void SoftwareTrap51 (void) {for(;;);}
+ 448                     	switch	.text
+ 449 f80c1               _SoftwareTrap51:
+ 453 f80c1               L552:
+ 456 f80c1 20fe          	bra	L552
+ 478                     ; 53 _NEAR void SoftwareTrap50 (void) {for(;;);}
+ 479                     	switch	.text
+ 480 f80c3               _SoftwareTrap50:
+ 484 f80c3               L172:
+ 487 f80c3 20fe          	bra	L172
+ 509                     ; 54 _NEAR void SoftwareTrap49 (void) {for(;;);}
+ 510                     	switch	.text
+ 511 f80c5               _SoftwareTrap49:
+ 515 f80c5               L503:
+ 518 f80c5 20fe          	bra	L503
+ 540                     ; 55 _NEAR void SoftwareTrap48 (void) {for(;;);}
+ 541                     	switch	.text
+ 542 f80c7               _SoftwareTrap48:
+ 546 f80c7               L123:
+ 549 f80c7 20fe          	bra	L123
+ 571                     ; 56 _NEAR void SoftwareTrap47 (void) {for(;;);}
+ 572                     	switch	.text
+ 573 f80c9               _SoftwareTrap47:
+ 577 f80c9               L533:
+ 580 f80c9 20fe          	bra	L533
+ 602                     ; 57 _NEAR void SoftwareTrap46 (void) {for(;;);}
+ 603                     	switch	.text
+ 604 f80cb               _SoftwareTrap46:
+ 608 f80cb               L153:
+ 611 f80cb 20fe          	bra	L153
+ 633                     ; 58 _NEAR void SoftwareTrap45 (void) {for(;;);}
+ 634                     	switch	.text
+ 635 f80cd               _SoftwareTrap45:
+ 639 f80cd               L563:
+ 642 f80cd 20fe          	bra	L563
+ 664                     ; 59 _NEAR void SoftwareTrap44 (void) {for(;;);}
+ 665                     	switch	.text
+ 666 f80cf               _SoftwareTrap44:
+ 670 f80cf               L104:
+ 673 f80cf 20fe          	bra	L104
+ 695                     ; 60 _NEAR void SoftwareTrap43 (void) {for(;;);}
+ 696                     	switch	.text
+ 697 f80d1               _SoftwareTrap43:
+ 701 f80d1               L514:
+ 704 f80d1 20fe          	bra	L514
+ 726                     ; 61 _NEAR void SoftwareTrap42 (void) {for(;;);}
+ 727                     	switch	.text
+ 728 f80d3               _SoftwareTrap42:
+ 732 f80d3               L134:
+ 735 f80d3 20fe          	bra	L134
+ 757                     ; 62 _NEAR void SoftwareTrap41 (void) {for(;;);}
+ 758                     	switch	.text
+ 759 f80d5               _SoftwareTrap41:
+ 763 f80d5               L544:
+ 766 f80d5 20fe          	bra	L544
+ 788                     ; 63 _NEAR void SoftwareTrap40 (void) {for(;;);}
+ 789                     	switch	.text
+ 790 f80d7               _SoftwareTrap40:
+ 794 f80d7               L164:
+ 797 f80d7 20fe          	bra	L164
+ 819                     ; 64 _NEAR void SoftwareTrap39 (void) {for(;;);}
+ 820                     	switch	.text
+ 821 f80d9               _SoftwareTrap39:
+ 825 f80d9               L574:
+ 828 f80d9 20fe          	bra	L574
+ 850                     ; 65 _NEAR void SoftwareTrap38 (void) {for(;;);}
+ 851                     	switch	.text
+ 852 f80db               _SoftwareTrap38:
+ 856 f80db               L115:
+ 859 f80db 20fe          	bra	L115
+ 881                     ; 66 _NEAR void SoftwareTrap37 (void) {for(;;);}
+ 882                     	switch	.text
+ 883 f80dd               _SoftwareTrap37:
+ 887 f80dd               L525:
+ 890 f80dd 20fe          	bra	L525
+ 912                     ; 67 _NEAR void SoftwareTrap36 (void) {for(;;);}
+ 913                     	switch	.text
+ 914 f80df               _SoftwareTrap36:
+ 918 f80df               L145:
+ 921 f80df 20fe          	bra	L145
+ 943                     ; 68 _NEAR void SoftwareTrap35 (void) {for(;;);}
+ 944                     	switch	.text
+ 945 f80e1               _SoftwareTrap35:
+ 949 f80e1               L555:
+ 952 f80e1 20fe          	bra	L555
+ 974                     ; 69 _NEAR void SoftwareTrap34 (void) {for(;;);}
+ 975                     	switch	.text
+ 976 f80e3               _SoftwareTrap34:
+ 980 f80e3               L175:
+ 983 f80e3 20fe          	bra	L175
+1005                     ; 70 _NEAR void SoftwareTrap33 (void) {for(;;);}
+1006                     	switch	.text
+1007 f80e5               _SoftwareTrap33:
+1011 f80e5               L506:
+1014 f80e5 20fe          	bra	L506
+1036                     ; 71 _NEAR void SoftwareTrap32 (void) {for(;;);}
+1037                     	switch	.text
+1038 f80e7               _SoftwareTrap32:
+1042 f80e7               L126:
+1045 f80e7 20fe          	bra	L126
+1067                     ; 72 _NEAR void SoftwareTrap31 (void) {for(;;);}
+1068                     	switch	.text
+1069 f80e9               _SoftwareTrap31:
+1073 f80e9               L536:
+1076 f80e9 20fe          	bra	L536
+1098                     ; 73 _NEAR void SoftwareTrap30 (void) {for(;;);}
+1099                     	switch	.text
+1100 f80eb               _SoftwareTrap30:
+1104 f80eb               L156:
+1107 f80eb 20fe          	bra	L156
+1129                     ; 74 _NEAR void SoftwareTrap29 (void) {for(;;);}
+1130                     	switch	.text
+1131 f80ed               _SoftwareTrap29:
+1135 f80ed               L566:
+1138 f80ed 20fe          	bra	L566
+1160                     ; 75 _NEAR void SoftwareTrap28 (void) {for(;;);}
+1161                     	switch	.text
+1162 f80ef               _SoftwareTrap28:
+1166 f80ef               L107:
+1169 f80ef 20fe          	bra	L107
+1191                     ; 76 _NEAR void SoftwareTrap27 (void) {for(;;);}
+1192                     	switch	.text
+1193 f80f1               _SoftwareTrap27:
+1197 f80f1               L517:
+1200 f80f1 20fe          	bra	L517
+1222                     ; 77 _NEAR void SoftwareTrap26 (void) {for(;;);}
+1223                     	switch	.text
+1224 f80f3               _SoftwareTrap26:
+1228 f80f3               L137:
+1231 f80f3 20fe          	bra	L137
+1253                     ; 78 _NEAR void SoftwareTrap25 (void) {for(;;);}
+1254                     	switch	.text
+1255 f80f5               _SoftwareTrap25:
+1259 f80f5               L547:
+1262 f80f5 20fe          	bra	L547
+1284                     ; 79 _NEAR void SoftwareTrap24 (void) {for(;;);}
+1285                     	switch	.text
+1286 f80f7               _SoftwareTrap24:
+1290 f80f7               L167:
+1293 f80f7 20fe          	bra	L167
+1315                     ; 80 _NEAR void SoftwareTrap23 (void) {for(;;);}
+1316                     	switch	.text
+1317 f80f9               _SoftwareTrap23:
+1321 f80f9               L577:
+1324 f80f9 20fe          	bra	L577
+1346                     ; 81 _NEAR void SoftwareTrap22 (void) {for(;;);}
+1347                     	switch	.text
+1348 f80fb               _SoftwareTrap22:
+1352 f80fb               L1101:
+1355 f80fb 20fe          	bra	L1101
+1377                     ; 82 _NEAR void SoftwareTrap21 (void) {for(;;);}
+1378                     	switch	.text
+1379 f80fd               _SoftwareTrap21:
+1383 f80fd               L5201:
+1386 f80fd 20fe          	bra	L5201
+1408                     ; 83 _NEAR void SoftwareTrap20 (void) {for(;;);}
+1409                     	switch	.text
+1410 f80ff               _SoftwareTrap20:
+1414 f80ff               L1401:
+1417 f80ff 20fe          	bra	L1401
+1439                     ; 84 _NEAR void SoftwareTrap19 (void) {for(;;);}
+1440                     	switch	.text
+1441 f8101               _SoftwareTrap19:
+1445 f8101               L5501:
+1448 f8101 20fe          	bra	L5501
+1470                     ; 85 _NEAR void SoftwareTrap18 (void) {for(;;);}
+1471                     	switch	.text
+1472 f8103               _SoftwareTrap18:
+1476 f8103               L1701:
+1479 f8103 20fe          	bra	L1701
+1501                     ; 86 _NEAR void SoftwareTrap17 (void) {for(;;);}
+1502                     	switch	.text
+1503 f8105               _SoftwareTrap17:
+1507 f8105               L5011:
+1510 f8105 20fe          	bra	L5011
+1532                     ; 87 _NEAR void SoftwareTrap16 (void) {for(;;);}
+1533                     	switch	.text
+1534 f8107               _SoftwareTrap16:
+1538 f8107               L1211:
+1541 f8107 20fe          	bra	L1211
+1563                     ; 88 _NEAR void SoftwareTrap15 (void) {for(;;);}
+1564                     	switch	.text
+1565 f8109               _SoftwareTrap15:
+1569 f8109               L5311:
+1572 f8109 20fe          	bra	L5311
+1594                     ; 89 _NEAR void SoftwareTrap14 (void) {for(;;);}
+1595                     	switch	.text
+1596 f810b               _SoftwareTrap14:
+1600 f810b               L1511:
+1603 f810b 20fe          	bra	L1511
+1625                     ; 90 _NEAR void SoftwareTrap13 (void) {for(;;);}
+1626                     	switch	.text
+1627 f810d               _SoftwareTrap13:
+1631 f810d               L5611:
+1634 f810d 20fe          	bra	L5611
+1656                     ; 91 _NEAR void SoftwareTrap12 (void) {for(;;);}
+1657                     	switch	.text
+1658 f810f               _SoftwareTrap12:
+1662 f810f               L1021:
+1665 f810f 20fe          	bra	L1021
+1687                     ; 92 _NEAR void SoftwareTrap11 (void) {for(;;);}
+1688                     	switch	.text
+1689 f8111               _SoftwareTrap11:
+1693 f8111               L5121:
+1696 f8111 20fe          	bra	L5121
+1718                     ; 93 _NEAR void SoftwareTrap10 (void) {for(;;);}
+1719                     	switch	.text
+1720 f8113               _SoftwareTrap10:
+1724 f8113               L1321:
+1727 f8113 20fe          	bra	L1321
+1749                     ; 94 _NEAR void SoftwareTrap09 (void) {for(;;);}
+1750                     	switch	.text
+1751 f8115               _SoftwareTrap09:
+1755 f8115               L5421:
+1758 f8115 20fe          	bra	L5421
+1780                     ; 95 _NEAR void SoftwareTrap08 (void) {for(;;);}
+1781                     	switch	.text
+1782 f8117               _SoftwareTrap08:
+1786 f8117               L1621:
+1789 f8117 20fe          	bra	L1621
+1811                     ; 96 _NEAR void SoftwareTrap07 (void) {for(;;);}
+1812                     	switch	.text
+1813 f8119               _SoftwareTrap07:
+1817 f8119               L5721:
+1820 f8119 20fe          	bra	L5721
+1842                     ; 97 _NEAR void SoftwareTrap06 (void) {for(;;);}
+1843                     	switch	.text
+1844 f811b               _SoftwareTrap06:
+1848 f811b               L1131:
+1851 f811b 20fe          	bra	L1131
+1873                     ; 98 _NEAR void SoftwareTrap05 (void) {for(;;);}
+1874                     	switch	.text
+1875 f811d               _SoftwareTrap05:
+1879 f811d               L5231:
+1882 f811d 20fe          	bra	L5231
+1904                     ; 99 _NEAR void SoftwareTrap04 (void) {for(;;);}
+1905                     	switch	.text
+1906 f811f               _SoftwareTrap04:
+1910 f811f               L1431:
+1913 f811f 20fe          	bra	L1431
+1935                     ; 100 _NEAR void SoftwareTrap03 (void) {for(;;);}
+1936                     	switch	.text
+1937 f8121               _SoftwareTrap03:
+1941 f8121               L5531:
+1944 f8121 20fe          	bra	L5531
+1966                     ; 101 _NEAR void SoftwareTrap02 (void) {for(;;);}
+1967                     	switch	.text
+1968 f8123               _SoftwareTrap02:
+1972 f8123               L1731:
+1975 f8123 20fe          	bra	L1731
+1997                     ; 102 _NEAR void SoftwareTrap01 (void) {for(;;);}
+1998                     	switch	.text
+1999 f8125               _SoftwareTrap01:
+2003 f8125               L5041:
+2006 f8125 20fe          	bra	L5041
+2018                     	xdef	_SoftwareTrap01
+2019                     	xdef	_SoftwareTrap02
+2020                     	xdef	_SoftwareTrap03
+2021                     	xdef	_SoftwareTrap04
+2022                     	xdef	_SoftwareTrap05
+2023                     	xdef	_SoftwareTrap06
+2024                     	xdef	_SoftwareTrap07
+2025                     	xdef	_SoftwareTrap08
+2026                     	xdef	_SoftwareTrap09
+2027                     	xdef	_SoftwareTrap10
+2028                     	xdef	_SoftwareTrap11
+2029                     	xdef	_SoftwareTrap12
+2030                     	xdef	_SoftwareTrap13
+2031                     	xdef	_SoftwareTrap14
+2032                     	xdef	_SoftwareTrap15
+2033                     	xdef	_SoftwareTrap16
+2034                     	xdef	_SoftwareTrap17
+2035                     	xdef	_SoftwareTrap18
+2036                     	xdef	_SoftwareTrap19
+2037                     	xdef	_SoftwareTrap20
+2038                     	xdef	_SoftwareTrap21
+2039                     	xdef	_SoftwareTrap22
+2040                     	xdef	_SoftwareTrap23
+2041                     	xdef	_SoftwareTrap24
+2042                     	xdef	_SoftwareTrap25
+2043                     	xdef	_SoftwareTrap26
+2044                     	xdef	_SoftwareTrap27
+2045                     	xdef	_SoftwareTrap28
+2046                     	xdef	_SoftwareTrap29
+2047                     	xdef	_SoftwareTrap30
+2048                     	xdef	_SoftwareTrap31
+2049                     	xdef	_SoftwareTrap32
+2050                     	xdef	_SoftwareTrap33
+2051                     	xdef	_SoftwareTrap34
+2052                     	xdef	_SoftwareTrap35
+2053                     	xdef	_SoftwareTrap36
+2054                     	xdef	_SoftwareTrap37
+2055                     	xdef	_SoftwareTrap38
+2056                     	xdef	_SoftwareTrap39
+2057                     	xdef	_SoftwareTrap40
+2058                     	xdef	_SoftwareTrap41
+2059                     	xdef	_SoftwareTrap42
+2060                     	xdef	_SoftwareTrap43
+2061                     	xdef	_SoftwareTrap44
+2062                     	xdef	_SoftwareTrap45
+2063                     	xdef	_SoftwareTrap46
+2064                     	xdef	_SoftwareTrap47
+2065                     	xdef	_SoftwareTrap48
+2066                     	xdef	_SoftwareTrap49
+2067                     	xdef	_SoftwareTrap50
+2068                     	xdef	_SoftwareTrap51
+2069                     	xdef	_SoftwareTrap52
+2070                     	xdef	_SoftwareTrap53
+2071                     	xdef	_SoftwareTrap54
+2072                     	xdef	_SoftwareTrap55
+2073                     	xdef	_SoftwareTrap56
+2074                     	xdef	_SoftwareTrap57
+2075                     	xdef	_SoftwareTrap58
+2076                     	xdef	_SoftwareTrap59
+2077                     	xdef	_SoftwareTrap60
+2078                     	xdef	_SoftwareTrap61
+2079                     	xdef	_SoftwareTrap62
+2080                     	xdef	_SoftwareTrap63
+2081                     	xdef	_SoftwareTrap64
+2101                     	end

@@ -24,11 +24,13 @@
 //*********************************************************************
 
 // Avoid multiple inclusions
-#ifndef _TIME_H
-#define _TIME_H
+#ifndef _time_h
+#define _time_h
 
 //--------------------------- Included Files --------------------------
-#include "os_cpu.h"          // uC/OS-II file for data types
+#include "os_cpu.h"            // uC/OS-II file for data types
+#include "iosdg256.h"          // register addresses and bit definitions
+#include "unit_conversions.h"  // unit conversions (time)
 
 //-------------------------- Type Definitions -------------------------
 // none
@@ -40,34 +42,55 @@
 #define SYS_CLK_FREQ_HZ      (OSC_CLK_FREQ_HZ)        // system clock freq (Hz)
 #define BUS_CLK_FREQ_HZ      (SYS_CLK_FREQ_HZ / 2)    // bus clock freq (Hz)
 
-// The time prescaler MUST be set to the value below
-#define TSCR2_PRESCALER_BITS (0x2)
+// The time prescaler (TSCR2 register) MUST be set to the value below
+#define TSCR2_PRESCALER_BITS (TMR_PRESCALE_FCTR_2)
 
-#if   (TSCR2_PRESCALER_BITS==0x0)
+#if   (TSCR2_PRESCALER_BITS==TMR_PRESCALE_FCTR_1)
 #define BUS_CLK_DIVISOR      (  1)
-#elif (TSCR2_PRESCALER_BITS==0x1)
+#elif (TSCR2_PRESCALER_BITS==TMR_PRESCALE_FCTR_2)
 #define BUS_CLK_DIVISOR      (  2)
-#elif (TSCR2_PRESCALER_BITS==0x2)
+#elif (TSCR2_PRESCALER_BITS==TMR_PRESCALE_FCTR_4)
 #define BUS_CLK_DIVISOR      (  4)
-#elif (TSCR2_PRESCALER_BITS==0x3)
+#elif (TSCR2_PRESCALER_BITS==TMR_PRESCALE_FCTR_8)
 #define BUS_CLK_DIVISOR      (  8)
-#elif (TSCR2_PRESCALER_BITS==0x4)
+#elif (TSCR2_PRESCALER_BITS==TMR_PRESCALE_FCTR_16)
 #define BUS_CLK_DIVISOR      ( 16)
-#elif (TSCR2_PRESCALER_BITS==0x5)
+#elif (TSCR2_PRESCALER_BITS==TMR_PRESCALE_FCTR_32)
 #define BUS_CLK_DIVISOR      ( 32)
-#elif (TSCR2_PRESCALER_BITS==0x6)
+#elif (TSCR2_PRESCALER_BITS==TMR_PRESCALE_FCTR_64)
 #define BUS_CLK_DIVISOR      ( 64)
-#elif (TSCR2_PRESCALER_BITS==0x7)
+#elif (TSCR2_PRESCALER_BITS==TMR_PRESCALE_FCTR_128)
 #define BUS_CLK_DIVISOR      (128)
 #else
 #warning "TSCR2 PRESCALER INVALID"
 #endif
 
-// Calculate the timer clock frequency (ticks/sec)
+// Calculate the timer clock frequency (counts/sec)
 #define TMR_CLK_FREQ_HZ      (BUS_CLK_FREQ_HZ / BUS_CLK_DIVISOR)
 
+// IMPORTANT DISTINCTION!!! ---------------------------------------------
+//
+// A timer TICK is one increment of the timer counter (TCNT). The
+// period depends on the oscillator frequency and timer prescaler.
+//
+// A timer INT is one timer interrupt. The period (in milliseconds)
+// is defined by MS_PER_TMR_INT.
+//
+// ----------------------------------------------------------------------
+#define TMR_TICKS_PER_MS    (TMR_CLK_FREQ_HZ / MS_PER_SEC)
+#define MS_PER_TMR_INT       (20)  // Timer interrupt period in millisec
+#define TMR_TICKS_PER_TMR_INT                                          \
+                             (TMR_TICKS_PER_MS * MS_PER_TMR_INT)
+
 //------------------------------- Macros ------------------------------
-// none
+// Convert time (microsec) into the equivalent number of timer ticks
+// (rounded up).
+#define CNVRT_US_TO_TMR_TICKS(t_us)                                    \
+                  ((UINT16)ceil((TMR_TICKS_PER_MS * t_us) / US_PER_MS))
+
+// Convert milliseconds to timer ticks (rounded up)
+#define CNVRT_MS_TO_TMR_TICKS(t_ms)                                    \
+                                ((UINT16)ceil(TMR_TICKS_PER_MS * t_ms))
 
 //---------------------- Extern Global Variables ----------------------
 // none

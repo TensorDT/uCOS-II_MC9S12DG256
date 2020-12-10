@@ -20,16 +20,20 @@
 ; Filename : os_cpu_a.s
 ; Version  : V2.93.00
 ;
+; 2020-12-10  GPM
+; * As all the OS code will be located in unpaged (unbanked) memory, changed calls and return from
+;   calls to jump to subroutines and return from subroutines.
+;
 ; 2020-10-27  GPM
 ; * Replaced lone single quote (such as in a contraction) with two single quotes to keep assembler
 ;   "happy".
 ; * Put double quotes around word "defined" so assembler does not think that it is a keyword. This
 ;   happens even if the word is in a comment.
+;
 ;********************************************************************************************************
-; Notes    : THIS FILE *MUST* BE LINKED INTO NON_BANKED MEMORY!
+; NOTES:
+; * THIS FILE *MUST* BE LINKED INTO UNPAGED (UNBANKED) FLASH MEMORY! (PAGE 0x3E or 0x3F)
 ;********************************************************************************************************
-
-NON_BANKED:       section
 
 ;********************************************************************************************************
 ;                                           I/O PORT ADDRESSES
@@ -224,14 +228,6 @@ _OSIntCtxSw:
 ;
 ; Arguments   : none
 ;
-; Notes       :  1) The 'tick ISR' assumes the we are using the Output Compare specified by OS_TICK_OC
-;                   (see APP_CFG.H and this file) to generate a tick that occurs every OS_TICK_OC_CNTS
-;                   (see APP_CFG.H) which corresponds to the number of FRT (Free Running Timer)
-;                   counts to the next interrupt.
-;
-;                2) All USER interrupts should be modeled EXACTLY like this where the only
-;                   line to be modified is the call to your ISR_Handler and perhaps the call to
-;                   the label name OSTickISR1.
 ;********************************************************************************************************
 
 _OSTickISR:
@@ -248,13 +244,14 @@ _OSTickISR:
     sts    0,y                         ;  3~, }
 
 OSTickISR1:
-;    call   _OSTickISRHandler
-    jsr    _OSTickISRHandler
+    jsr    _OSTimeTick                 ; OSTimeTick can be called here or from within OSTickISRHandler
+
+    jsr    _OSTickISRHandler           ; (original code used call instead of jsr)
 
 ;   cli                                ;  2~, Enable interrupts to allow interrupt nesting
 
-;    call   _OSIntExit                  ;  6~+, Notify uC/OS-II about end of ISR
     jsr    _OSIntExit                  ;  6~+, Notify uC/OS-II about end of ISR
+                                       ;       (original code used call instead of jsr)
 
     pula                               ;  3~, Get value of PPAGE register
     staa   PPAGE                       ;  3~, Store into CPU''s PPAGE register

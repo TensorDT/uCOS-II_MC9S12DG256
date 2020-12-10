@@ -2,125 +2,125 @@
    2                     ; Parser V4.11.9 - 08 Feb 2017
    3                     ; Generator V4.8.12 - 22 Feb 2017
    4                     ; Optimizer V4.7.11 - 22 Feb 2017
-  73                     ; 53 _NEAR void  OSTimeDly (INT32U ticks)
-  73                     ; 54 {
-  74                     	switch	.text
-  75 fae6d               _OSTimeDly:
-  77 fae6d 3b            	pshd	
-  78 fae6e 34            	pshx	
-  79 fae6f 3b            	pshd	
-  80       00000002      OFST:	set	2
-  83                     ; 57     OS_CPU_SR  cpu_sr = 0u;
-  85                     ; 62     if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
-  87 fae70 f61631        	ldab	_OSIntNesting
-  88 fae73 2605          	bne	L01
-  89                     ; 63         return;
-  91                     ; 65     if (OSLockNesting > 0u) {                    /* See if called with scheduler locked                */
-  93 fae75 f61630        	ldab	_OSLockNesting
-  94 fae78 2703          	beq	L33
-  95                     ; 66         return;
-  96 fae7a               L01:
-  99 fae7a 1b86          	leas	6,s
- 100 fae7c 3d            	rts	
- 101 fae7d               L33:
- 102                     ; 68     if (ticks > 0u) {                            /* 0 means no delay!                                  */
- 104 fae7d ec82          	ldd	OFST+0,s
- 105 fae7f 2604          	bne	LC001
- 106 fae81 ec84          	ldd	OFST+2,s
- 107 fae83 27f5          	beq	L01
- 108 fae85               LC001:
- 109                     ; 69         OS_ENTER_CRITICAL();
- 111 fae85 167522        	jsr	_OS_CPU_SR_Save
- 113 fae88 6b81          	stab	OFST-1,s
- 114                     ; 70         y            =  OSTCBCur->OSTCBY;        /* Delay current task                                 */
- 116 fae8a fd157d        	ldy	_OSTCBCur
- 117 fae8d e6e826        	ldab	38,y
- 118 fae90 6b80          	stab	OFST-2,s
- 119                     ; 71         OSRdyTbl[y] &= (OS_PRIO)~OSTCBCur->OSTCBBitX;
- 121 fae92 b796          	exg	b,y
- 122 fae94 fe157d        	ldx	_OSTCBCur
- 123 fae97 e6e027        	ldab	39,x
- 124 fae9a 51            	comb	
- 125 fae9b e4ea1625      	andb	_OSRdyTbl,y
- 126 fae9f 6bea1625      	stab	_OSRdyTbl,y
- 127                     ; 73         if (OSRdyTbl[y] == 0u) {
- 130 faea3 260c          	bne	L73
- 131                     ; 74             OSRdyGrp &= (OS_PRIO)~OSTCBCur->OSTCBBitY;
- 133 faea5 b756          	tfr	x,y
- 134 faea7 e6e828        	ldab	40,y
- 135 faeaa 51            	comb	
- 136 faeab f4162d        	andb	_OSRdyGrp
- 137 faeae 7b162d        	stab	_OSRdyGrp
- 138 faeb1               L73:
- 139                     ; 76         OSTCBCur->OSTCBDly = ticks;              /* Load ticks in TCB                                  */
- 141 faeb1 b756          	tfr	x,y
- 142 faeb3 ec84          	ldd	OFST+2,s
- 143 faeb5 6ce820        	std	32,y
- 144 faeb8 ec82          	ldd	OFST+0,s
- 145 faeba 6ce81e        	std	30,y
- 146                     ; 78         OS_EXIT_CRITICAL();
- 149 faebd e681          	ldab	OFST-1,s
- 150 faebf 87            	clra	
- 151 faec0 167527        	jsr	_OS_CPU_SR_Restore
- 153                     ; 79         OS_Sched();                              /* Find next task to run!                             */
- 155 faec3 16488b        	jsr	_OS_Sched
- 157                     ; 81 }
- 159 faec6 20b2          	bra	L01
- 200                     ; 237 _NEAR INT32U  OSTimeGet (void)
- 200                     ; 238 {
- 201                     	switch	.text
- 202 faec8               _OSTimeGet:
- 204 faec8 1b9b          	leas	-5,s
- 205       00000005      OFST:	set	5
- 208                     ; 241     OS_CPU_SR  cpu_sr = 0u;
- 210                     ; 246     OS_ENTER_CRITICAL();
- 212 faeca 167522        	jsr	_OS_CPU_SR_Save
- 214 faecd 6b80          	stab	OFST-5,s
- 215                     ; 247     ticks = OSTime;
- 217 faecf fc13a4        	ldd	_OSTime+2
- 218 faed2 6c83          	std	OFST-2,s
- 219 faed4 fc13a2        	ldd	_OSTime
- 220 faed7 6c81          	std	OFST-4,s
- 221                     ; 248     OS_EXIT_CRITICAL();
- 223 faed9 e680          	ldab	OFST-5,s
- 224 faedb 87            	clra	
- 225 faedc 167527        	jsr	_OS_CPU_SR_Restore
- 227                     ; 249     return (ticks);
- 229 faedf ec83          	ldd	OFST-2,s
- 230 faee1 ee81          	ldx	OFST-4,s
- 233 faee3 1b85          	leas	5,s
- 234 faee5 3d            	rts	
- 275                     ; 267 _NEAR void  OSTimeSet (INT32U ticks)
- 275                     ; 268 {
- 276                     	switch	.text
- 277 faee6               _OSTimeSet:
- 279 faee6 3b            	pshd	
- 280 faee7 34            	pshx	
- 281 faee8 37            	pshb	
- 282       00000001      OFST:	set	1
- 285                     ; 270     OS_CPU_SR  cpu_sr = 0u;
- 287                     ; 275     OS_ENTER_CRITICAL();
- 289 faee9 167522        	jsr	_OS_CPU_SR_Save
- 291 faeec 6b80          	stab	OFST-1,s
- 292                     ; 276     OSTime = ticks;
- 294 faeee 18058313a4    	movw	OFST+2,s,_OSTime+2
- 295 faef3 18058113a2    	movw	OFST+0,s,_OSTime
- 296                     ; 277     OS_EXIT_CRITICAL();
- 298 faef8 87            	clra	
- 299 faef9 167527        	jsr	_OS_CPU_SR_Restore
- 301                     ; 278 }
- 304 faefc 1b85          	leas	5,s
- 305 faefe 3d            	rts	
- 317                     	xref	_OS_Sched
- 318                     	xdef	_OSTimeSet
- 319                     	xdef	_OSTimeGet
- 320                     	xdef	_OSTimeDly
- 321                     	xref	_OSTime
- 322                     	xref	_OSTCBCur
- 323                     	xref	_OSRdyTbl
- 324                     	xref	_OSRdyGrp
- 325                     	xref	_OSLockNesting
- 326                     	xref	_OSIntNesting
- 327                     	xref	_OS_CPU_SR_Restore
- 328                     	xref	_OS_CPU_SR_Save
- 348                     	end
+4040                     ; 53 _NEAR void  OSTimeDly (INT32U ticks)
+4040                     ; 54 {
+4041                     	switch	.text
+4042 faf7a               _OSTimeDly:
+4044 faf7a 3b            	pshd	
+4045 faf7b 34            	pshx	
+4046 faf7c 3b            	pshd	
+4047       00000002      OFST:	set	2
+4050                     ; 57     OS_CPU_SR  cpu_sr = 0u;
+4052                     ; 62     if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
+4054 faf7d f6163c        	ldab	_OSIntNesting
+4055 faf80 2605          	bne	L01
+4056                     ; 63         return;
+4058                     ; 65     if (OSLockNesting > 0u) {                    /* See if called with scheduler locked                */
+4060 faf82 f6163b        	ldab	_OSLockNesting
+4061 faf85 2703          	beq	L3762
+4062                     ; 66         return;
+4063 faf87               L01:
+4066 faf87 1b86          	leas	6,s
+4067 faf89 3d            	rts	
+4068 faf8a               L3762:
+4069                     ; 68     if (ticks > 0u) {                            /* 0 means no delay!                                  */
+4071 faf8a ec82          	ldd	OFST+0,s
+4072 faf8c 2604          	bne	LC001
+4073 faf8e ec84          	ldd	OFST+2,s
+4074 faf90 27f5          	beq	L01
+4075 faf92               LC001:
+4076                     ; 69         OS_ENTER_CRITICAL();
+4078 faf92 164b4f        	jsr	_OS_CPU_SR_Save
+4080 faf95 6b81          	stab	OFST-1,s
+4081                     ; 70         y            =  OSTCBCur->OSTCBY;        /* Delay current task                                 */
+4083 faf97 fd1588        	ldy	_OSTCBCur
+4084 faf9a e6e826        	ldab	38,y
+4085 faf9d 6b80          	stab	OFST-2,s
+4086                     ; 71         OSRdyTbl[y] &= (OS_PRIO)~OSTCBCur->OSTCBBitX;
+4088 faf9f b796          	exg	b,y
+4089 fafa1 fe1588        	ldx	_OSTCBCur
+4090 fafa4 e6e027        	ldab	39,x
+4091 fafa7 51            	comb	
+4092 fafa8 e4ea1630      	andb	_OSRdyTbl,y
+4093 fafac 6bea1630      	stab	_OSRdyTbl,y
+4094                     ; 73         if (OSRdyTbl[y] == 0u) {
+4097 fafb0 260c          	bne	L7762
+4098                     ; 74             OSRdyGrp &= (OS_PRIO)~OSTCBCur->OSTCBBitY;
+4100 fafb2 b756          	tfr	x,y
+4101 fafb4 e6e828        	ldab	40,y
+4102 fafb7 51            	comb	
+4103 fafb8 f41638        	andb	_OSRdyGrp
+4104 fafbb 7b1638        	stab	_OSRdyGrp
+4105 fafbe               L7762:
+4106                     ; 76         OSTCBCur->OSTCBDly = ticks;              /* Load ticks in TCB                                  */
+4108 fafbe b756          	tfr	x,y
+4109 fafc0 ec84          	ldd	OFST+2,s
+4110 fafc2 6ce820        	std	32,y
+4111 fafc5 ec82          	ldd	OFST+0,s
+4112 fafc7 6ce81e        	std	30,y
+4113                     ; 78         OS_EXIT_CRITICAL();
+4116 fafca e681          	ldab	OFST-1,s
+4117 fafcc 87            	clra	
+4118 fafcd 164b54        	jsr	_OS_CPU_SR_Restore
+4120                     ; 79         OS_Sched();                              /* Find next task to run!                             */
+4122 fafd0 164933        	jsr	_OS_Sched
+4124                     ; 81 }
+4126 fafd3 20b2          	bra	L01
+4167                     ; 237 _NEAR INT32U  OSTimeGet (void)
+4167                     ; 238 {
+4168                     	switch	.text
+4169 fafd5               _OSTimeGet:
+4171 fafd5 1b9b          	leas	-5,s
+4172       00000005      OFST:	set	5
+4175                     ; 241     OS_CPU_SR  cpu_sr = 0u;
+4177                     ; 246     OS_ENTER_CRITICAL();
+4179 fafd7 164b4f        	jsr	_OS_CPU_SR_Save
+4181 fafda 6b80          	stab	OFST-5,s
+4182                     ; 247     ticks = OSTime;
+4184 fafdc fc13af        	ldd	_OSTime+2
+4185 fafdf 6c83          	std	OFST-2,s
+4186 fafe1 fc13ad        	ldd	_OSTime
+4187 fafe4 6c81          	std	OFST-4,s
+4188                     ; 248     OS_EXIT_CRITICAL();
+4190 fafe6 e680          	ldab	OFST-5,s
+4191 fafe8 87            	clra	
+4192 fafe9 164b54        	jsr	_OS_CPU_SR_Restore
+4194                     ; 249     return (ticks);
+4196 fafec ec83          	ldd	OFST-2,s
+4197 fafee ee81          	ldx	OFST-4,s
+4200 faff0 1b85          	leas	5,s
+4201 faff2 3d            	rts	
+4242                     ; 267 _NEAR void  OSTimeSet (INT32U ticks)
+4242                     ; 268 {
+4243                     	switch	.text
+4244 faff3               _OSTimeSet:
+4246 faff3 3b            	pshd	
+4247 faff4 34            	pshx	
+4248 faff5 37            	pshb	
+4249       00000001      OFST:	set	1
+4252                     ; 270     OS_CPU_SR  cpu_sr = 0u;
+4254                     ; 275     OS_ENTER_CRITICAL();
+4256 faff6 164b4f        	jsr	_OS_CPU_SR_Save
+4258 faff9 6b80          	stab	OFST-1,s
+4259                     ; 276     OSTime = ticks;
+4261 faffb 18058313af    	movw	OFST+2,s,_OSTime+2
+4262 fb000 18058113ad    	movw	OFST+0,s,_OSTime
+4263                     ; 277     OS_EXIT_CRITICAL();
+4265 fb005 87            	clra	
+4266 fb006 164b54        	jsr	_OS_CPU_SR_Restore
+4268                     ; 278 }
+4271 fb009 1b85          	leas	5,s
+4272 fb00b 3d            	rts	
+4284                     	xref	_OS_Sched
+4285                     	xdef	_OSTimeSet
+4286                     	xdef	_OSTimeGet
+4287                     	xdef	_OSTimeDly
+4288                     	xref	_OSTime
+4289                     	xref	_OSTCBCur
+4290                     	xref	_OSRdyTbl
+4291                     	xref	_OSRdyGrp
+4292                     	xref	_OSLockNesting
+4293                     	xref	_OSIntNesting
+4294                     	xref	_OS_CPU_SR_Restore
+4295                     	xref	_OS_CPU_SR_Save
+4315                     	end

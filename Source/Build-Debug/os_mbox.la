@@ -2,788 +2,788 @@
    2                     ; Parser V4.11.9 - 08 Feb 2017
    3                     ; Generator V4.8.12 - 22 Feb 2017
    4                     ; Optimizer V4.7.11 - 22 Feb 2017
- 134                     ; 56 _NEAR void  *OSMboxAccept (OS_EVENT *pevent)
- 134                     ; 57 {
- 135                     	switch	.text
- 136 f91b5               _OSMboxAccept:
- 138 f91b5 3b            	pshd	
- 139 f91b6 1b9d          	leas	-3,s
- 140       00000003      OFST:	set	3
- 143                     ; 60     OS_CPU_SR  cpu_sr = 0u;
- 145                     ; 66     if (pevent == (OS_EVENT *)0) {                        /* Validate 'pevent'                         */
- 147 f91b8 046402        	tbne	d,L56
- 148                     ; 67         return ((void *)0);
- 151 f91bb 2007          	bra	LC001
- 152 f91bd               L56:
- 153                     ; 70     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {      /* Validate event block type                 */
- 155 f91bd e6f30003      	ldab	[OFST+0,s]
- 156 f91c1 040105        	dbeq	b,L76
- 157                     ; 71         return ((void *)0);
- 159 f91c4               LC001:
- 160 f91c4 87            	clra	
- 161 f91c5 c7            	clrb	
- 163 f91c6               L6:
- 165 f91c6 1b85          	leas	5,s
- 166 f91c8 3d            	rts	
- 167 f91c9               L76:
- 168                     ; 73     OS_ENTER_CRITICAL();
- 170 f91c9 167522        	jsr	_OS_CPU_SR_Save
- 172 f91cc 6b80          	stab	OFST-3,s
- 173                     ; 74     pmsg               = pevent->OSEventPtr;
- 175 f91ce ed83          	ldy	OFST+0,s
- 176 f91d0 18024181      	movw	1,y,OFST-2,s
- 177                     ; 75     pevent->OSEventPtr = (void *)0;                       /* Clear the mailbox                         */
- 179 f91d4 87            	clra	
- 180 f91d5 c7            	clrb	
- 181 f91d6 6c41          	std	1,y
- 182                     ; 76     OS_EXIT_CRITICAL();
- 184 f91d8 e680          	ldab	OFST-3,s
- 185 f91da 167527        	jsr	_OS_CPU_SR_Restore
- 187                     ; 77     return (pmsg);                                        /* Return the message received (or NULL)     */
- 189 f91dd ec81          	ldd	OFST-2,s
- 191 f91df 20e5          	bra	L6
- 252                     ; 98 _NEAR OS_EVENT  *OSMboxCreate (void *pmsg)
- 252                     ; 99 {
- 253                     	switch	.text
- 254 f91e1               _OSMboxCreate:
- 256 f91e1 3b            	pshd	
- 257 f91e2 1b9d          	leas	-3,s
- 258       00000003      OFST:	set	3
- 261                     ; 102     OS_CPU_SR  cpu_sr = 0u;
- 263                     ; 114     if (OSIntNesting > 0u) {                     /* See if called from ISR ...                         */
- 265 f91e4 f61631        	ldab	_OSIntNesting
- 266 f91e7 2704          	beq	L121
- 267                     ; 115         return ((OS_EVENT *)0);                  /* ... can't CREATE from an ISR                       */
- 269 f91e9 87            	clra	
- 270 f91ea c7            	clrb	
- 272 f91eb 2031          	bra	L21
- 273 f91ed               L121:
- 274                     ; 117     OS_ENTER_CRITICAL();
- 276 f91ed 167522        	jsr	_OS_CPU_SR_Save
- 278 f91f0 6b82          	stab	OFST-1,s
- 279                     ; 118     pevent = OSEventFreeList;                    /* Get next free event control block                  */
- 281 f91f2 fd16f7        	ldy	_OSEventFreeList
- 282 f91f5 6d80          	sty	OFST-3,s
- 283                     ; 119     if (OSEventFreeList != (OS_EVENT *)0) {      /* See if pool of free ECB pool was empty             */
- 285 f91f7 2705          	beq	L321
- 286                     ; 120         OSEventFreeList = (OS_EVENT *)OSEventFreeList->OSEventPtr;
- 288 f91f9 18054116f7    	movw	1,y,_OSEventFreeList
- 289 f91fe               L321:
- 290                     ; 122     OS_EXIT_CRITICAL();
- 292 f91fe 87            	clra	
- 293 f91ff 167527        	jsr	_OS_CPU_SR_Restore
- 295                     ; 123     if (pevent != (OS_EVENT *)0) {
- 297 f9202 ed80          	ldy	OFST-3,s
- 298 f9204 2716          	beq	L521
- 299                     ; 124         pevent->OSEventType    = OS_EVENT_TYPE_MBOX;
- 301 f9206 c601          	ldab	#1
- 302 f9208 6b40          	stab	0,y
- 303                     ; 125         pevent->OSEventCnt     = 0u;
- 305 f920a 87            	clra	
- 306 f920b c7            	clrb	
- 307 f920c 6c43          	std	3,y
- 308                     ; 126         pevent->OSEventPtr     = pmsg;           /* Deposit message in event control block             */
- 310 f920e 18028341      	movw	OFST+0,s,1,y
- 311                     ; 128         pevent->OSEventName    = (INT8U *)(void *)"?";
- 313 f9212 cc770f        	ldd	#L721
- 314 f9215 6c4e          	std	14,y
- 315                     ; 130         OS_EventWaitListInit(pevent);
- 317 f9217 b764          	tfr	y,d
- 318 f9219 164701        	jsr	_OS_EventWaitListInit
- 321 f921c               L521:
- 322                     ; 134     return (pevent);                             /* Return pointer to event control block              */
- 324 f921c ec80          	ldd	OFST-3,s
- 326 f921e               L21:
- 328 f921e 1b85          	leas	5,s
- 329 f9220 3d            	rts	
- 417                     ; 179 _NEAR OS_EVENT  *OSMboxDel (OS_EVENT  *pevent,
- 417                     ; 180                            INT8U      opt,
- 417                     ; 181                            INT8U     *perr)
- 417                     ; 182 {
- 418                     	switch	.text
- 419 f9221               _OSMboxDel:
- 421 f9221 3b            	pshd	
- 422 f9222 1b9c          	leas	-4,s
- 423       00000004      OFST:	set	4
- 426                     ; 186     OS_CPU_SR  cpu_sr = 0u;
- 428                     ; 207     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
- 430 f9224 046404        	tbne	d,L102
- 431                     ; 208         *perr = OS_ERR_PEVENT_NULL;
- 433 f9227 c604          	ldab	#4
- 434                     ; 209         return (pevent);
- 437 f9229 2009          	bra	L61
- 438 f922b               L102:
- 439                     ; 215     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {       /* Validate event block type                */
- 442 f922b e6f30004      	ldab	[OFST+0,s]
- 443 f922f 04010b        	dbeq	b,L302
- 444                     ; 216         *perr = OS_ERR_EVENT_TYPE;
- 446 f9232 c601          	ldab	#1
- 447                     ; 218         return (pevent);
- 451 f9234               L61:
- 452 f9234 6bf3000a      	stab	[OFST+6,s]
- 453 f9238 ec84          	ldd	OFST+0,s
- 455 f923a 1b86          	leas	6,s
- 456 f923c 3d            	rts	
- 457 f923d               L302:
- 458                     ; 220     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
- 460 f923d f61631        	ldab	_OSIntNesting
- 461 f9240 2704          	beq	L502
- 462                     ; 221         *perr = OS_ERR_DEL_ISR;                            /* ... can't DELETE from an ISR             */
- 464 f9242 c60f          	ldab	#15
- 465                     ; 223         return (pevent);
- 469 f9244 20ee          	bra	L61
- 470 f9246               L502:
- 471                     ; 225     OS_ENTER_CRITICAL();
- 473 f9246 167522        	jsr	_OS_CPU_SR_Save
- 475 f9249 6b80          	stab	OFST-4,s
- 476                     ; 226     if (pevent->OSEventGrp != 0u) {                        /* See if any tasks waiting on mailbox      */
- 478 f924b ed84          	ldy	OFST+0,s
- 479 f924d e645          	ldab	5,y
- 480 f924f 2706          	beq	L702
- 481                     ; 227         tasks_waiting = OS_TRUE;                           /* Yes                                      */
- 483 f9251 c601          	ldab	#1
- 484 f9253 6b83          	stab	OFST-1,s
- 486 f9255 2002          	bra	L112
- 487 f9257               L702:
- 488                     ; 229         tasks_waiting = OS_FALSE;                          /* No                                       */
- 490 f9257 6983          	clr	OFST-1,s
- 491 f9259               L112:
- 492                     ; 231     switch (opt) {
- 494 f9259 e689          	ldab	OFST+5,s
- 496 f925b 270d          	beq	L131
- 497 f925d 040152        	dbeq	b,L522
- 498                     ; 270         default:
- 498                     ; 271              OS_EXIT_CRITICAL();
- 500 f9260 e680          	ldab	OFST-4,s
- 501 f9262 87            	clra	
- 502 f9263 167527        	jsr	_OS_CPU_SR_Restore
- 504                     ; 272              *perr         = OS_ERR_INVALID_OPT;
- 506 f9266 c607          	ldab	#7
- 507                     ; 273              pevent_return = pevent;
- 509                     ; 274              break;
- 511 f9268 202e          	bra	LC003
- 512 f926a               L131:
- 513                     ; 232         case OS_DEL_NO_PEND:                               /* Delete mailbox only if no task waiting   */
- 513                     ; 233              if (tasks_waiting == OS_FALSE) {
- 515 f926a e683          	ldab	OFST-1,s
- 516 f926c 2622          	bne	L712
- 517                     ; 235                  pevent->OSEventName = (INT8U *)(void *)"?";
- 519 f926e cc770f        	ldd	#L721
- 520 f9271 6c4e          	std	14,y
- 521                     ; 237                  pevent->OSEventType = OS_EVENT_TYPE_UNUSED;
- 523 f9273 87            	clra	
- 524 f9274 6a40          	staa	0,y
- 525                     ; 238                  pevent->OSEventPtr  = OSEventFreeList;    /* Return Event Control Block to free list  */
- 527 f9276 18014116f7    	movw	_OSEventFreeList,1,y
- 528                     ; 239                  pevent->OSEventCnt  = 0u;
- 530 f927b c7            	clrb	
- 531 f927c 6c43          	std	3,y
- 532                     ; 240                  OSEventFreeList     = pevent;             /* Get next free event control block        */
- 534 f927e 18058416f7    	movw	OFST+0,s,_OSEventFreeList
- 535                     ; 241                  OS_EXIT_CRITICAL();
- 537 f9283 e680          	ldab	OFST-4,s
- 538 f9285 167527        	jsr	_OS_CPU_SR_Restore
- 540                     ; 242                  *perr               = OS_ERR_NONE;
- 542 f9288 87            	clra	
- 543 f9289 6af3000a      	staa	[OFST+6,s]
- 544                     ; 243                  pevent_return       = (OS_EVENT *)0;      /* Mailbox has been deleted                 */
- 546 f928d c7            	clrb	
- 548 f928e 200e          	bra	LC002
- 549 f9290               L712:
- 550                     ; 245                  OS_EXIT_CRITICAL();
- 552 f9290 e680          	ldab	OFST-4,s
- 553 f9292 87            	clra	
- 554 f9293 167527        	jsr	_OS_CPU_SR_Restore
- 556                     ; 246                  *perr               = OS_ERR_TASK_WAITING;
- 558 f9296 c649          	ldab	#73
- 559                     ; 247                  pevent_return       = pevent;
- 561 f9298               LC003:
- 562 f9298 6bf3000a      	stab	[OFST+6,s]
- 563 f929c ec84          	ldd	OFST+0,s
- 564 f929e               LC002:
- 565 f929e 6c81          	std	OFST-3,s
- 566 f92a0 203c          	bra	L512
- 567 f92a2               L322:
- 568                     ; 253                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_MBOX, OS_STAT_PEND_ABORT);
- 570 f92a2 cc0002        	ldd	#2
- 571 f92a5 3b            	pshd	
- 572 f92a6 3b            	pshd	
- 573 f92a7 c7            	clrb	
- 574 f92a8 3b            	pshd	
- 575 f92a9 ec8a          	ldd	OFST+6,s
- 576 f92ab 164554        	jsr	_OS_EventTaskRdy
- 578 f92ae 1b86          	leas	6,s
- 579 f92b0 ed84          	ldy	OFST+0,s
- 580 f92b2               L522:
- 581                     ; 251         case OS_DEL_ALWAYS:                                /* Always delete the mailbox                */
- 581                     ; 252              while (pevent->OSEventGrp != 0u) {            /* Ready ALL tasks waiting for mailbox      */
- 583 f92b2 e645          	ldab	5,y
- 584 f92b4 26ec          	bne	L322
- 585                     ; 256              pevent->OSEventName    = (INT8U *)(void *)"?";
- 587 f92b6 cc770f        	ldd	#L721
- 588 f92b9 6c4e          	std	14,y
- 589                     ; 258              pevent->OSEventType    = OS_EVENT_TYPE_UNUSED;
- 591 f92bb 87            	clra	
- 592 f92bc 6a40          	staa	0,y
- 593                     ; 259              pevent->OSEventPtr     = OSEventFreeList;     /* Return Event Control Block to free list  */
- 595 f92be 18014116f7    	movw	_OSEventFreeList,1,y
- 596                     ; 260              pevent->OSEventCnt     = 0u;
- 598 f92c3 c7            	clrb	
- 599 f92c4 6c43          	std	3,y
- 600                     ; 261              OSEventFreeList        = pevent;              /* Get next free event control block        */
- 602 f92c6 18058416f7    	movw	OFST+0,s,_OSEventFreeList
- 603                     ; 262              OS_EXIT_CRITICAL();
- 605 f92cb e680          	ldab	OFST-4,s
- 606 f92cd 167527        	jsr	_OS_CPU_SR_Restore
- 608                     ; 263              if (tasks_waiting == OS_TRUE) {               /* Reschedule only if task(s) were waiting  */
- 610 f92d0 e683          	ldab	OFST-1,s
- 611 f92d2 042103        	dbne	b,L132
- 612                     ; 264                  OS_Sched();                               /* Find highest priority task ready to run  */
- 614 f92d5 16488b        	jsr	_OS_Sched
- 616 f92d8               L132:
- 617                     ; 266              *perr         = OS_ERR_NONE;
- 619 f92d8 87            	clra	
- 620 f92d9 6af3000a      	staa	[OFST+6,s]
- 621                     ; 267              pevent_return = (OS_EVENT *)0;                /* Mailbox has been deleted                 */
- 623 f92dd c7            	clrb	
- 624                     ; 268              break;
- 626 f92de               L512:
- 627                     ; 279     return (pevent_return);
- 632 f92de 1b86          	leas	6,s
- 633 f92e0 3d            	rts	
- 712                     ; 317 _NEAR void  *OSMboxPend (OS_EVENT  *pevent,
- 712                     ; 318                         INT32U     timeout,
- 712                     ; 319                         INT8U     *perr)
- 712                     ; 320 {
- 713                     	switch	.text
- 714 f92e1               _OSMboxPend:
- 716 f92e1 3b            	pshd	
- 717 f92e2 1b9d          	leas	-3,s
- 718       00000003      OFST:	set	3
- 721                     ; 323     OS_CPU_SR  cpu_sr = 0u;
- 723                     ; 335     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
- 725 f92e4 046404        	tbne	d,L572
- 726                     ; 336         *perr = OS_ERR_PEVENT_NULL;
- 728 f92e7 c604          	ldab	#4
- 729                     ; 337         return ((void *)0);
- 732 f92e9 2009          	bra	LC004
- 733 f92eb               L572:
- 734                     ; 343     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {  /* Validate event block type                     */
- 737 f92eb e6f30003      	ldab	[OFST+0,s]
- 738 f92ef 04010b        	dbeq	b,L772
- 739                     ; 344         *perr = OS_ERR_EVENT_TYPE;
- 741 f92f2 c601          	ldab	#1
- 742                     ; 346         return ((void *)0);
- 745 f92f4               LC004:
- 746 f92f4 6bf3000b      	stab	[OFST+8,s]
- 747 f92f8 87            	clra	
- 748 f92f9 c7            	clrb	
- 750 f92fa               L22:
- 752 f92fa 1b85          	leas	5,s
- 753 f92fc 3d            	rts	
- 754 f92fd               L772:
- 755                     ; 348     if (OSIntNesting > 0u) {                          /* See if called from ISR ...                    */
- 757 f92fd f61631        	ldab	_OSIntNesting
- 758 f9300 2704          	beq	L103
- 759                     ; 349         *perr = OS_ERR_PEND_ISR;                      /* ... can't PEND from an ISR                    */
- 761 f9302 c602          	ldab	#2
- 762                     ; 351         return ((void *)0);
- 766 f9304 20ee          	bra	LC004
- 767 f9306               L103:
- 768                     ; 353     if (OSLockNesting > 0u) {                         /* See if called with scheduler locked ...       */
- 770 f9306 f61630        	ldab	_OSLockNesting
- 771 f9309 2704          	beq	L303
- 772                     ; 354         *perr = OS_ERR_PEND_LOCKED;                   /* ... can't PEND when locked                    */
- 774 f930b c60d          	ldab	#13
- 775                     ; 356         return ((void *)0);
- 779 f930d 20e5          	bra	LC004
- 780 f930f               L303:
- 781                     ; 358     OS_ENTER_CRITICAL();
- 783 f930f 167522        	jsr	_OS_CPU_SR_Save
- 785 f9312 6b82          	stab	OFST-1,s
- 786                     ; 359     pmsg = pevent->OSEventPtr;
- 788 f9314 ed83          	ldy	OFST+0,s
- 789 f9316 ec41          	ldd	1,y
- 790 f9318 6c80          	std	OFST-3,s
- 791                     ; 360     if (pmsg != (void *)0) {                          /* See if there is already a message             */
- 793 f931a 2711          	beq	L503
- 794                     ; 361         pevent->OSEventPtr = (void *)0;               /* Clear the mailbox                             */
- 796 f931c 87            	clra	
- 797 f931d c7            	clrb	
- 798 f931e 6c41          	std	1,y
- 799                     ; 362         OS_EXIT_CRITICAL();
- 801 f9320 e682          	ldab	OFST-1,s
- 802 f9322 167527        	jsr	_OS_CPU_SR_Restore
- 804                     ; 363         *perr = OS_ERR_NONE;
- 806 f9325 69f3000b      	clr	[OFST+8,s]
- 807                     ; 365         return (pmsg);                                /* Return the message received (or NULL)         */
- 810 f9329 ec80          	ldd	OFST-3,s
- 812 f932b 20cd          	bra	L22
- 813 f932d               L503:
- 814                     ; 367     OSTCBCur->OSTCBStat     |= OS_STAT_MBOX;          /* Message not available, task will pend         */
- 816 f932d fd157d        	ldy	_OSTCBCur
- 817 f9330 0ce82202      	bset	34,y,2
- 818                     ; 368     OSTCBCur->OSTCBStatPend  = OS_STAT_PEND_OK;
- 820 f9334 69e823        	clr	35,y
- 821                     ; 369     OSTCBCur->OSTCBDly       = timeout;               /* Load timeout in TCB                           */
- 823 f9337 ec89          	ldd	OFST+6,s
- 824 f9339 6ce820        	std	32,y
- 825 f933c ec87          	ldd	OFST+4,s
- 826 f933e 6ce81e        	std	30,y
- 827                     ; 370     OS_EventTaskWait(pevent);                         /* Suspend task until event or timeout occurs    */
- 829 f9341 ec83          	ldd	OFST+0,s
- 830 f9343 1645e8        	jsr	_OS_EventTaskWait
- 832                     ; 371     OS_EXIT_CRITICAL();
- 834 f9346 e682          	ldab	OFST-1,s
- 835 f9348 87            	clra	
- 836 f9349 167527        	jsr	_OS_CPU_SR_Restore
- 838                     ; 372     OS_Sched();                                       /* Find next highest priority task ready to run  */
- 840 f934c 16488b        	jsr	_OS_Sched
- 842                     ; 373     OS_ENTER_CRITICAL();
- 844 f934f 167522        	jsr	_OS_CPU_SR_Save
- 846 f9352 6b82          	stab	OFST-1,s
- 847                     ; 374     switch (OSTCBCur->OSTCBStatPend) {                /* See if we timed-out or aborted                */
- 849 f9354 fd157d        	ldy	_OSTCBCur
- 850 f9357 e6e823        	ldab	35,y
- 852 f935a 2708          	beq	L332
- 853 f935c 040117        	dbeq	b,L732
- 854 f935f 04010d        	dbeq	b,L532
- 855 f9362 2012          	bra	L732
- 856 f9364               L332:
- 857                     ; 375         case OS_STAT_PEND_OK:
- 857                     ; 376              pmsg =  OSTCBCur->OSTCBMsg;
- 859 f9364 ece818        	ldd	24,y
- 860 f9367 6c80          	std	OFST-3,s
- 861                     ; 377             *perr =  OS_ERR_NONE;
- 863 f9369 69f3000b      	clr	[OFST+8,s]
- 864                     ; 378              break;
- 866 f936d 201e          	bra	L113
- 867 f936f               L532:
- 868                     ; 380         case OS_STAT_PEND_ABORT:
- 868                     ; 381              pmsg = (void *)0;
- 870 f936f 87            	clra	
- 871 f9370 6c80          	std	OFST-3,s
- 872                     ; 382             *perr =  OS_ERR_PEND_ABORT;               /* Indicate that we aborted                      */
- 874 f9372 c60e          	ldab	#14
- 875                     ; 383              break;
- 877 f9374 2010          	bra	LC005
- 878 f9376               L732:
- 879                     ; 385         case OS_STAT_PEND_TO:
- 879                     ; 386         default:
- 879                     ; 387              OS_EventTaskRemove(OSTCBCur, pevent);
- 881 f9376 ec83          	ldd	OFST+0,s
- 882 f9378 3b            	pshd	
- 883 f9379 b764          	tfr	y,d
- 884 f937b 16468f        	jsr	_OS_EventTaskRemove
- 886 f937e 1b82          	leas	2,s
- 887                     ; 388              pmsg = (void *)0;
- 889 f9380 87            	clra	
- 890 f9381 c7            	clrb	
- 891 f9382 6c80          	std	OFST-3,s
- 892                     ; 389             *perr =  OS_ERR_TIMEOUT;                  /* Indicate that we didn't get event within TO   */
- 894 f9384 c60a          	ldab	#10
- 895 f9386               LC005:
- 896 f9386 6bf3000b      	stab	[OFST+8,s]
- 897                     ; 390              break;
- 899 f938a fd157d        	ldy	_OSTCBCur
- 900 f938d               L113:
- 901                     ; 392     OSTCBCur->OSTCBStat          =  OS_STAT_RDY;      /* Set   task  status to ready                   */
- 903 f938d c7            	clrb	
- 904 f938e 6be822        	stab	34,y
- 905                     ; 393     OSTCBCur->OSTCBStatPend      =  OS_STAT_PEND_OK;  /* Clear pend  status                            */
- 907 f9391 87            	clra	
- 908 f9392 6ae823        	staa	35,y
- 909                     ; 394     OSTCBCur->OSTCBEventPtr      = (OS_EVENT  *)0;    /* Clear event pointers                          */
- 911 f9395 6ce812        	std	18,y
- 912                     ; 396     OSTCBCur->OSTCBEventMultiPtr = (OS_EVENT **)0;
- 914 f9398 6ce814        	std	20,y
- 915                     ; 397     OSTCBCur->OSTCBEventMultiRdy = (OS_EVENT  *)0;
- 917 f939b 6ce816        	std	22,y
- 918                     ; 399     OSTCBCur->OSTCBMsg           = (void      *)0;    /* Clear  received message                       */
- 920 f939e 6ce818        	std	24,y
- 921                     ; 400     OS_EXIT_CRITICAL();
- 923 f93a1 e682          	ldab	OFST-1,s
- 924 f93a3 167527        	jsr	_OS_CPU_SR_Restore
- 926                     ; 403     return (pmsg);                                    /* Return received message                       */
- 929 f93a6 ec80          	ldd	OFST-3,s
- 932 f93a8 1b85          	leas	5,s
- 933 f93aa 3d            	rts	
-1004                     ; 440 _NEAR INT8U  OSMboxPendAbort (OS_EVENT  *pevent,
-1004                     ; 441                              INT8U      opt,
-1004                     ; 442                              INT8U     *perr)
-1004                     ; 443 {
-1005                     	switch	.text
-1006 f93ab               _OSMboxPendAbort:
-1008 f93ab 3b            	pshd	
-1009       00000002      OFST:	set	2
-1012                     ; 446     OS_CPU_SR  cpu_sr = 0u;
-1014                     ; 459     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
-1016 f93ac 6cae          	std	2,-s
-1017 f93ae 2604          	bne	L153
-1018                     ; 460         *perr = OS_ERR_PEVENT_NULL;
-1020 f93b0 c604          	ldab	#4
-1021                     ; 461         return (0u);
-1024 f93b2 2009          	bra	LC006
-1025 f93b4               L153:
-1026                     ; 464     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {       /* Validate event block type                */
-1028 f93b4 e6f30002      	ldab	[OFST+0,s]
-1029 f93b8 04010a        	dbeq	b,L353
-1030                     ; 465         *perr = OS_ERR_EVENT_TYPE;
-1032 f93bb c601          	ldab	#1
-1033                     ; 466         return (0u);
-1035 f93bd               LC006:
-1036 f93bd 6bf30008      	stab	[OFST+6,s]
-1037 f93c1 c7            	clrb	
-1039 f93c2               L62:
-1041 f93c2 1b84          	leas	4,s
-1042 f93c4 3d            	rts	
-1043 f93c5               L353:
-1044                     ; 468     OS_ENTER_CRITICAL();
-1046 f93c5 167522        	jsr	_OS_CPU_SR_Save
-1048 f93c8 6b81          	stab	OFST-1,s
-1049                     ; 469     if (pevent->OSEventGrp != 0u) {                        /* See if any task waiting on mailbox?      */
-1051 f93ca ed82          	ldy	OFST+0,s
-1052 f93cc e745          	tst	5,y
-1053 f93ce 2746          	beq	L553
-1054                     ; 470         nbr_tasks = 0u;
-1056 f93d0 6980          	clr	OFST-2,s
-1057                     ; 471         switch (opt) {
-1059 f93d2 e687          	ldab	OFST+5,s
-1061 f93d4 271d          	beq	L513
-1062 f93d6 040114        	dbeq	b,L563
-1063 f93d9 2018          	bra	L513
-1064 f93db               L363:
-1065                     ; 474                      (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_MBOX, OS_STAT_PEND_ABORT);
-1067 f93db cc0002        	ldd	#2
-1068 f93de 3b            	pshd	
-1069 f93df 3b            	pshd	
-1070 f93e0 c7            	clrb	
-1071 f93e1 3b            	pshd	
-1072 f93e2 ec88          	ldd	OFST+6,s
-1073 f93e4 164554        	jsr	_OS_EventTaskRdy
-1075 f93e7 1b86          	leas	6,s
-1076                     ; 475                      nbr_tasks++;
-1078 f93e9 6280          	inc	OFST-2,s
-1079 f93eb ed82          	ldy	OFST+0,s
-1080 f93ed               L563:
-1081                     ; 472             case OS_PEND_OPT_BROADCAST:                    /* Do we need to abort ALL waiting tasks?   */
-1081                     ; 473                  while (pevent->OSEventGrp != 0u) {        /* Yes, ready ALL tasks waiting on mailbox  */
-1083 f93ed e645          	ldab	5,y
-1084 f93ef 26ea          	bne	L363
-1085                     ; 477                  break;
-1087 f93f1 2010          	bra	L163
-1088 f93f3               L513:
-1089                     ; 479             case OS_PEND_OPT_NONE:
-1089                     ; 480             default:                                       /* No,  ready HPT       waiting on mailbox  */
-1089                     ; 481                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_MBOX, OS_STAT_PEND_ABORT);
-1091 f93f3 cc0002        	ldd	#2
-1092 f93f6 3b            	pshd	
-1093 f93f7 3b            	pshd	
-1094 f93f8 c7            	clrb	
-1095 f93f9 3b            	pshd	
-1096 f93fa b764          	tfr	y,d
-1097 f93fc 164554        	jsr	_OS_EventTaskRdy
-1099 f93ff 1b86          	leas	6,s
-1100                     ; 482                  nbr_tasks++;
-1102 f9401 6280          	inc	OFST-2,s
-1103                     ; 483                  break;
-1105 f9403               L163:
-1106                     ; 485         OS_EXIT_CRITICAL();
-1108 f9403 e681          	ldab	OFST-1,s
-1109 f9405 87            	clra	
-1110 f9406 167527        	jsr	_OS_CPU_SR_Restore
-1112                     ; 486         OS_Sched();                                        /* Find HPT ready to run                    */
-1114 f9409 16488b        	jsr	_OS_Sched
-1116                     ; 487         *perr = OS_ERR_PEND_ABORT;
-1118 f940c c60e          	ldab	#14
-1119 f940e 6bf30008      	stab	[OFST+6,s]
-1120                     ; 488         return (nbr_tasks);
-1122 f9412 e680          	ldab	OFST-2,s
-1124 f9414 20ac          	bra	L62
-1125 f9416               L553:
-1126                     ; 490     OS_EXIT_CRITICAL();
-1128 f9416 87            	clra	
-1129 f9417 167527        	jsr	_OS_CPU_SR_Restore
-1131                     ; 491     *perr = OS_ERR_NONE;
-1133 f941a c7            	clrb	
-1134 f941b 6bf30008      	stab	[OFST+6,s]
-1135                     ; 492     return (0u);                                           /* No tasks waiting on mailbox              */
-1138 f941f 20a1          	bra	L62
-1195                     ; 520 _NEAR INT8U  OSMboxPost (OS_EVENT  *pevent,
-1195                     ; 521                         void      *pmsg)
-1195                     ; 522 {
-1196                     	switch	.text
-1197 f9421               _OSMboxPost:
-1199 f9421 3b            	pshd	
-1200 f9422 37            	pshb	
-1201       00000001      OFST:	set	1
-1204                     ; 524     OS_CPU_SR  cpu_sr = 0u;
-1206                     ; 530     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
-1208 f9423 046404        	tbne	d,L714
-1209                     ; 531         return (OS_ERR_PEVENT_NULL);
-1211 f9426 c604          	ldab	#4
-1213 f9428 2006          	bra	L23
-1214 f942a               L714:
-1215                     ; 533     if (pmsg == (void *)0) {                          /* Make sure we are not posting a NULL pointer   */
-1217 f942a ec85          	ldd	OFST+4,s
-1218 f942c 2605          	bne	L124
-1219                     ; 534         return (OS_ERR_POST_NULL_PTR);
-1221 f942e c603          	ldab	#3
-1223 f9430               L23:
-1225 f9430 1b83          	leas	3,s
-1226 f9432 3d            	rts	
-1227 f9433               L124:
-1228                     ; 540     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {  /* Validate event block type                     */
-1231 f9433 e6f30001      	ldab	[OFST+0,s]
-1232 f9437 040104        	dbeq	b,L324
-1233                     ; 542         return (OS_ERR_EVENT_TYPE);
-1236 f943a c601          	ldab	#1
-1238 f943c 20f2          	bra	L23
-1239 f943e               L324:
-1240                     ; 544     OS_ENTER_CRITICAL();
-1242 f943e 167522        	jsr	_OS_CPU_SR_Save
-1244 f9441 6b80          	stab	OFST-1,s
-1245                     ; 545     if (pevent->OSEventGrp != 0u) {                   /* See if any task pending on mailbox            */
-1247 f9443 ed81          	ldy	OFST+0,s
-1248 f9445 e645          	ldab	5,y
-1249 f9447 271b          	beq	L524
-1250                     ; 547         (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_MBOX, OS_STAT_PEND_OK);
-1252 f9449 87            	clra	
-1253 f944a c7            	clrb	
-1254 f944b 3b            	pshd	
-1255 f944c c602          	ldab	#2
-1256 f944e 3b            	pshd	
-1257 f944f ec89          	ldd	OFST+8,s
-1258 f9451 3b            	pshd	
-1259 f9452 b764          	tfr	y,d
-1260 f9454 164554        	jsr	_OS_EventTaskRdy
-1262 f9457 1b86          	leas	6,s
-1263                     ; 548         OS_EXIT_CRITICAL();
-1265 f9459 e680          	ldab	OFST-1,s
-1266 f945b 87            	clra	
-1267 f945c 167527        	jsr	_OS_CPU_SR_Restore
-1269                     ; 549         OS_Sched();                                   /* Find highest priority task ready to run       */
-1271 f945f 16488b        	jsr	_OS_Sched
-1273                     ; 551         return (OS_ERR_NONE);
-1277 f9462 2017          	bra	LC007
-1278 f9464               L524:
-1279                     ; 553     if (pevent->OSEventPtr != (void *)0) {            /* Make sure mailbox doesn't already have a msg  */
-1281 f9464 ec41          	ldd	1,y
-1282 f9466 270a          	beq	L724
-1283                     ; 554         OS_EXIT_CRITICAL();
-1285 f9468 e680          	ldab	OFST-1,s
-1286 f946a 87            	clra	
-1287 f946b 167527        	jsr	_OS_CPU_SR_Restore
-1289                     ; 556         return (OS_ERR_MBOX_FULL);
-1292 f946e c614          	ldab	#20
-1294 f9470 20be          	bra	L23
-1295 f9472               L724:
-1296                     ; 558     pevent->OSEventPtr = pmsg;                        /* Place message in mailbox                      */
-1298 f9472 18028541      	movw	OFST+4,s,1,y
-1299                     ; 559     OS_EXIT_CRITICAL();
-1301 f9476 e680          	ldab	OFST-1,s
-1302 f9478 167527        	jsr	_OS_CPU_SR_Restore
-1304                     ; 561     return (OS_ERR_NONE);
-1307 f947b               LC007:
-1308 f947b c7            	clrb	
-1310 f947c 20b2          	bra	L23
-1374                     ; 599 _NEAR INT8U  OSMboxPostOpt (OS_EVENT  *pevent,
-1374                     ; 600                            void      *pmsg,
-1374                     ; 601                            INT8U      opt)
-1374                     ; 602 {
-1375                     	switch	.text
-1376 f947e               _OSMboxPostOpt:
-1378 f947e 3b            	pshd	
-1379 f947f 37            	pshb	
-1380       00000001      OFST:	set	1
-1383                     ; 604     OS_CPU_SR  cpu_sr = 0u;
-1385                     ; 610     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
-1387 f9480 046404        	tbne	d,L164
-1388                     ; 611         return (OS_ERR_PEVENT_NULL);
-1390 f9483 c604          	ldab	#4
-1392 f9485 2006          	bra	L63
-1393 f9487               L164:
-1394                     ; 613     if (pmsg == (void *)0) {                          /* Make sure we are not posting a NULL pointer   */
-1396 f9487 ec85          	ldd	OFST+4,s
-1397 f9489 2605          	bne	L364
-1398                     ; 614         return (OS_ERR_POST_NULL_PTR);
-1400 f948b c603          	ldab	#3
-1402 f948d               L63:
-1404 f948d 1b83          	leas	3,s
-1405 f948f 3d            	rts	
-1406 f9490               L364:
-1407                     ; 620     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {  /* Validate event block type                     */
-1410 f9490 e6f30001      	ldab	[OFST+0,s]
-1411 f9494 040104        	dbeq	b,L564
-1412                     ; 622         return (OS_ERR_EVENT_TYPE);
-1415 f9497 c601          	ldab	#1
-1417 f9499 20f2          	bra	L63
-1418 f949b               L564:
-1419                     ; 624     OS_ENTER_CRITICAL();
-1421 f949b 167522        	jsr	_OS_CPU_SR_Save
-1423 f949e 6b80          	stab	OFST-1,s
-1424                     ; 625     if (pevent->OSEventGrp != 0u) {                   /* See if any task pending on mailbox            */
-1426 f94a0 ed81          	ldy	OFST+0,s
-1427 f94a2 e645          	ldab	5,y
-1428 f94a4 273e          	beq	L764
-1429                     ; 626         if ((opt & OS_POST_OPT_BROADCAST) != 0x00u) { /* Do we need to post msg to ALL waiting tasks ? */
-1431 f94a6 0f88011a      	brclr	OFST+7,s,1,L174
-1433 f94aa 2014          	bra	L574
-1434 f94ac               L374:
-1435                     ; 628                 (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_MBOX, OS_STAT_PEND_OK);
-1437 f94ac 87            	clra	
-1438 f94ad c7            	clrb	
-1439 f94ae 3b            	pshd	
-1440 f94af c602          	ldab	#2
-1441 f94b1 3b            	pshd	
-1442 f94b2 ec89          	ldd	OFST+8,s
-1443 f94b4 3b            	pshd	
-1444 f94b5 ec87          	ldd	OFST+6,s
-1445 f94b7 164554        	jsr	_OS_EventTaskRdy
-1447 f94ba 1b86          	leas	6,s
-1448 f94bc ed81          	ldy	OFST+0,s
-1449 f94be e645          	ldab	5,y
-1450 f94c0               L574:
-1451                     ; 627             while (pevent->OSEventGrp != 0u) {        /* Yes, Post to ALL tasks waiting on mailbox     */
-1453 f94c0 26ea          	bne	L374
-1455 f94c2 2010          	bra	L105
-1456 f94c4               L174:
-1457                     ; 631             (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_MBOX, OS_STAT_PEND_OK);
-1459 f94c4 87            	clra	
-1460 f94c5 c7            	clrb	
-1461 f94c6 3b            	pshd	
-1462 f94c7 c602          	ldab	#2
-1463 f94c9 3b            	pshd	
-1464 f94ca ec89          	ldd	OFST+8,s
-1465 f94cc 3b            	pshd	
-1466 f94cd b764          	tfr	y,d
-1467 f94cf 164554        	jsr	_OS_EventTaskRdy
-1469 f94d2 1b86          	leas	6,s
-1470 f94d4               L105:
-1471                     ; 633         OS_EXIT_CRITICAL();
-1473 f94d4 e680          	ldab	OFST-1,s
-1474 f94d6 87            	clra	
-1475 f94d7 167527        	jsr	_OS_CPU_SR_Restore
-1477                     ; 634         if ((opt & OS_POST_OPT_NO_SCHED) == 0u) {     /* See if scheduler needs to be invoked          */
-1479 f94da 0e880403      	brset	OFST+7,s,4,L305
-1480                     ; 635             OS_Sched();                               /* Find HPT ready to run                         */
-1482 f94de 16488b        	jsr	_OS_Sched
-1484 f94e1               L305:
-1485                     ; 638         return (OS_ERR_NONE);
-1488 f94e1 c7            	clrb	
-1490 f94e2 20a9          	bra	L63
-1491 f94e4               L764:
-1492                     ; 640     if (pevent->OSEventPtr != (void *)0) {            /* Make sure mailbox doesn't already have a msg  */
-1494 f94e4 ec41          	ldd	1,y
-1495 f94e6 270a          	beq	L505
-1496                     ; 641         OS_EXIT_CRITICAL();
-1498 f94e8 e680          	ldab	OFST-1,s
-1499 f94ea 87            	clra	
-1500 f94eb 167527        	jsr	_OS_CPU_SR_Restore
-1502                     ; 643         return (OS_ERR_MBOX_FULL);
-1505 f94ee c614          	ldab	#20
-1507 f94f0 200a          	bra	L04
-1508 f94f2               L505:
-1509                     ; 645     pevent->OSEventPtr = pmsg;                        /* Place message in mailbox                      */
-1511 f94f2 18028541      	movw	OFST+4,s,1,y
-1512                     ; 646     OS_EXIT_CRITICAL();
-1514 f94f6 e680          	ldab	OFST-1,s
-1515 f94f8 167527        	jsr	_OS_CPU_SR_Restore
-1517                     ; 648     return (OS_ERR_NONE);
-1520 f94fb c7            	clrb	
-1522 f94fc               L04:
-1524 f94fc 1b83          	leas	3,s
-1525 f94fe 3d            	rts	
-1643                     ; 672 _NEAR INT8U  OSMboxQuery (OS_EVENT      *pevent,
-1643                     ; 673                          OS_MBOX_DATA  *p_mbox_data)
-1643                     ; 674 {
-1644                     	switch	.text
-1645 f94ff               _OSMboxQuery:
-1647 f94ff 3b            	pshd	
-1648 f9500 1b9a          	leas	-6,s
-1649       00000006      OFST:	set	6
-1652                     ; 679     OS_CPU_SR   cpu_sr = 0u;
-1654                     ; 685     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
-1656 f9502 046404        	tbne	d,L765
-1657                     ; 686         return (OS_ERR_PEVENT_NULL);
-1659 f9505 c604          	ldab	#4
-1661 f9507 2006          	bra	L44
-1662 f9509               L765:
-1663                     ; 688     if (p_mbox_data == (OS_MBOX_DATA *)0) {                /* Validate 'p_mbox_data'                   */
-1665 f9509 ec8a          	ldd	OFST+4,s
-1666 f950b 2605          	bne	L175
-1667                     ; 689         return (OS_ERR_PDATA_NULL);
-1669 f950d c609          	ldab	#9
-1671 f950f               L44:
-1673 f950f 1b88          	leas	8,s
-1674 f9511 3d            	rts	
-1675 f9512               L175:
-1676                     ; 692     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {       /* Validate event block type                */
-1678 f9512 e6f30006      	ldab	[OFST+0,s]
-1679 f9516 040104        	dbeq	b,L375
-1680                     ; 693         return (OS_ERR_EVENT_TYPE);
-1682 f9519 c601          	ldab	#1
-1684 f951b 20f2          	bra	L44
-1685 f951d               L375:
-1686                     ; 695     OS_ENTER_CRITICAL();
-1688 f951d 167522        	jsr	_OS_CPU_SR_Save
-1690 f9520 6b85          	stab	OFST-1,s
-1691                     ; 696     p_mbox_data->OSEventGrp = pevent->OSEventGrp;          /* Copy message mailbox wait list           */
-1693 f9522 ed8a          	ldy	OFST+4,s
-1694 f9524 ee86          	ldx	OFST+0,s
-1695 f9526 180a054a      	movb	5,x,10,y
-1696                     ; 697     psrc                    = &pevent->OSEventTbl[0];
-1698 f952a ed86          	ldy	OFST+0,s
-1699 f952c 1946          	leay	6,y
-1700 f952e 6d81          	sty	OFST-5,s
-1701                     ; 698     pdest                   = &p_mbox_data->OSEventTbl[0];
-1703 f9530 ed8a          	ldy	OFST+4,s
-1704 f9532 1942          	leay	2,y
-1705 f9534 6d83          	sty	OFST-3,s
-1706                     ; 699     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
-1708 f9536 6980          	clr	OFST-6,s
-1709 f9538 ee81          	ldx	OFST-5,s
-1710 f953a               L575:
-1711                     ; 700         *pdest++ = *psrc++;
-1713 f953a 180a3070      	movb	1,x+,1,y+
-1714                     ; 699     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
-1716 f953e 6280          	inc	OFST-6,s
-1719 f9540 e680          	ldab	OFST-6,s
-1720 f9542 c108          	cmpb	#8
-1721 f9544 25f4          	blo	L575
-1722 f9546 6e81          	stx	OFST-5,s
-1723 f9548 6d83          	sty	OFST-3,s
-1724                     ; 702     p_mbox_data->OSMsg = pevent->OSEventPtr;               /* Get message from mailbox                 */
-1726 f954a ed86          	ldy	OFST+0,s
-1727 f954c ec41          	ldd	1,y
-1728 f954e 6cf3000a      	std	[OFST+4,s]
-1729                     ; 703     OS_EXIT_CRITICAL();
-1731 f9552 e685          	ldab	OFST-1,s
-1732 f9554 87            	clra	
-1733 f9555 167527        	jsr	_OS_CPU_SR_Restore
-1735                     ; 704     return (OS_ERR_NONE);
-1737 f9558 c7            	clrb	
-1739 f9559 20b4          	bra	L44
-1751                     	xref	_OS_Sched
-1752                     	xref	_OS_EventWaitListInit
-1753                     	xref	_OS_EventTaskRemove
-1754                     	xref	_OS_EventTaskWait
-1755                     	xref	_OS_EventTaskRdy
-1756                     	xdef	_OSMboxQuery
-1757                     	xdef	_OSMboxPostOpt
-1758                     	xdef	_OSMboxPost
-1759                     	xdef	_OSMboxPendAbort
-1760                     	xdef	_OSMboxPend
-1761                     	xdef	_OSMboxDel
-1762                     	xdef	_OSMboxCreate
-1763                     	xdef	_OSMboxAccept
-1764                     	xref	_OSTCBCur
-1765                     	xref	_OSLockNesting
-1766                     	xref	_OSIntNesting
-1767                     	xref	_OSEventFreeList
-1768                     	xref	_OS_CPU_SR_Restore
-1769                     	xref	_OS_CPU_SR_Save
-1770                     .const:	section	.data
-1771 fb70f               L721:
-1772 fb70f 3f00          	dc.b	"?",0
-1793                     	end
+4101                     ; 56 _NEAR void  *OSMboxAccept (OS_EVENT *pevent)
+4101                     ; 57 {
+4102                     	switch	.text
+4103 f92c2               _OSMboxAccept:
+4105 f92c2 3b            	pshd	
+4106 f92c3 1b9d          	leas	-3,s
+4107       00000003      OFST:	set	3
+4110                     ; 60     OS_CPU_SR  cpu_sr = 0u;
+4112                     ; 66     if (pevent == (OS_EVENT *)0) {                        /* Validate 'pevent'                         */
+4114 f92c5 046402        	tbne	d,L5272
+4115                     ; 67         return ((void *)0);
+4118 f92c8 2007          	bra	LC001
+4119 f92ca               L5272:
+4120                     ; 70     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {      /* Validate event block type                 */
+4122 f92ca e6f30003      	ldab	[OFST+0,s]
+4123 f92ce 040105        	dbeq	b,L7272
+4124                     ; 71         return ((void *)0);
+4126 f92d1               LC001:
+4127 f92d1 87            	clra	
+4128 f92d2 c7            	clrb	
+4130 f92d3               L6:
+4132 f92d3 1b85          	leas	5,s
+4133 f92d5 3d            	rts	
+4134 f92d6               L7272:
+4135                     ; 73     OS_ENTER_CRITICAL();
+4137 f92d6 164b4f        	jsr	_OS_CPU_SR_Save
+4139 f92d9 6b80          	stab	OFST-3,s
+4140                     ; 74     pmsg               = pevent->OSEventPtr;
+4142 f92db ed83          	ldy	OFST+0,s
+4143 f92dd 18024181      	movw	1,y,OFST-2,s
+4144                     ; 75     pevent->OSEventPtr = (void *)0;                       /* Clear the mailbox                         */
+4146 f92e1 87            	clra	
+4147 f92e2 c7            	clrb	
+4148 f92e3 6c41          	std	1,y
+4149                     ; 76     OS_EXIT_CRITICAL();
+4151 f92e5 e680          	ldab	OFST-3,s
+4152 f92e7 164b54        	jsr	_OS_CPU_SR_Restore
+4154                     ; 77     return (pmsg);                                        /* Return the message received (or NULL)     */
+4156 f92ea ec81          	ldd	OFST-2,s
+4158 f92ec 20e5          	bra	L6
+4219                     ; 98 _NEAR OS_EVENT  *OSMboxCreate (void *pmsg)
+4219                     ; 99 {
+4220                     	switch	.text
+4221 f92ee               _OSMboxCreate:
+4223 f92ee 3b            	pshd	
+4224 f92ef 1b9d          	leas	-3,s
+4225       00000003      OFST:	set	3
+4228                     ; 102     OS_CPU_SR  cpu_sr = 0u;
+4230                     ; 114     if (OSIntNesting > 0u) {                     /* See if called from ISR ...                         */
+4232 f92f1 f6163c        	ldab	_OSIntNesting
+4233 f92f4 2704          	beq	L1672
+4234                     ; 115         return ((OS_EVENT *)0);                  /* ... can't CREATE from an ISR                       */
+4236 f92f6 87            	clra	
+4237 f92f7 c7            	clrb	
+4239 f92f8 2031          	bra	L21
+4240 f92fa               L1672:
+4241                     ; 117     OS_ENTER_CRITICAL();
+4243 f92fa 164b4f        	jsr	_OS_CPU_SR_Save
+4245 f92fd 6b82          	stab	OFST-1,s
+4246                     ; 118     pevent = OSEventFreeList;                    /* Get next free event control block                  */
+4248 f92ff fd1702        	ldy	_OSEventFreeList
+4249 f9302 6d80          	sty	OFST-3,s
+4250                     ; 119     if (OSEventFreeList != (OS_EVENT *)0) {      /* See if pool of free ECB pool was empty             */
+4252 f9304 2705          	beq	L3672
+4253                     ; 120         OSEventFreeList = (OS_EVENT *)OSEventFreeList->OSEventPtr;
+4255 f9306 1805411702    	movw	1,y,_OSEventFreeList
+4256 f930b               L3672:
+4257                     ; 122     OS_EXIT_CRITICAL();
+4259 f930b 87            	clra	
+4260 f930c 164b54        	jsr	_OS_CPU_SR_Restore
+4262                     ; 123     if (pevent != (OS_EVENT *)0) {
+4264 f930f ed80          	ldy	OFST-3,s
+4265 f9311 2716          	beq	L5672
+4266                     ; 124         pevent->OSEventType    = OS_EVENT_TYPE_MBOX;
+4268 f9313 c601          	ldab	#1
+4269 f9315 6b40          	stab	0,y
+4270                     ; 125         pevent->OSEventCnt     = 0u;
+4272 f9317 87            	clra	
+4273 f9318 c7            	clrb	
+4274 f9319 6c43          	std	3,y
+4275                     ; 126         pevent->OSEventPtr     = pmsg;           /* Deposit message in event control block             */
+4277 f931b 18028341      	movw	OFST+0,s,1,y
+4278                     ; 128         pevent->OSEventName    = (INT8U *)(void *)"?";
+4280 f931f cc7735        	ldd	#L7672
+4281 f9322 6c4e          	std	14,y
+4282                     ; 130         OS_EventWaitListInit(pevent);
+4284 f9324 b764          	tfr	y,d
+4285 f9326 1647a9        	jsr	_OS_EventWaitListInit
+4288 f9329               L5672:
+4289                     ; 134     return (pevent);                             /* Return pointer to event control block              */
+4291 f9329 ec80          	ldd	OFST-3,s
+4293 f932b               L21:
+4295 f932b 1b85          	leas	5,s
+4296 f932d 3d            	rts	
+4384                     ; 179 _NEAR OS_EVENT  *OSMboxDel (OS_EVENT  *pevent,
+4384                     ; 180                            INT8U      opt,
+4384                     ; 181                            INT8U     *perr)
+4384                     ; 182 {
+4385                     	switch	.text
+4386 f932e               _OSMboxDel:
+4388 f932e 3b            	pshd	
+4389 f932f 1b9c          	leas	-4,s
+4390       00000004      OFST:	set	4
+4393                     ; 186     OS_CPU_SR  cpu_sr = 0u;
+4395                     ; 207     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+4397 f9331 046404        	tbne	d,L1403
+4398                     ; 208         *perr = OS_ERR_PEVENT_NULL;
+4400 f9334 c604          	ldab	#4
+4401                     ; 209         return (pevent);
+4404 f9336 2009          	bra	L61
+4405 f9338               L1403:
+4406                     ; 215     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {       /* Validate event block type                */
+4409 f9338 e6f30004      	ldab	[OFST+0,s]
+4410 f933c 04010b        	dbeq	b,L3403
+4411                     ; 216         *perr = OS_ERR_EVENT_TYPE;
+4413 f933f c601          	ldab	#1
+4414                     ; 218         return (pevent);
+4418 f9341               L61:
+4419 f9341 6bf3000a      	stab	[OFST+6,s]
+4420 f9345 ec84          	ldd	OFST+0,s
+4422 f9347 1b86          	leas	6,s
+4423 f9349 3d            	rts	
+4424 f934a               L3403:
+4425                     ; 220     if (OSIntNesting > 0u) {                               /* See if called from ISR ...               */
+4427 f934a f6163c        	ldab	_OSIntNesting
+4428 f934d 2704          	beq	L5403
+4429                     ; 221         *perr = OS_ERR_DEL_ISR;                            /* ... can't DELETE from an ISR             */
+4431 f934f c60f          	ldab	#15
+4432                     ; 223         return (pevent);
+4436 f9351 20ee          	bra	L61
+4437 f9353               L5403:
+4438                     ; 225     OS_ENTER_CRITICAL();
+4440 f9353 164b4f        	jsr	_OS_CPU_SR_Save
+4442 f9356 6b80          	stab	OFST-4,s
+4443                     ; 226     if (pevent->OSEventGrp != 0u) {                        /* See if any tasks waiting on mailbox      */
+4445 f9358 ed84          	ldy	OFST+0,s
+4446 f935a e645          	ldab	5,y
+4447 f935c 2706          	beq	L7403
+4448                     ; 227         tasks_waiting = OS_TRUE;                           /* Yes                                      */
+4450 f935e c601          	ldab	#1
+4451 f9360 6b83          	stab	OFST-1,s
+4453 f9362 2002          	bra	L1503
+4454 f9364               L7403:
+4455                     ; 229         tasks_waiting = OS_FALSE;                          /* No                                       */
+4457 f9364 6983          	clr	OFST-1,s
+4458 f9366               L1503:
+4459                     ; 231     switch (opt) {
+4461 f9366 e689          	ldab	OFST+5,s
+4463 f9368 270d          	beq	L1772
+4464 f936a 040152        	dbeq	b,L5603
+4465                     ; 270         default:
+4465                     ; 271              OS_EXIT_CRITICAL();
+4467 f936d e680          	ldab	OFST-4,s
+4468 f936f 87            	clra	
+4469 f9370 164b54        	jsr	_OS_CPU_SR_Restore
+4471                     ; 272              *perr         = OS_ERR_INVALID_OPT;
+4473 f9373 c607          	ldab	#7
+4474                     ; 273              pevent_return = pevent;
+4476                     ; 274              break;
+4478 f9375 202e          	bra	LC003
+4479 f9377               L1772:
+4480                     ; 232         case OS_DEL_NO_PEND:                               /* Delete mailbox only if no task waiting   */
+4480                     ; 233              if (tasks_waiting == OS_FALSE) {
+4482 f9377 e683          	ldab	OFST-1,s
+4483 f9379 2622          	bne	L7503
+4484                     ; 235                  pevent->OSEventName = (INT8U *)(void *)"?";
+4486 f937b cc7735        	ldd	#L7672
+4487 f937e 6c4e          	std	14,y
+4488                     ; 237                  pevent->OSEventType = OS_EVENT_TYPE_UNUSED;
+4490 f9380 87            	clra	
+4491 f9381 6a40          	staa	0,y
+4492                     ; 238                  pevent->OSEventPtr  = OSEventFreeList;    /* Return Event Control Block to free list  */
+4494 f9383 1801411702    	movw	_OSEventFreeList,1,y
+4495                     ; 239                  pevent->OSEventCnt  = 0u;
+4497 f9388 c7            	clrb	
+4498 f9389 6c43          	std	3,y
+4499                     ; 240                  OSEventFreeList     = pevent;             /* Get next free event control block        */
+4501 f938b 1805841702    	movw	OFST+0,s,_OSEventFreeList
+4502                     ; 241                  OS_EXIT_CRITICAL();
+4504 f9390 e680          	ldab	OFST-4,s
+4505 f9392 164b54        	jsr	_OS_CPU_SR_Restore
+4507                     ; 242                  *perr               = OS_ERR_NONE;
+4509 f9395 87            	clra	
+4510 f9396 6af3000a      	staa	[OFST+6,s]
+4511                     ; 243                  pevent_return       = (OS_EVENT *)0;      /* Mailbox has been deleted                 */
+4513 f939a c7            	clrb	
+4515 f939b 200e          	bra	LC002
+4516 f939d               L7503:
+4517                     ; 245                  OS_EXIT_CRITICAL();
+4519 f939d e680          	ldab	OFST-4,s
+4520 f939f 87            	clra	
+4521 f93a0 164b54        	jsr	_OS_CPU_SR_Restore
+4523                     ; 246                  *perr               = OS_ERR_TASK_WAITING;
+4525 f93a3 c649          	ldab	#73
+4526                     ; 247                  pevent_return       = pevent;
+4528 f93a5               LC003:
+4529 f93a5 6bf3000a      	stab	[OFST+6,s]
+4530 f93a9 ec84          	ldd	OFST+0,s
+4531 f93ab               LC002:
+4532 f93ab 6c81          	std	OFST-3,s
+4533 f93ad 203c          	bra	L5503
+4534 f93af               L3603:
+4535                     ; 253                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_MBOX, OS_STAT_PEND_ABORT);
+4537 f93af cc0002        	ldd	#2
+4538 f93b2 3b            	pshd	
+4539 f93b3 3b            	pshd	
+4540 f93b4 c7            	clrb	
+4541 f93b5 3b            	pshd	
+4542 f93b6 ec8a          	ldd	OFST+6,s
+4543 f93b8 1645fc        	jsr	_OS_EventTaskRdy
+4545 f93bb 1b86          	leas	6,s
+4546 f93bd ed84          	ldy	OFST+0,s
+4547 f93bf               L5603:
+4548                     ; 251         case OS_DEL_ALWAYS:                                /* Always delete the mailbox                */
+4548                     ; 252              while (pevent->OSEventGrp != 0u) {            /* Ready ALL tasks waiting for mailbox      */
+4550 f93bf e645          	ldab	5,y
+4551 f93c1 26ec          	bne	L3603
+4552                     ; 256              pevent->OSEventName    = (INT8U *)(void *)"?";
+4554 f93c3 cc7735        	ldd	#L7672
+4555 f93c6 6c4e          	std	14,y
+4556                     ; 258              pevent->OSEventType    = OS_EVENT_TYPE_UNUSED;
+4558 f93c8 87            	clra	
+4559 f93c9 6a40          	staa	0,y
+4560                     ; 259              pevent->OSEventPtr     = OSEventFreeList;     /* Return Event Control Block to free list  */
+4562 f93cb 1801411702    	movw	_OSEventFreeList,1,y
+4563                     ; 260              pevent->OSEventCnt     = 0u;
+4565 f93d0 c7            	clrb	
+4566 f93d1 6c43          	std	3,y
+4567                     ; 261              OSEventFreeList        = pevent;              /* Get next free event control block        */
+4569 f93d3 1805841702    	movw	OFST+0,s,_OSEventFreeList
+4570                     ; 262              OS_EXIT_CRITICAL();
+4572 f93d8 e680          	ldab	OFST-4,s
+4573 f93da 164b54        	jsr	_OS_CPU_SR_Restore
+4575                     ; 263              if (tasks_waiting == OS_TRUE) {               /* Reschedule only if task(s) were waiting  */
+4577 f93dd e683          	ldab	OFST-1,s
+4578 f93df 042103        	dbne	b,L1703
+4579                     ; 264                  OS_Sched();                               /* Find highest priority task ready to run  */
+4581 f93e2 164933        	jsr	_OS_Sched
+4583 f93e5               L1703:
+4584                     ; 266              *perr         = OS_ERR_NONE;
+4586 f93e5 87            	clra	
+4587 f93e6 6af3000a      	staa	[OFST+6,s]
+4588                     ; 267              pevent_return = (OS_EVENT *)0;                /* Mailbox has been deleted                 */
+4590 f93ea c7            	clrb	
+4591                     ; 268              break;
+4593 f93eb               L5503:
+4594                     ; 279     return (pevent_return);
+4599 f93eb 1b86          	leas	6,s
+4600 f93ed 3d            	rts	
+4679                     ; 317 _NEAR void  *OSMboxPend (OS_EVENT  *pevent,
+4679                     ; 318                         INT32U     timeout,
+4679                     ; 319                         INT8U     *perr)
+4679                     ; 320 {
+4680                     	switch	.text
+4681 f93ee               _OSMboxPend:
+4683 f93ee 3b            	pshd	
+4684 f93ef 1b9d          	leas	-3,s
+4685       00000003      OFST:	set	3
+4688                     ; 323     OS_CPU_SR  cpu_sr = 0u;
+4690                     ; 335     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+4692 f93f1 046404        	tbne	d,L5313
+4693                     ; 336         *perr = OS_ERR_PEVENT_NULL;
+4695 f93f4 c604          	ldab	#4
+4696                     ; 337         return ((void *)0);
+4699 f93f6 2009          	bra	LC004
+4700 f93f8               L5313:
+4701                     ; 343     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {  /* Validate event block type                     */
+4704 f93f8 e6f30003      	ldab	[OFST+0,s]
+4705 f93fc 04010b        	dbeq	b,L7313
+4706                     ; 344         *perr = OS_ERR_EVENT_TYPE;
+4708 f93ff c601          	ldab	#1
+4709                     ; 346         return ((void *)0);
+4712 f9401               LC004:
+4713 f9401 6bf3000b      	stab	[OFST+8,s]
+4714 f9405 87            	clra	
+4715 f9406 c7            	clrb	
+4717 f9407               L22:
+4719 f9407 1b85          	leas	5,s
+4720 f9409 3d            	rts	
+4721 f940a               L7313:
+4722                     ; 348     if (OSIntNesting > 0u) {                          /* See if called from ISR ...                    */
+4724 f940a f6163c        	ldab	_OSIntNesting
+4725 f940d 2704          	beq	L1413
+4726                     ; 349         *perr = OS_ERR_PEND_ISR;                      /* ... can't PEND from an ISR                    */
+4728 f940f c602          	ldab	#2
+4729                     ; 351         return ((void *)0);
+4733 f9411 20ee          	bra	LC004
+4734 f9413               L1413:
+4735                     ; 353     if (OSLockNesting > 0u) {                         /* See if called with scheduler locked ...       */
+4737 f9413 f6163b        	ldab	_OSLockNesting
+4738 f9416 2704          	beq	L3413
+4739                     ; 354         *perr = OS_ERR_PEND_LOCKED;                   /* ... can't PEND when locked                    */
+4741 f9418 c60d          	ldab	#13
+4742                     ; 356         return ((void *)0);
+4746 f941a 20e5          	bra	LC004
+4747 f941c               L3413:
+4748                     ; 358     OS_ENTER_CRITICAL();
+4750 f941c 164b4f        	jsr	_OS_CPU_SR_Save
+4752 f941f 6b82          	stab	OFST-1,s
+4753                     ; 359     pmsg = pevent->OSEventPtr;
+4755 f9421 ed83          	ldy	OFST+0,s
+4756 f9423 ec41          	ldd	1,y
+4757 f9425 6c80          	std	OFST-3,s
+4758                     ; 360     if (pmsg != (void *)0) {                          /* See if there is already a message             */
+4760 f9427 2711          	beq	L5413
+4761                     ; 361         pevent->OSEventPtr = (void *)0;               /* Clear the mailbox                             */
+4763 f9429 87            	clra	
+4764 f942a c7            	clrb	
+4765 f942b 6c41          	std	1,y
+4766                     ; 362         OS_EXIT_CRITICAL();
+4768 f942d e682          	ldab	OFST-1,s
+4769 f942f 164b54        	jsr	_OS_CPU_SR_Restore
+4771                     ; 363         *perr = OS_ERR_NONE;
+4773 f9432 69f3000b      	clr	[OFST+8,s]
+4774                     ; 365         return (pmsg);                                /* Return the message received (or NULL)         */
+4777 f9436 ec80          	ldd	OFST-3,s
+4779 f9438 20cd          	bra	L22
+4780 f943a               L5413:
+4781                     ; 367     OSTCBCur->OSTCBStat     |= OS_STAT_MBOX;          /* Message not available, task will pend         */
+4783 f943a fd1588        	ldy	_OSTCBCur
+4784 f943d 0ce82202      	bset	34,y,2
+4785                     ; 368     OSTCBCur->OSTCBStatPend  = OS_STAT_PEND_OK;
+4787 f9441 69e823        	clr	35,y
+4788                     ; 369     OSTCBCur->OSTCBDly       = timeout;               /* Load timeout in TCB                           */
+4790 f9444 ec89          	ldd	OFST+6,s
+4791 f9446 6ce820        	std	32,y
+4792 f9449 ec87          	ldd	OFST+4,s
+4793 f944b 6ce81e        	std	30,y
+4794                     ; 370     OS_EventTaskWait(pevent);                         /* Suspend task until event or timeout occurs    */
+4796 f944e ec83          	ldd	OFST+0,s
+4797 f9450 164690        	jsr	_OS_EventTaskWait
+4799                     ; 371     OS_EXIT_CRITICAL();
+4801 f9453 e682          	ldab	OFST-1,s
+4802 f9455 87            	clra	
+4803 f9456 164b54        	jsr	_OS_CPU_SR_Restore
+4805                     ; 372     OS_Sched();                                       /* Find next highest priority task ready to run  */
+4807 f9459 164933        	jsr	_OS_Sched
+4809                     ; 373     OS_ENTER_CRITICAL();
+4811 f945c 164b4f        	jsr	_OS_CPU_SR_Save
+4813 f945f 6b82          	stab	OFST-1,s
+4814                     ; 374     switch (OSTCBCur->OSTCBStatPend) {                /* See if we timed-out or aborted                */
+4816 f9461 fd1588        	ldy	_OSTCBCur
+4817 f9464 e6e823        	ldab	35,y
+4819 f9467 2708          	beq	L3703
+4820 f9469 040117        	dbeq	b,L7703
+4821 f946c 04010d        	dbeq	b,L5703
+4822 f946f 2012          	bra	L7703
+4823 f9471               L3703:
+4824                     ; 375         case OS_STAT_PEND_OK:
+4824                     ; 376              pmsg =  OSTCBCur->OSTCBMsg;
+4826 f9471 ece818        	ldd	24,y
+4827 f9474 6c80          	std	OFST-3,s
+4828                     ; 377             *perr =  OS_ERR_NONE;
+4830 f9476 69f3000b      	clr	[OFST+8,s]
+4831                     ; 378              break;
+4833 f947a 201e          	bra	L1513
+4834 f947c               L5703:
+4835                     ; 380         case OS_STAT_PEND_ABORT:
+4835                     ; 381              pmsg = (void *)0;
+4837 f947c 87            	clra	
+4838 f947d 6c80          	std	OFST-3,s
+4839                     ; 382             *perr =  OS_ERR_PEND_ABORT;               /* Indicate that we aborted                      */
+4841 f947f c60e          	ldab	#14
+4842                     ; 383              break;
+4844 f9481 2010          	bra	LC005
+4845 f9483               L7703:
+4846                     ; 385         case OS_STAT_PEND_TO:
+4846                     ; 386         default:
+4846                     ; 387              OS_EventTaskRemove(OSTCBCur, pevent);
+4848 f9483 ec83          	ldd	OFST+0,s
+4849 f9485 3b            	pshd	
+4850 f9486 b764          	tfr	y,d
+4851 f9488 164737        	jsr	_OS_EventTaskRemove
+4853 f948b 1b82          	leas	2,s
+4854                     ; 388              pmsg = (void *)0;
+4856 f948d 87            	clra	
+4857 f948e c7            	clrb	
+4858 f948f 6c80          	std	OFST-3,s
+4859                     ; 389             *perr =  OS_ERR_TIMEOUT;                  /* Indicate that we didn't get event within TO   */
+4861 f9491 c60a          	ldab	#10
+4862 f9493               LC005:
+4863 f9493 6bf3000b      	stab	[OFST+8,s]
+4864                     ; 390              break;
+4866 f9497 fd1588        	ldy	_OSTCBCur
+4867 f949a               L1513:
+4868                     ; 392     OSTCBCur->OSTCBStat          =  OS_STAT_RDY;      /* Set   task  status to ready                   */
+4870 f949a c7            	clrb	
+4871 f949b 6be822        	stab	34,y
+4872                     ; 393     OSTCBCur->OSTCBStatPend      =  OS_STAT_PEND_OK;  /* Clear pend  status                            */
+4874 f949e 87            	clra	
+4875 f949f 6ae823        	staa	35,y
+4876                     ; 394     OSTCBCur->OSTCBEventPtr      = (OS_EVENT  *)0;    /* Clear event pointers                          */
+4878 f94a2 6ce812        	std	18,y
+4879                     ; 396     OSTCBCur->OSTCBEventMultiPtr = (OS_EVENT **)0;
+4881 f94a5 6ce814        	std	20,y
+4882                     ; 397     OSTCBCur->OSTCBEventMultiRdy = (OS_EVENT  *)0;
+4884 f94a8 6ce816        	std	22,y
+4885                     ; 399     OSTCBCur->OSTCBMsg           = (void      *)0;    /* Clear  received message                       */
+4887 f94ab 6ce818        	std	24,y
+4888                     ; 400     OS_EXIT_CRITICAL();
+4890 f94ae e682          	ldab	OFST-1,s
+4891 f94b0 164b54        	jsr	_OS_CPU_SR_Restore
+4893                     ; 403     return (pmsg);                                    /* Return received message                       */
+4896 f94b3 ec80          	ldd	OFST-3,s
+4899 f94b5 1b85          	leas	5,s
+4900 f94b7 3d            	rts	
+4971                     ; 440 _NEAR INT8U  OSMboxPendAbort (OS_EVENT  *pevent,
+4971                     ; 441                              INT8U      opt,
+4971                     ; 442                              INT8U     *perr)
+4971                     ; 443 {
+4972                     	switch	.text
+4973 f94b8               _OSMboxPendAbort:
+4975 f94b8 3b            	pshd	
+4976       00000002      OFST:	set	2
+4979                     ; 446     OS_CPU_SR  cpu_sr = 0u;
+4981                     ; 459     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+4983 f94b9 6cae          	std	2,-s
+4984 f94bb 2604          	bne	L1123
+4985                     ; 460         *perr = OS_ERR_PEVENT_NULL;
+4987 f94bd c604          	ldab	#4
+4988                     ; 461         return (0u);
+4991 f94bf 2009          	bra	LC006
+4992 f94c1               L1123:
+4993                     ; 464     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {       /* Validate event block type                */
+4995 f94c1 e6f30002      	ldab	[OFST+0,s]
+4996 f94c5 04010a        	dbeq	b,L3123
+4997                     ; 465         *perr = OS_ERR_EVENT_TYPE;
+4999 f94c8 c601          	ldab	#1
+5000                     ; 466         return (0u);
+5002 f94ca               LC006:
+5003 f94ca 6bf30008      	stab	[OFST+6,s]
+5004 f94ce c7            	clrb	
+5006 f94cf               L62:
+5008 f94cf 1b84          	leas	4,s
+5009 f94d1 3d            	rts	
+5010 f94d2               L3123:
+5011                     ; 468     OS_ENTER_CRITICAL();
+5013 f94d2 164b4f        	jsr	_OS_CPU_SR_Save
+5015 f94d5 6b81          	stab	OFST-1,s
+5016                     ; 469     if (pevent->OSEventGrp != 0u) {                        /* See if any task waiting on mailbox?      */
+5018 f94d7 ed82          	ldy	OFST+0,s
+5019 f94d9 e745          	tst	5,y
+5020 f94db 2746          	beq	L5123
+5021                     ; 470         nbr_tasks = 0u;
+5023 f94dd 6980          	clr	OFST-2,s
+5024                     ; 471         switch (opt) {
+5026 f94df e687          	ldab	OFST+5,s
+5028 f94e1 271d          	beq	L5513
+5029 f94e3 040114        	dbeq	b,L5223
+5030 f94e6 2018          	bra	L5513
+5031 f94e8               L3223:
+5032                     ; 474                      (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_MBOX, OS_STAT_PEND_ABORT);
+5034 f94e8 cc0002        	ldd	#2
+5035 f94eb 3b            	pshd	
+5036 f94ec 3b            	pshd	
+5037 f94ed c7            	clrb	
+5038 f94ee 3b            	pshd	
+5039 f94ef ec88          	ldd	OFST+6,s
+5040 f94f1 1645fc        	jsr	_OS_EventTaskRdy
+5042 f94f4 1b86          	leas	6,s
+5043                     ; 475                      nbr_tasks++;
+5045 f94f6 6280          	inc	OFST-2,s
+5046 f94f8 ed82          	ldy	OFST+0,s
+5047 f94fa               L5223:
+5048                     ; 472             case OS_PEND_OPT_BROADCAST:                    /* Do we need to abort ALL waiting tasks?   */
+5048                     ; 473                  while (pevent->OSEventGrp != 0u) {        /* Yes, ready ALL tasks waiting on mailbox  */
+5050 f94fa e645          	ldab	5,y
+5051 f94fc 26ea          	bne	L3223
+5052                     ; 477                  break;
+5054 f94fe 2010          	bra	L1223
+5055 f9500               L5513:
+5056                     ; 479             case OS_PEND_OPT_NONE:
+5056                     ; 480             default:                                       /* No,  ready HPT       waiting on mailbox  */
+5056                     ; 481                  (void)OS_EventTaskRdy(pevent, (void *)0, OS_STAT_MBOX, OS_STAT_PEND_ABORT);
+5058 f9500 cc0002        	ldd	#2
+5059 f9503 3b            	pshd	
+5060 f9504 3b            	pshd	
+5061 f9505 c7            	clrb	
+5062 f9506 3b            	pshd	
+5063 f9507 b764          	tfr	y,d
+5064 f9509 1645fc        	jsr	_OS_EventTaskRdy
+5066 f950c 1b86          	leas	6,s
+5067                     ; 482                  nbr_tasks++;
+5069 f950e 6280          	inc	OFST-2,s
+5070                     ; 483                  break;
+5072 f9510               L1223:
+5073                     ; 485         OS_EXIT_CRITICAL();
+5075 f9510 e681          	ldab	OFST-1,s
+5076 f9512 87            	clra	
+5077 f9513 164b54        	jsr	_OS_CPU_SR_Restore
+5079                     ; 486         OS_Sched();                                        /* Find HPT ready to run                    */
+5081 f9516 164933        	jsr	_OS_Sched
+5083                     ; 487         *perr = OS_ERR_PEND_ABORT;
+5085 f9519 c60e          	ldab	#14
+5086 f951b 6bf30008      	stab	[OFST+6,s]
+5087                     ; 488         return (nbr_tasks);
+5089 f951f e680          	ldab	OFST-2,s
+5091 f9521 20ac          	bra	L62
+5092 f9523               L5123:
+5093                     ; 490     OS_EXIT_CRITICAL();
+5095 f9523 87            	clra	
+5096 f9524 164b54        	jsr	_OS_CPU_SR_Restore
+5098                     ; 491     *perr = OS_ERR_NONE;
+5100 f9527 c7            	clrb	
+5101 f9528 6bf30008      	stab	[OFST+6,s]
+5102                     ; 492     return (0u);                                           /* No tasks waiting on mailbox              */
+5105 f952c 20a1          	bra	L62
+5162                     ; 520 _NEAR INT8U  OSMboxPost (OS_EVENT  *pevent,
+5162                     ; 521                         void      *pmsg)
+5162                     ; 522 {
+5163                     	switch	.text
+5164 f952e               _OSMboxPost:
+5166 f952e 3b            	pshd	
+5167 f952f 37            	pshb	
+5168       00000001      OFST:	set	1
+5171                     ; 524     OS_CPU_SR  cpu_sr = 0u;
+5173                     ; 530     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+5175 f9530 046404        	tbne	d,L7523
+5176                     ; 531         return (OS_ERR_PEVENT_NULL);
+5178 f9533 c604          	ldab	#4
+5180 f9535 2006          	bra	L23
+5181 f9537               L7523:
+5182                     ; 533     if (pmsg == (void *)0) {                          /* Make sure we are not posting a NULL pointer   */
+5184 f9537 ec85          	ldd	OFST+4,s
+5185 f9539 2605          	bne	L1623
+5186                     ; 534         return (OS_ERR_POST_NULL_PTR);
+5188 f953b c603          	ldab	#3
+5190 f953d               L23:
+5192 f953d 1b83          	leas	3,s
+5193 f953f 3d            	rts	
+5194 f9540               L1623:
+5195                     ; 540     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {  /* Validate event block type                     */
+5198 f9540 e6f30001      	ldab	[OFST+0,s]
+5199 f9544 040104        	dbeq	b,L3623
+5200                     ; 542         return (OS_ERR_EVENT_TYPE);
+5203 f9547 c601          	ldab	#1
+5205 f9549 20f2          	bra	L23
+5206 f954b               L3623:
+5207                     ; 544     OS_ENTER_CRITICAL();
+5209 f954b 164b4f        	jsr	_OS_CPU_SR_Save
+5211 f954e 6b80          	stab	OFST-1,s
+5212                     ; 545     if (pevent->OSEventGrp != 0u) {                   /* See if any task pending on mailbox            */
+5214 f9550 ed81          	ldy	OFST+0,s
+5215 f9552 e645          	ldab	5,y
+5216 f9554 271b          	beq	L5623
+5217                     ; 547         (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_MBOX, OS_STAT_PEND_OK);
+5219 f9556 87            	clra	
+5220 f9557 c7            	clrb	
+5221 f9558 3b            	pshd	
+5222 f9559 c602          	ldab	#2
+5223 f955b 3b            	pshd	
+5224 f955c ec89          	ldd	OFST+8,s
+5225 f955e 3b            	pshd	
+5226 f955f b764          	tfr	y,d
+5227 f9561 1645fc        	jsr	_OS_EventTaskRdy
+5229 f9564 1b86          	leas	6,s
+5230                     ; 548         OS_EXIT_CRITICAL();
+5232 f9566 e680          	ldab	OFST-1,s
+5233 f9568 87            	clra	
+5234 f9569 164b54        	jsr	_OS_CPU_SR_Restore
+5236                     ; 549         OS_Sched();                                   /* Find highest priority task ready to run       */
+5238 f956c 164933        	jsr	_OS_Sched
+5240                     ; 551         return (OS_ERR_NONE);
+5244 f956f 2017          	bra	LC007
+5245 f9571               L5623:
+5246                     ; 553     if (pevent->OSEventPtr != (void *)0) {            /* Make sure mailbox doesn't already have a msg  */
+5248 f9571 ec41          	ldd	1,y
+5249 f9573 270a          	beq	L7623
+5250                     ; 554         OS_EXIT_CRITICAL();
+5252 f9575 e680          	ldab	OFST-1,s
+5253 f9577 87            	clra	
+5254 f9578 164b54        	jsr	_OS_CPU_SR_Restore
+5256                     ; 556         return (OS_ERR_MBOX_FULL);
+5259 f957b c614          	ldab	#20
+5261 f957d 20be          	bra	L23
+5262 f957f               L7623:
+5263                     ; 558     pevent->OSEventPtr = pmsg;                        /* Place message in mailbox                      */
+5265 f957f 18028541      	movw	OFST+4,s,1,y
+5266                     ; 559     OS_EXIT_CRITICAL();
+5268 f9583 e680          	ldab	OFST-1,s
+5269 f9585 164b54        	jsr	_OS_CPU_SR_Restore
+5271                     ; 561     return (OS_ERR_NONE);
+5274 f9588               LC007:
+5275 f9588 c7            	clrb	
+5277 f9589 20b2          	bra	L23
+5341                     ; 599 _NEAR INT8U  OSMboxPostOpt (OS_EVENT  *pevent,
+5341                     ; 600                            void      *pmsg,
+5341                     ; 601                            INT8U      opt)
+5341                     ; 602 {
+5342                     	switch	.text
+5343 f958b               _OSMboxPostOpt:
+5345 f958b 3b            	pshd	
+5346 f958c 37            	pshb	
+5347       00000001      OFST:	set	1
+5350                     ; 604     OS_CPU_SR  cpu_sr = 0u;
+5352                     ; 610     if (pevent == (OS_EVENT *)0) {                    /* Validate 'pevent'                             */
+5354 f958d 046404        	tbne	d,L1233
+5355                     ; 611         return (OS_ERR_PEVENT_NULL);
+5357 f9590 c604          	ldab	#4
+5359 f9592 2006          	bra	L63
+5360 f9594               L1233:
+5361                     ; 613     if (pmsg == (void *)0) {                          /* Make sure we are not posting a NULL pointer   */
+5363 f9594 ec85          	ldd	OFST+4,s
+5364 f9596 2605          	bne	L3233
+5365                     ; 614         return (OS_ERR_POST_NULL_PTR);
+5367 f9598 c603          	ldab	#3
+5369 f959a               L63:
+5371 f959a 1b83          	leas	3,s
+5372 f959c 3d            	rts	
+5373 f959d               L3233:
+5374                     ; 620     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {  /* Validate event block type                     */
+5377 f959d e6f30001      	ldab	[OFST+0,s]
+5378 f95a1 040104        	dbeq	b,L5233
+5379                     ; 622         return (OS_ERR_EVENT_TYPE);
+5382 f95a4 c601          	ldab	#1
+5384 f95a6 20f2          	bra	L63
+5385 f95a8               L5233:
+5386                     ; 624     OS_ENTER_CRITICAL();
+5388 f95a8 164b4f        	jsr	_OS_CPU_SR_Save
+5390 f95ab 6b80          	stab	OFST-1,s
+5391                     ; 625     if (pevent->OSEventGrp != 0u) {                   /* See if any task pending on mailbox            */
+5393 f95ad ed81          	ldy	OFST+0,s
+5394 f95af e645          	ldab	5,y
+5395 f95b1 273e          	beq	L7233
+5396                     ; 626         if ((opt & OS_POST_OPT_BROADCAST) != 0x00u) { /* Do we need to post msg to ALL waiting tasks ? */
+5398 f95b3 0f88011a      	brclr	OFST+7,s,1,L1333
+5400 f95b7 2014          	bra	L5333
+5401 f95b9               L3333:
+5402                     ; 628                 (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_MBOX, OS_STAT_PEND_OK);
+5404 f95b9 87            	clra	
+5405 f95ba c7            	clrb	
+5406 f95bb 3b            	pshd	
+5407 f95bc c602          	ldab	#2
+5408 f95be 3b            	pshd	
+5409 f95bf ec89          	ldd	OFST+8,s
+5410 f95c1 3b            	pshd	
+5411 f95c2 ec87          	ldd	OFST+6,s
+5412 f95c4 1645fc        	jsr	_OS_EventTaskRdy
+5414 f95c7 1b86          	leas	6,s
+5415 f95c9 ed81          	ldy	OFST+0,s
+5416 f95cb e645          	ldab	5,y
+5417 f95cd               L5333:
+5418                     ; 627             while (pevent->OSEventGrp != 0u) {        /* Yes, Post to ALL tasks waiting on mailbox     */
+5420 f95cd 26ea          	bne	L3333
+5422 f95cf 2010          	bra	L1433
+5423 f95d1               L1333:
+5424                     ; 631             (void)OS_EventTaskRdy(pevent, pmsg, OS_STAT_MBOX, OS_STAT_PEND_OK);
+5426 f95d1 87            	clra	
+5427 f95d2 c7            	clrb	
+5428 f95d3 3b            	pshd	
+5429 f95d4 c602          	ldab	#2
+5430 f95d6 3b            	pshd	
+5431 f95d7 ec89          	ldd	OFST+8,s
+5432 f95d9 3b            	pshd	
+5433 f95da b764          	tfr	y,d
+5434 f95dc 1645fc        	jsr	_OS_EventTaskRdy
+5436 f95df 1b86          	leas	6,s
+5437 f95e1               L1433:
+5438                     ; 633         OS_EXIT_CRITICAL();
+5440 f95e1 e680          	ldab	OFST-1,s
+5441 f95e3 87            	clra	
+5442 f95e4 164b54        	jsr	_OS_CPU_SR_Restore
+5444                     ; 634         if ((opt & OS_POST_OPT_NO_SCHED) == 0u) {     /* See if scheduler needs to be invoked          */
+5446 f95e7 0e880403      	brset	OFST+7,s,4,L3433
+5447                     ; 635             OS_Sched();                               /* Find HPT ready to run                         */
+5449 f95eb 164933        	jsr	_OS_Sched
+5451 f95ee               L3433:
+5452                     ; 638         return (OS_ERR_NONE);
+5455 f95ee c7            	clrb	
+5457 f95ef 20a9          	bra	L63
+5458 f95f1               L7233:
+5459                     ; 640     if (pevent->OSEventPtr != (void *)0) {            /* Make sure mailbox doesn't already have a msg  */
+5461 f95f1 ec41          	ldd	1,y
+5462 f95f3 270a          	beq	L5433
+5463                     ; 641         OS_EXIT_CRITICAL();
+5465 f95f5 e680          	ldab	OFST-1,s
+5466 f95f7 87            	clra	
+5467 f95f8 164b54        	jsr	_OS_CPU_SR_Restore
+5469                     ; 643         return (OS_ERR_MBOX_FULL);
+5472 f95fb c614          	ldab	#20
+5474 f95fd 200a          	bra	L04
+5475 f95ff               L5433:
+5476                     ; 645     pevent->OSEventPtr = pmsg;                        /* Place message in mailbox                      */
+5478 f95ff 18028541      	movw	OFST+4,s,1,y
+5479                     ; 646     OS_EXIT_CRITICAL();
+5481 f9603 e680          	ldab	OFST-1,s
+5482 f9605 164b54        	jsr	_OS_CPU_SR_Restore
+5484                     ; 648     return (OS_ERR_NONE);
+5487 f9608 c7            	clrb	
+5489 f9609               L04:
+5491 f9609 1b83          	leas	3,s
+5492 f960b 3d            	rts	
+5610                     ; 672 _NEAR INT8U  OSMboxQuery (OS_EVENT      *pevent,
+5610                     ; 673                          OS_MBOX_DATA  *p_mbox_data)
+5610                     ; 674 {
+5611                     	switch	.text
+5612 f960c               _OSMboxQuery:
+5614 f960c 3b            	pshd	
+5615 f960d 1b9a          	leas	-6,s
+5616       00000006      OFST:	set	6
+5619                     ; 679     OS_CPU_SR   cpu_sr = 0u;
+5621                     ; 685     if (pevent == (OS_EVENT *)0) {                         /* Validate 'pevent'                        */
+5623 f960f 046404        	tbne	d,L7243
+5624                     ; 686         return (OS_ERR_PEVENT_NULL);
+5626 f9612 c604          	ldab	#4
+5628 f9614 2006          	bra	L44
+5629 f9616               L7243:
+5630                     ; 688     if (p_mbox_data == (OS_MBOX_DATA *)0) {                /* Validate 'p_mbox_data'                   */
+5632 f9616 ec8a          	ldd	OFST+4,s
+5633 f9618 2605          	bne	L1343
+5634                     ; 689         return (OS_ERR_PDATA_NULL);
+5636 f961a c609          	ldab	#9
+5638 f961c               L44:
+5640 f961c 1b88          	leas	8,s
+5641 f961e 3d            	rts	
+5642 f961f               L1343:
+5643                     ; 692     if (pevent->OSEventType != OS_EVENT_TYPE_MBOX) {       /* Validate event block type                */
+5645 f961f e6f30006      	ldab	[OFST+0,s]
+5646 f9623 040104        	dbeq	b,L3343
+5647                     ; 693         return (OS_ERR_EVENT_TYPE);
+5649 f9626 c601          	ldab	#1
+5651 f9628 20f2          	bra	L44
+5652 f962a               L3343:
+5653                     ; 695     OS_ENTER_CRITICAL();
+5655 f962a 164b4f        	jsr	_OS_CPU_SR_Save
+5657 f962d 6b85          	stab	OFST-1,s
+5658                     ; 696     p_mbox_data->OSEventGrp = pevent->OSEventGrp;          /* Copy message mailbox wait list           */
+5660 f962f ed8a          	ldy	OFST+4,s
+5661 f9631 ee86          	ldx	OFST+0,s
+5662 f9633 180a054a      	movb	5,x,10,y
+5663                     ; 697     psrc                    = &pevent->OSEventTbl[0];
+5665 f9637 ed86          	ldy	OFST+0,s
+5666 f9639 1946          	leay	6,y
+5667 f963b 6d81          	sty	OFST-5,s
+5668                     ; 698     pdest                   = &p_mbox_data->OSEventTbl[0];
+5670 f963d ed8a          	ldy	OFST+4,s
+5671 f963f 1942          	leay	2,y
+5672 f9641 6d83          	sty	OFST-3,s
+5673                     ; 699     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
+5675 f9643 6980          	clr	OFST-6,s
+5676 f9645 ee81          	ldx	OFST-5,s
+5677 f9647               L5343:
+5678                     ; 700         *pdest++ = *psrc++;
+5680 f9647 180a3070      	movb	1,x+,1,y+
+5681                     ; 699     for (i = 0u; i < OS_EVENT_TBL_SIZE; i++) {
+5683 f964b 6280          	inc	OFST-6,s
+5686 f964d e680          	ldab	OFST-6,s
+5687 f964f c108          	cmpb	#8
+5688 f9651 25f4          	blo	L5343
+5689 f9653 6e81          	stx	OFST-5,s
+5690 f9655 6d83          	sty	OFST-3,s
+5691                     ; 702     p_mbox_data->OSMsg = pevent->OSEventPtr;               /* Get message from mailbox                 */
+5693 f9657 ed86          	ldy	OFST+0,s
+5694 f9659 ec41          	ldd	1,y
+5695 f965b 6cf3000a      	std	[OFST+4,s]
+5696                     ; 703     OS_EXIT_CRITICAL();
+5698 f965f e685          	ldab	OFST-1,s
+5699 f9661 87            	clra	
+5700 f9662 164b54        	jsr	_OS_CPU_SR_Restore
+5702                     ; 704     return (OS_ERR_NONE);
+5704 f9665 c7            	clrb	
+5706 f9666 20b4          	bra	L44
+5718                     	xref	_OS_Sched
+5719                     	xref	_OS_EventWaitListInit
+5720                     	xref	_OS_EventTaskRemove
+5721                     	xref	_OS_EventTaskWait
+5722                     	xref	_OS_EventTaskRdy
+5723                     	xdef	_OSMboxQuery
+5724                     	xdef	_OSMboxPostOpt
+5725                     	xdef	_OSMboxPost
+5726                     	xdef	_OSMboxPendAbort
+5727                     	xdef	_OSMboxPend
+5728                     	xdef	_OSMboxDel
+5729                     	xdef	_OSMboxCreate
+5730                     	xdef	_OSMboxAccept
+5731                     	xref	_OSTCBCur
+5732                     	xref	_OSLockNesting
+5733                     	xref	_OSIntNesting
+5734                     	xref	_OSEventFreeList
+5735                     	xref	_OS_CPU_SR_Restore
+5736                     	xref	_OS_CPU_SR_Save
+5737                     .const:	section	.data
+5738 fb735               L7672:
+5739 fb735 3f00          	dc.b	"?",0
+5760                     	end

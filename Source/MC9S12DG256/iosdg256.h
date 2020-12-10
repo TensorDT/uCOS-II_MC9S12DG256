@@ -457,4 +457,135 @@ volatile __uchar CAN4IDMR7    _IO(0x29f);  /* CAN4 id mask register 7 */
 volatile __uchar CAN4RXFG[16] _IO(0x2a0);  /* CAN4 receive buffer */
 volatile __uchar CAN4TXFG[16] _IO(0x2b0);  /* CAN4 transmit buffer */
 
+// Modified 04-Nov-2020 to add register bitmasks
+
+// generic bit masks for bits 0-7
+#define BIT_7                 (0x80)  // bit 7 mask
+#define BIT_6                 (0x40)  // bit 6 mask
+#define BIT_5                 (0x20)  // bit 5 mask
+#define BIT_4                 (0x10)  // bit 4 mask
+#define BIT_3                 (0x08)  // bit 3 mask
+#define BIT_2                 (0x04)  // bit 2 mask
+#define BIT_1                 (0x02)  // bit 1 mask
+#define BIT_0                 (0x01)  // bit 0 mask
+
+#define ATDCTL4_SRES8         (0x80)  // 1=8-bit res, 0=10-bit res
+#define ATDCTL4_SMP1          (0x40)
+#define ATDCTL4_SMP0          (0x20)
+#define ATDCTL4_PRS4          (0x10)
+#define ATDCTL4_PRS3          (0x08)
+#define ATDCTL4_PRS2          (0x04)
+#define ATDCTL4_PRS1          (0x02)
+#define ATDCTL4_PRS0          (0x01)
+#define ATDCTL4_SMP_BITS      (ATDCTL4_SMP1 | ATDCTL4_SMP0)
+#define ATDCTL4_PRS_BITS      (ATDCTL4_PRS4 | ATDCTL4_PRS3 |           \
+                               ATDCTL4_PRS2 | ATDCTL4_PRS1 |           \
+                               ATDCTL4_PRS0)
+
+#define TIOS_IOS7             (0x80)  // channel 7 is output compare
+#define TIOS_IOS6             (0x40)  // channel 6 is output compare
+#define TIOS_IOS5             (0x20)  // channel 5 is output compare
+#define TIOS_IOS4             (0x10)  // channel 4 is output compare
+#define TIOS_IOS3             (0x08)  // channel 3 is output compare
+#define TIOS_IOS2             (0x04)  // channel 2 is output compare
+#define TIOS_IOS1             (0x02)  // channel 1 is output compare
+#define TIOS_IOS0             (0x01)  // channel 0 is output compare
+
+#define OC7M_OC7M7            (0x80)  // output port when TIOS_IOS7 set
+#define OC7M_OC7M6            (0x40)  // output port when TIOS_IOS6 set
+#define OC7M_OC7M5            (0x20)  // output port when TIOS_IOS5 set
+#define OC7M_OC7M4            (0x10)  // output port when TIOS_IOS4 set
+#define OC7M_OC7M3            (0x08)  // output port when TIOS_IOS3 set
+#define OC7M_OC7M2            (0x04)  // output port when TIOS_IOS2 set
+#define OC7M_OC7M1            (0x02)  // output port when TIOS_IOS1 set
+#define OC7M_OC7M0            (0x01)  // output port when TIOS_IOS0 set
+
+#define TSCR1_TEN             (0x80)  // timer enable
+#define TSCR1_TSWAI           (0x40)  // timer stops while in wait
+#define TSCR1_TSFRZ           (0x20)  // timer stops while in freeze mode
+#define TSCR1_TFFCA           (0x10)  // timer fast flag clear all
+
+#define TCTL1_OM7             (0x80)  // output mode  timer 7
+#define TCTL1_OL7             (0x40)  // output level timer 7
+#define TCTL1_OM6             (0x20)  // output mode  timer 6
+#define TCTL1_OL6             (0x10)  // output level timer 6
+#define TCTL1_OM5             (0x08)  // output mode  timer 5
+#define TCTL1_OL5             (0x04)  // output level timer 5
+#define TCTL1_OM4             (0x02)  // output mode  timer 4
+#define TCTL1_OL4             (0x01)  // output level timer 4
+
+#define TCTL2_OM3             (0x80)  // output mode  timer 3
+#define TCTL2_OL3             (0x40)  // output level timer 3
+#define TCTL2_OM2             (0x20)  // output mode  timer 2
+#define TCTL2_OL2             (0x10)  // output level timer 2
+#define TCTL2_OM1             (0x08)  // output mode  timer 1
+#define TCTL2_OL1             (0x04)  // output level timer 1
+#define TCTL2_OM0             (0x02)  // output mode  timer 0
+#define TCTL2_OL0             (0x01)  // output level timer 0
+
+#define TIE_C7I               (0x80)  // IC/OC 7 interrupt enable
+#define TIE_C6I               (0x40)  // IC/OC 7 interrupt enable
+#define TIE_C5I               (0x20)  // IC/OC 7 interrupt enable
+#define TIE_C4I               (0x10)  // IC/OC 7 interrupt enable
+#define TIE_C3I               (0x08)  // IC/OC 7 interrupt enable
+#define TIE_C2I               (0x04)  // IC/OC 7 interrupt enable
+#define TIE_C1I               (0x02)  // IC/OC 7 interrupt enable
+#define TIE_C0I               (0x01)  // IC/OC 7 interrupt enable
+
+#define TSCR2_TOI             (0x80)  // timer overflow interrupt enable
+#define TSCR2_TCRE            (0x08)  // timer counter reset enable
+#define TSCR2_PR2             (0x04)  // timer prescale select bit 2
+#define TSCR2_PR1             (0x02)  // timer prescale select bit 1
+#define TSCR2_PR0             (0x01)  // timer prescale select bit 0
+#define TMR_PRESCALE_BITMASK  (TSCR2_PR2 | TSCR2_PR1 | TSCR2_PR0)
+#define TMR_PRESCALE_FCTR_1   (0x0)
+#define TMR_PRESCALE_FCTR_2   (0x1)
+#define TMR_PRESCALE_FCTR_4   (0x2)
+#define TMR_PRESCALE_FCTR_8   (0x3)
+#define TMR_PRESCALE_FCTR_16  (0x4)
+#define TMR_PRESCALE_FCTR_32  (0x5)
+#define TMR_PRESCALE_FCTR_64  (0x6)
+#define TMR_PRESCALE_FCTR_128 (0x7)
+
+#define TFLG1_C7F             (0x80)
+#define TFLG1_C6F             (0x40)
+#define TFLG1_C5F             (0x20)
+#define TFLG1_C4F             (0x10)
+#define TFLG1_C3F             (0x08)
+#define TFLG1_C2F             (0x04)
+#define TFLG1_C1F             (0x02)
+#define TFLG1_C0F             (0x01)
+
+#define SCISCR1_LOOPS         (0x80)
+#define SCISCR1_SCISWAI       (0x40)
+#define SCISCR1_RSRC          (0x20)
+#define SCISCR1_M             (0x10)
+#define SCISCR1_WAKE          (0x08)
+#define SCISCR1_ILT           (0x04)
+#define SCISCR1_PE            (0x02)
+#define SCISCR1_PT            (0x01)
+
+#define SCISCR2_TIE           (0x80)
+#define SCISCR2_TCIE          (0x40)
+#define SCISCR2_RIE           (0x20)
+#define SCISCR2_ILIE          (0x10)
+#define SCISCR2_TE            (0x08)
+#define SCISCR2_RE            (0x04)
+#define SCISCR2_RWU           (0x02)
+#define SCISCR2_SBK           (0x01)
+
+#define ESTAT_CBEIF           (0x80)
+#define ESTAT_CCIF            (0x40)       // read-only
+#define ESTAT_PVIOL           (0x20)
+#define ESTAT_ACCERR          (0x10)
+#define ESTAT_BLANK           (0x40)       // read-only
+
+#define FSTAT_CBEIF           (0x80)
+#define FSTAT_CCIF            (0x40)       // read-only
+#define FSTAT_PVIOL           (0x20)
+#define FSTAT_ACCERR          (0x10)
+#define FSTAT_BLANK           (0x40)       // read-only
+
+#define NUM_FLASH_BYTES_PER_SECTOR  (0x200)
+
 #endif
